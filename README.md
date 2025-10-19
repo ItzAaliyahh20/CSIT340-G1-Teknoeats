@@ -1,204 +1,289 @@
-🍽️ TeknoEats: School Canteen Ordering System
-A modern, full-stack web application designed to streamline the school canteen ordering process. Built with React for a dynamic front-end, Spring Boot for a robust back-end, and MySQL for persistent data management.
+# 🍽 TeknoEats - School Canteen Ordering System
 
-✨ Key Features
-🔐 Secure User Authentication: A robust system for secure user sign-up and login.
+A modern full-stack web application for managing school canteen orders, built with **React**, **Spring Boot**, and **MySQL**.
 
-👥 Role-Based Access Control: Distinct user experiences for Customer, Canteen Personnel, and Admin roles.
+---
 
-🎨 Modern & Responsive UI: A clean, engaging design built with CSS3, featuring smooth animations that work seamlessly on all devices.
+## 📋 Table of Contents
+- Features  
+- Tech Stack  
+- Prerequisites  
+- Installation  
+- Configuration  
+- Running the Application  
+- Project Structure  
+- API Endpoints  
+- Troubleshooting  
+- Development Notes  
+- Security Notes  
+- User Roles  
+- Contributing  
+- Acknowledgments  
 
-🔒 Comprehensive Form Validation: Client-side and server-side validation ensures data integrity.
+---
 
-🛠️ Technology Stack
-Category	Technology	Description
-Frontend	React 18+	Primary UI library
-React Router	Client-side navigation
-Axios	HTTP requests
-Lucide React	Icon library
-CSS3	Styling with gradients and animations
-Backend	Spring Boot 3.5.6	Java framework for application logic
-Spring Security	Authentication and authorization
-Spring Data JPA/Hibernate	ORM for database abstraction
-Maven	Dependency management
-Database	MySQL 8.0+	Relational database storage
+## ✨ Features
+- 🔐 **User Authentication** – Secure signup and login system  
+- 👥 **Role-Based Access** – Customer, Canteen Personnel, and Admin roles  
+- 🎨 **Modern UI** – Clean, responsive design with smooth animations  
+- 🔒 **Form Validation** – Client-side and server-side validation  
+- 📱 **Mobile Responsive** – Works seamlessly on all devices  
 
-Export to Sheets
+---
 
-📦 Prerequisites
-Ensure you have the following software installed before proceeding with the installation:
+## 🛠 Tech Stack
 
-Node.js: v16 or higher (for the React front-end)
+### Frontend
+- React 18+ – UI library  
+- React Router – Client-side routing  
+- Axios – HTTP client  
+- Lucide React – Icon library  
+- CSS3 – Styling with gradients and animations  
 
-Java JDK: 17 or 21 (for the Spring Boot back-end)
+### Backend
+- Spring Boot 3.5.6 – Java framework  
+- Spring Data JPA – Database abstraction  
+- Spring Security – Authentication & authorization  
+- Hibernate – ORM  
+- Maven – Dependency management  
 
-MySQL: 8.0+ (the primary database)
+### Database
+- MySQL 8.0+ – Relational database  
 
-Maven: 3.6+ (for managing Java dependencies)
+---
 
-IDE (Optional): IntelliJ IDEA or VS Code is highly recommended for development.
+## 📦 Prerequisites
+Before you begin, ensure you have the following installed:
 
-🚀 Installation Guide
-1. Clone the Repository
-Open your terminal or command prompt and run the following:
+- [Node.js (v16 or higher)](https://nodejs.org/)  
+- [Java JDK (17 or 21)](https://adoptium.net/)  
+- [MySQL (8.0+)](https://dev.mysql.com/downloads/)  
+- [Maven (3.6+)](https://maven.apache.org/download.cgi)  
+- IntelliJ IDEA or VS Code (optional but recommended)
 
-Bash
+---
 
-git clone https://github.com/ItzAaliyahh20/CSIT340-G1-Teknoeats.git
-cd CSIT340-G1-Teknoeats
-2. Database Setup
-Open MySQL Workbench or your preferred MySQL client and execute these SQL commands:
+## 🚀 Installation
 
-SQL
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/yourusername/teknoeats.git
+cd teknoeats
+```
 
--- Create the main database
+### 2️⃣ Database Setup
+```bash
 CREATE DATABASE teknoeats_db;
 USE teknoeats_db;
 
--- Create a dedicated MySQL user for the application (Recommended)
-CREATE USER 'teknoeats'@'localhost' IDENTIFIED BY 'teknoeats123';
-GRANT ALL PRIVILEGES ON teknoeats_db.* TO 'teknoeats'@'localhost';
-FLUSH PRIVILEGES;
-
--- The 'users' table structure is defined here
--- The remaining tables will be automatically created by Hibernate (JPA)
 CREATE TABLE users (
- id BIGINT AUTO_INCREMENT PRIMARY KEY,
- first_name VARCHAR(50) NOT NULL,
- last_name VARCHAR(50) NOT NULL,
- email VARCHAR(100) UNIQUE NOT NULL,
- phone_number VARCHAR(20),
- password VARCHAR(255) NOT NULL,
- role ENUM('Customer', 'Canteen_Personnel', 'Admin') NOT NULL,
- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(50) NOT NULL,
+  last_name VARCHAR(50) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  phone_number VARCHAR(20),
+  password VARCHAR(255) NOT NULL,
+  role ENUM('Customer','Canteen_Personnel','Admin') NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_email ON users(email);
 CREATE INDEX idx_role ON users(role);
-3. Backend Setup (Spring Boot)
-Navigate to the backend directory and install dependencies. Maven will automatically download all required components.
 
-Bash
+CREATE USER 'teknoeats'@'localhost' IDENTIFIED BY 'teknoeats123';
+GRANT ALL PRIVILEGES ON teknoeats_db.* TO 'teknoeats'@'localhost';
+FLUSH PRIVILEGES;
+```
 
+### 3️⃣ Backend Setup
+```bash
 cd backend
 mvn clean install
-4. Frontend Setup (React)
-Navigate to the frontend directory and install the Node.js dependencies:
+```
 
-Bash
-
-cd ../frontend
+### 4️⃣ Frontend Setup
+```bash
+cd frontend
 npm install
-⚙️ Configuration
-Backend Configuration
-The database and server settings are managed in backend/src/main/resources/application.properties.
+```
+---
 
-Key Settings:
+## ⚙ Configuration
 
-Setting	Value	Notes
-server.port	8080	Default server port
-spring.datasource.username	teknoeats	Must match the user created in Step 2
-spring.datasource.password	teknoeats123	Must match the password created in Step 2
-spring.jpa.hibernate.ddl-auto	update	Allows Hibernate to auto-create/update tables
-spring.web.cors.allowed-origins	http://localhost:3000	Allows the React front-end to connect
+### Backend Configuration
+Edit backend/src/main/resources/application.properties:
+```bash
+server.port=8080
+spring.datasource.url=jdbc:mysql://localhost:3306/teknoeats_db
+spring.datasource.username=teknoeats
+spring.datasource.password=teknoeats123
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-Export to Sheets
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.properties.hibernate.format_sql=true
 
-Note: If you used different credentials during the database setup, you must update the spring.datasource.username and spring.datasource.password fields here.
+spring.web.cors.allowed-origins=http://localhost:3000
+spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
+spring.web.cors.allowed-headers=*
+spring.web.cors.allow-credentials=true
+```
 
-Frontend Configuration
-The API base URL is configured in frontend/src/services/api.js. Change this if you run the backend on a different port than 8080.
-
-JavaScript
-
+### Frontend Configuration
+In frontend/src/services/api.js:
+```bash
 const API_BASE_URL = 'http://localhost:8080/api';
-🏃 Running the Application
-Start Backend
-You can run the backend using an IDE or the command line.
+export default API_BASE_URL;
+```
+---
+## 🏃 Running the Application
+### Start Backend
+Option 1 – IntelliJ IDEA
 
-Option 1: Command Line (Recommended for quick start)
+1. Open backend folder
+2. Wait for Maven to load dependencies
+3. Run BackendApplication.java
 
-Bash
-
+Option 2 – Command Line
+```bash
 cd backend
 mvn spring-boot:run
-The backend API will start at: http://localhost:8080
-
-Option 2: IntelliJ IDEA
-
-Open the backend folder in IntelliJ.
-
-Wait for Maven to finish downloading dependencies.
-
-Locate BackendApplication.java and Right-click → Run 'BackendApplication'.
+```
+Backend runs on: http://localhost:8080
 
 Start Frontend
-Navigate to the frontend directory and start the React development server:
-
-Bash
-
+```bash
 cd frontend
 npm start
-The application will open in your browser at: http://localhost:3000
+```
+Frontend runs on: http://localhost:3000
+---
 
-🔌 API Endpoints (Authentication)
-Endpoint	Method	Function
-/api/auth/signup	POST	Register a new user with a specified role.
-/api/auth/login	POST	Authenticate an existing user.
-
-Export to Sheets
-
-Example: Signup Request Body
-JSON
-
+## 📁 Project Structure
+```bash
+teknoeats/
+├── backend/
+│   ├── src/
+│   │   ├── main/java/com/teknoeats/backend/
+│   │   │   ├── model/
+│   │   │   ├── repository/
+│   │   │   ├── service/
+│   │   │   ├── controller/
+│   │   │   ├── dto/
+│   │   │   ├── config/
+│   │   │   └── BackendApplication.java
+│   │   └── resources/application.properties
+│   └── pom.xml
+│
+├── frontend/
+│   ├── src/
+│   │   ├── services/api.js
+│   │   ├── App.js
+│   │   ├── Login.js
+│   │   ├── Signup.js
+│   │   └── index.js
+│   ├── public/
+│   ├── package.json
+│   └── README.md
+│
+└── README.md
+```
+---
+## 🔌 API Endpoints
+### Authentication
+POST /api/auth/signup
+Registers a new user
+```bash
 {
   "firstName": "John",
   "lastName": "Doe",
   "email": "john@example.com",
   "phoneNumber": "09123456789",
   "password": "password123",
-  "role": "Customer" // Available roles: Customer, Canteen_Personnel, Admin
+  "role": "Customer"
 }
-🐛 Troubleshooting
-Issue	Potential Cause(s)	Solution
-Access denied for user...	Incorrect MySQL credentials in application.properties.	Update spring.datasource.username and password.
-Port 8080 Already in Use	Another application is using the backend port.	Stop the other application or change server.port in application.properties (e.g., to 8081).
-Network Error (Frontend)	Backend is not running or CORS issue.	Ensure backend is running. Check CORS configuration in application.properties.
-npm ERR! code ERESOLVE	Dependency conflict during install.	Run npm install --legacy-peer-deps to force installation.
-Table Doesn't Exist	Hibernate failed to create tables.	Verify spring.jpa.hibernate.ddl-auto=update is set in application.properties.
+```
+### Response
+```bash
+{
+  "message": "Login successful",
+  "userId": 1,
+  "email": "john@example.com",
+  "role": "Customer"
+}
+```
 
-Export to Sheets
+---
+## 🐛 Troubleshooting
+### Backend Issues
+#### MySQL Connection Error
+Access denied for user 'root'@'localhost'
+✔ Fix: Update application.properties with correct credentials.
+#### Port 8080 Already in Use
+✔ Fix: Stop any process using port 8080 or set server.port=8081.
 
-⚠️ Security Notes (Development vs. Production)
-This project is currently configured for a simplified development environment.
+---
+### Frontend Issues
+Cannot Connect to Backend
+✔ Fix:
+- Make sure backend is running on port 8080
+- Check CORS setup
+- Verify API_BASE_URL in api.js
 
-Development Implementation	Recommended Production Solution
-Passwords stored in plain text.	Implement BCrypt password hashing.
-No JWT authentication.	Add JWT token authentication for secure sessions.
-CSRF protection disabled.	Enable CSRF protection.
-HTTP only.	Use HTTPS for secure communication.
-Basic session handling.	Implement proper session management and rate limiting.
+#### npm Install Errors
+```bash
+npm install --legacy-peer-deps
+```
 
-Export to Sheets
+---
+## 📝 Development Notes
+- Create backend models, repositories, services, and controllers for new features.
+- Update frontend services when backend endpoints change.
+- Use Postman or Thunder Client to test APIs.
+- Hibernate auto-updates database schema with ddl-auto=update.
+---
 
-👥 User Roles
-Role	Access Level
-Customer	Browse menu, place new orders, view order history.
-Canteen Personnel	Manage and process incoming orders, update the menu.
-Admin	Full system access, including user and role management.
+## 🔒 Security Notes
+### ⚠ Development Mode:
+- Passwords stored in plain text
+- No JWT or CSRF protection
+### 🔐 For Production:
+- Use BCrypt password hashing
+- Add JWT authentication
+- Enable CSRF protection
+- Use HTTPS and rate limiting
 
-Export to Sheets
+---
+## 👥 User Roles
+- Customer: Browse menu, place orders
+- Canteen Personnel: Manage orders, update menu
+- Admin: Manage users and the entire system
 
-🤝 Contributing
-We welcome contributions! Please follow these steps to contribute:
+---
+## 🤝 Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to your fork
+5. Submit a pull request
 
-Fork the repository.
+---
+## 🙏 Acknowledgments
+- Spring Boot Documentation
+- React Documentation
+- MySQL Documentation
+- Stack Overflow Community
+```bash
 
-Create your feature branch: git checkout -b feature/AmazingFeature
-
-Commit your changes: git commit -m 'Add some AmazingFeature'
-
-Push to the branch: git push origin feature/AmazingFeature
-
-Open a Pull Request.
+---
+✅ You can now:
+1. Copy everything above  
+2. Paste it into your VS Code file named **`README.md`**  
+3. Save, then commit and push:
+   ```bash
+   git add README.md
+   git commit -m "Add detailed README for TeknoEats project"
+   git push origin main
+```
