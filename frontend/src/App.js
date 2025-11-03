@@ -1,15 +1,18 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import SignUp from './Signup';  // Your Sign Up component
-import Login from './Login';    // Your Login component
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import SignUp from './Signup';
+import Login from './Login';
 
 function App() {
   return (
     <Router>
-      {/* Your app's main layout, if needed (e.g., header could go here) */}
       <Routes>
-        <Route path="/signup" element={<SignUp />} />  {/* Default route for Sign Up */}
-        <Route path="/login" element={<Login />} />  {/* Route for Login */}
+        {/* Redirect from root (/) to /login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        {/* Your existing routes */}
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   );
