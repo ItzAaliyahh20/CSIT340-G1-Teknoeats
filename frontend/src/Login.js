@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { NavLink } from 'react-router-dom';  // Imported for dynamic active class
+import { NavLink, useNavigate } from 'react-router-dom'; // ✅ Added useNavigate
 import { authAPI } from './services/api';
 
 export default function Login() {
@@ -12,11 +12,8 @@ export default function Login() {
   });
   const [errors, setErrors] = useState({});
 
-  /**
-   * Handles input change events
-   * @param {Event} e - The event object
-   * @returns {void}
-   */
+  const navigate = useNavigate(); // ✅ Initialize navigation hook
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -31,10 +28,6 @@ export default function Login() {
     }
   };
 
-  /**
-   * Validates the form data
-   * @returns {Object} - An object with error messages
-   */
   const validateForm = () => {
     const newErrors = {};
     if (!formData.username.trim()) {
@@ -48,34 +41,34 @@ export default function Login() {
     return newErrors;
   };
 
-  /**
-   * Handles form submission
-   * @returns {void}
-   */
   const handleSubmit = async () => {
-  const newErrors = validateForm();
-  
-  if (Object.keys(newErrors).length === 0) {
-    try {
-      const response = await authAPI.login({
-        username: formData.username,
-        password: formData.password
-      });
-      
-      console.log('Login success:', response.data); // Debug log
-      alert(`Welcome back, ${response.data.email}!`);
-      localStorage.setItem('user', JSON.stringify(response.data));
-      setFormData({ username: '', password: '', rememberMe: false });
-    } catch (error) {
-      console.error('Login error:', error); // Debug log
-      const errorMsg = error.response?.data || 'Invalid credentials. Please try again.';
-      alert(errorMsg);
+    const newErrors = validateForm();
+    
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        const response = await authAPI.login({
+          username: formData.username,
+          password: formData.password
+        });
+        
+        console.log('Login success:', response.data);
+        alert(`Welcome back, ${response.data.email || formData.username}!`);
+        localStorage.setItem('user', JSON.stringify(response.data));
+        
+        // ✅ Redirect to homepage after successful login
+        navigate('/home');
+
+        setFormData({ username: '', password: '', rememberMe: false });
+      } catch (error) {
+        console.error('Login error:', error);
+        const errorMsg = error.response?.data || 'Invalid credentials. Please try again.';
+        alert(errorMsg);
+      }
+    } else {
+      alert('Please fix the errors in the form.');
+      setErrors(newErrors);
     }
-  } else {
-    alert('Please fix the errors in the form.');
-    setErrors(newErrors);
-  }
-};
+  };
 
   return (
     <div className="app-container">
