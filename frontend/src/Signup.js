@@ -15,6 +15,24 @@ export default function SignUp() {
     agreeTerms: false,
   });
   const [errors, setErrors] = useState({});
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false,
+  });
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
+  const checkPasswordStrength = (password) => {
+    setPasswordStrength({
+      length: password.length >= 6,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+    });
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,6 +55,10 @@ export default function SignUp() {
         formatted = `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6)}`;
       }
       processedValue = formatted;
+    }
+
+    if (name === 'password') {
+      checkPasswordStrength(value);
     }
 
     setFormData(prev => ({
@@ -194,18 +216,47 @@ export default function SignUp() {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
+                      onFocus={() => setPasswordFocused(true)}
+                      onBlur={() => setPasswordFocused(false)}
                       placeholder="Password"
                       className={`input-field ${errors.password ? 'input-error' : ''}`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
+                      onMouseDown={(e) => e.preventDefault()}
                       className="toggle-password"
                     >
                       {showPassword ? <EyeOff className="icon" /> : <Eye className="icon" />}
                     </button>
                   </div>
                   {errors.password && <p className="error-message">{errors.password}</p>}
+                  {/* Password Strength Indicator */}
+                  {passwordFocused && formData.password && (
+                    <div className="password-strength">
+                      <div className="strength-header">Password must include:</div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.length ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.length ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.length ? 'strength-text-valid' : 'strength-text-invalid'}>At least 6 characters</span>
+                      </div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.uppercase ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.uppercase ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.uppercase ? 'strength-text-valid' : 'strength-text-invalid'}>At least one uppercase letter</span>
+                      </div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.lowercase ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.lowercase ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.lowercase ? 'strength-text-valid' : 'strength-text-invalid'}>At least one lowercase letter</span>
+                      </div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.number ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.number ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.number ? 'strength-text-valid' : 'strength-text-invalid'}>At least one number</span>
+                      </div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.special ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.special ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.special ? 'strength-text-valid' : 'strength-text-invalid'}>At least one special character</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="input-group" style={{ flex: 1, minWidth: '200px' }}>
@@ -379,7 +430,7 @@ export default function SignUp() {
         .form-fields {
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 1rem;
         }
 
         .input-group {
@@ -528,6 +579,54 @@ export default function SignUp() {
         .terms-link:hover {
           color: #a16207;
           text-decoration: underline;
+        }
+
+        .password-strength {
+          margin-top: 0.5rem;
+          font-size: 0.875rem;
+          animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .strength-header {
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .strength-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .strength-valid {
+          color: #10b981;
+          font-weight: bold;
+        }
+
+        .strength-invalid {
+          color: #6b7280;
+          font-weight: bold;
+        }
+
+        .strength-text-valid {
+          color: #10b981;
+        }
+
+        .strength-text-invalid {
+          color: #6b7280;
         }
 
         @media (max-width: 640px) {
