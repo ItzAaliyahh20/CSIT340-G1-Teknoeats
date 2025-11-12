@@ -18,9 +18,30 @@ export default function SignUp() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let processedValue = type === 'checkbox' ? checked : value;
+
+    if (name === 'phoneNumber') {
+      // Remove non-digits and limit to 10 digits
+      let cleaned = value.replace(/\D/g, '').slice(0, 10);
+      // Prevent starting with 0
+      if (cleaned.length > 0 && cleaned[0] === '0') {
+        cleaned = cleaned.slice(1);
+      }
+      // Format as XXX XXX XXXX
+      let formatted = '';
+      if (cleaned.length <= 3) {
+        formatted = cleaned;
+      } else if (cleaned.length <= 6) {
+        formatted = `${cleaned.slice(0, 3)} ${cleaned.slice(3)}`;
+      } else {
+        formatted = `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6)}`;
+      }
+      processedValue = formatted;
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: processedValue,
     }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
