@@ -127,7 +127,7 @@ export default function SignUp() {
     <div className="app-container">
       <header className="header">
         <div className="header-content">
-          <h1 className="logo">TeknoEats</h1>
+          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
           <div className="header-buttons">
             <a href="/signup" className="btn-signup">Sign Up</a>
             <a href="/login" className="btn-login">Log In</a>
@@ -290,7 +290,7 @@ export default function SignUp() {
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
-                    className={`input-field ${errors.role ? 'input-error' : ''}`}
+                    className={`input-field select-role ${errors.role ? 'input-error' : ''}`}
                     style={{ color: formData.role ? '#1a202c' : '#9ca3af' }}
                   >
                     <option value="" style={{ color: '#9ca3af' }}>Select your role</option>
@@ -342,6 +342,7 @@ export default function SignUp() {
           background: linear-gradient(to right, #facc15, #eab308);
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
           padding: 1rem 0;
+          height: 80px;
         }
 
         .header-content {
@@ -354,9 +355,8 @@ export default function SignUp() {
         }
 
         .logo {
-          font-size: 1.875rem;
-          font-weight: bold;
-          color: #7f1d1d;
+          height: auto;
+          width: 180px;
           margin: 0;
         }
 
@@ -464,7 +464,28 @@ export default function SignUp() {
           outline: none;
           box-sizing: border-box;
           background-color: white;
+        }
+
+        .input-field[type="text"], .input-field[type="email"], .input-field[type="tel"], .input-field[type="password"] {
+          cursor: text;
+        }
+
+        .input-field[type="password"] {
+          padding-right: 3rem;
+        }
+
+        .input-field[type="password"] + .toggle-password {
+          right: 1rem;
+        }
+
+        .input-field.select-role {
+          padding: 0.875rem 2.5rem 0.875rem 3rem;
           cursor: pointer;
+          appearance: none;
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: right 0.75rem center;
+          background-size: 1rem;
         }
 
         .input-field:focus {

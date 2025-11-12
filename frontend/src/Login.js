@@ -75,7 +75,7 @@ export default function Login() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <h1 className="logo">TeknoEats</h1>
+          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
           <div className="header-buttons">
             <NavLink
               to="/signup"
@@ -184,6 +184,7 @@ export default function Login() {
           background: linear-gradient(to right, #facc15, #eab308);
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
           padding: 1rem 0;
+          height: 80px;
         }
 
         .header-content {
@@ -196,9 +197,8 @@ export default function Login() {
         }
 
         .logo {
-          font-size: 1.875rem;
-          font-weight: bold;
-          color: #7f1d1d;
+          height: auto;
+          width: 180px;
           margin: 0;
         }
 
