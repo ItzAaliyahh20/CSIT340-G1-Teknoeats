@@ -291,11 +291,12 @@ export default function SignUp() {
                     value={formData.role}
                     onChange={handleInputChange}
                     className={`input-field ${errors.role ? 'input-error' : ''}`}
+                    style={{ color: formData.role ? '#1a202c' : '#9ca3af' }}
                   >
-                    <option value="">Select your role</option>
-                    <option value="Customer">Customer</option>
-                    <option value="Canteen Personnel">Canteen Personnel</option>
-                    <option value="Admin">Admin</option>
+                    <option value="" style={{ color: '#9ca3af' }}>Select your role</option>
+                    <option value="Customer" style={{ color: '#1a202c' }}>Customer</option>
+                    <option value="Canteen Personnel" style={{ color: '#1a202c' }}>Canteen Personnel</option>
+                    <option value="Admin" style={{ color: '#1a202c' }}>Admin</option>
                   </select>
                 </div>
                 {errors.role && <p className="error-message">{errors.role}</p>}
@@ -462,6 +463,19 @@ export default function SignUp() {
           transition: all 0.2s;
           outline: none;
           box-sizing: border-box;
+          background-color: white;
+          cursor: pointer;
+        }
+
+        .input-field:focus {
+          border-color: #facc15;
+          box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1);
+        }
+
+        .input-field option {
+          padding: 0.5rem;
+          background-color: white;
+          color: #1a202c;
         }
 
         .input-field:focus {
