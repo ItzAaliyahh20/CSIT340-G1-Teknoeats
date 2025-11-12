@@ -66,41 +66,40 @@ export default function SignUp() {
   };
 
   const handleSubmit = async () => {
-  const newErrors = validateForm();
-  
-  if (Object.keys(newErrors).length === 0) {
-    try {
-      const response = await authAPI.signup({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        password: formData.password,
-        role: formData.role
-      });
-      
-      console.log('Success:', response.data); // Debug log
-      alert(`Account created successfully! Welcome ${response.data.email}`);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phoneNumber: '',
-        password: '',
-        confirmPassword: '',
-        role: '',
-        agreeTerms: false,
-      });
-    } catch (error) {
-      console.error('Error:', error); // Debug log
-      const errorMsg = error.response?.data || 'Registration failed. Please try again.';
-      alert(errorMsg);
-    }
-  } else {
-    alert('Please fix the errors in the form.');
-    setErrors(newErrors);
-  }
-};
+   const newErrors = validateForm();
+
+   if (Object.keys(newErrors).length === 0) {
+     try {
+       const response = await authAPI.signup({
+         firstName: formData.firstName,
+         lastName: formData.lastName,
+         email: formData.email,
+         phoneNumber: formData.phoneNumber,
+         password: formData.password,
+         role: formData.role
+       });
+
+       console.log('Success:', response.data); // Debug log
+       alert(`Account created successfully! Welcome ${response.data.email}`);
+       setFormData({
+         firstName: '',
+         lastName: '',
+         email: '',
+         phoneNumber: '',
+         password: '',
+         confirmPassword: '',
+         role: '',
+         agreeTerms: false,
+       });
+     } catch (error) {
+       console.error('Error:', error); // Debug log
+       const errorMsg = error.response?.data || 'Registration failed. Please try again.';
+       alert(errorMsg);
+     }
+   } else {
+     setErrors(newErrors);
+   }
+ };
 
   return (
     <div className="app-container">
