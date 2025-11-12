@@ -42,33 +42,40 @@ export default function Login() {
   };
 
   const handleSubmit = async () => {
-    const newErrors = validateForm();
-    
-    if (Object.keys(newErrors).length === 0) {
-      try {
-        const response = await authAPI.login({
-          username: formData.username,
-          password: formData.password
-        });
-        
-        console.log('Login success:', response.data);
-        alert(`Welcome back, ${response.data.email || formData.username}!`);
-        localStorage.setItem('user', JSON.stringify(response.data));
-        
-        // ✅ Redirect to homepage after successful login
-        navigate('/home');
-
-        setFormData({ username: '', password: '', rememberMe: false });
-      } catch (error) {
-        console.error('Login error:', error);
-        const errorMsg = error.response?.data || 'Invalid credentials. Please try again.';
-        alert(errorMsg);
+  const newErrors = validateForm();
+  if (Object.keys(newErrors).length === 0) {
+    try {
+      const response = await authAPI.login({
+        username: formData.username,
+        password: formData.password
+      });
+      
+      console.log('Login success:', response.data);
+      alert(`Welcome back, ${response.data.email || formData.username}!`);
+      localStorage.setItem('user', JSON.stringify(response.data));
+      
+      // Redirect based on role
+      const userRole = response.data.role;
+      
+      if (userRole === 'Admin') {
+        navigate('/admin/dashboard');
+      } else if (userRole === 'Canteen Personnel') {
+        navigate('/canteen/dashboard');
+      } else {
+        navigate('/home'); // Customer
       }
-    } else {
-      alert('Please fix the errors in the form.');
-      setErrors(newErrors);
+      
+      setFormData({ username: '', password: '', rememberMe: false });
+    } catch (error) {
+      console.error('Login error:', error);
+      const errorMsg = error.response?.data || 'Invalid credentials. Please try again.';
+      alert(errorMsg);
     }
-  };
+  } else {
+    alert('Please fix the errors in the form.');
+    setErrors(newErrors);
+  }
+};
 
   return (
     <div className="app-container">
