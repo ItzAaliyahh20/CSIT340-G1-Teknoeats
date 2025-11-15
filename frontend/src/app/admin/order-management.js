@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Search, Eye, Filter } from 'lucide-react';
 
@@ -11,28 +11,16 @@ export default function OrderManagement() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
-
-  useEffect(() => {
-    filterOrders();
-  }, [orders, searchQuery, statusFilter]);
-
-  const loadOrders = () => {
-    const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    setOrders(savedOrders);
-  };
-
-  const filterOrders = () => {
+  // ------------------------------------
+  // ✔ FIX: Define filterOrders BEFORE useEffect
+  // ------------------------------------
+  const filterOrders = useCallback(() => {
     let filtered = orders;
 
-    // Filter by status
     if (statusFilter !== 'All') {
       filtered = filtered.filter(order => order.status === statusFilter);
     }
 
-    // Filter by search query
     if (searchQuery) {
       filtered = filtered.filter(order =>
         order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -41,7 +29,23 @@ export default function OrderManagement() {
     }
 
     setFilteredOrders(filtered);
+  }, [orders, searchQuery, statusFilter]);
+
+  // ------------------------------------
+
+  const loadOrders = () => {
+    const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+    setOrders(savedOrders);
   };
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  // Now this works — filterOrders exists before this is called
+  useEffect(() => {
+    filterOrders();
+  }, [filterOrders]);
 
   const updateOrderStatus = (orderId, newStatus) => {
     const updatedOrders = orders.map(order =>
@@ -101,10 +105,9 @@ export default function OrderManagement() {
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Search and Filter */}
+        {/* Search + Filter */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
@@ -116,7 +119,6 @@ export default function OrderManagement() {
               />
             </div>
 
-            {/* Status Filter */}
             <div className="flex items-center gap-2">
               <Filter size={20} className="text-gray-600" />
               <select
@@ -162,12 +164,8 @@ export default function OrderManagement() {
                           #{order.id.slice(-8)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {order.date}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {order.restaurant}
-                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{order.date}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{order.restaurant}</td>
                       <td className="px-6 py-4 text-sm">
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">
                           {order.paymentMethod}
@@ -205,7 +203,7 @@ export default function OrderManagement() {
           )}
         </div>
 
-        {/* Statistics Cards */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
           <div className="bg-white rounded-lg shadow-md p-6">
             <p className="text-sm text-gray-600 mb-1">Pending Orders</p>
@@ -234,7 +232,7 @@ export default function OrderManagement() {
         </div>
       </div>
 
-      {/* Order Details Modal */}
+      {/* Modal */}
       {showDetailsModal && selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -294,7 +292,9 @@ export default function OrderManagement() {
                           <p className="text-sm text-gray-600">x{item.quantity}</p>
                         </div>
                       </div>
-                      <p className="font-bold text-red-600">₱{(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-bold text-red-600">
+                        ₱{(item.price * item.quantity).toFixed(2)}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -304,7 +304,9 @@ export default function OrderManagement() {
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center">
                   <p className="text-xl font-bold">Total Amount</p>
-                  <p className="text-2xl font-bold text-[#8B3A3A]">₱{selectedOrder.total?.toFixed(2) || '0.00'}</p>
+                  <p className="text-2xl font-bold text-[#8B3A3A]">
+                    ₱{selectedOrder.total?.toFixed(2) || '0.00'}
+                  </p>
                 </div>
               </div>
 
@@ -322,6 +324,7 @@ export default function OrderManagement() {
                   <option value="delivered">Delivered</option>
                 </select>
               </div>
+
             </div>
           </div>
         </div>
