@@ -25,17 +25,49 @@ import OrderQueue from './app/canteen/order-queue';
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   
-  if (!user.role) {
+  console.log('🔐 ProtectedRoute Check:', {
+    userEmail: user.email,
+    userRole: user.role,
+    allowedRoles: allowedRoles
+  });
+  
+  if (!user.role && !user.email) {
+    console.log('❌ No user found, redirecting to login');
     return <Navigate to="/login" replace />;
   }
   
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
+  if (!user.role) {
+    console.log('❌ User has no role, redirecting to login');
+    return <Navigate to="/login" replace />;
   }
   
+  if (allowedRoles) {
+    // Normalize role - handle both "Canteen Personnel" and "Canteen_Personnel"
+    const normalizedUserRole = user.role.replace(/_/g, ' ');
+    const normalizedAllowedRoles = allowedRoles.map(role => role.replace(/_/g, ' '));
+    
+    // Check if user's role matches any allowed role (with or without underscore)
+    const hasAccess = allowedRoles.includes(user.role) || 
+                     normalizedAllowedRoles.includes(normalizedUserRole) ||
+                     allowedRoles.includes(normalizedUserRole);
+    
+    console.log('Role check:', {
+      userRole: user.role,
+      normalizedUserRole,
+      allowedRoles,
+      normalizedAllowedRoles,
+      hasAccess
+    });
+    
+    if (!hasAccess) {
+      console.log('❌ User role not allowed');
+      return <Navigate to="/unauthorized" replace />;
+    }
+  }
+  
+  console.log('✅ Access granted');
   return children;
 };
-
 function App() {
   return (
     <Router>

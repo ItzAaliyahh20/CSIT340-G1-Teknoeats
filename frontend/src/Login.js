@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { NavLink, useNavigate } from 'react-router-dom'; // ✅ Added useNavigate
+import { NavLink, useNavigate } from 'react-router-dom';
 import { authAPI } from './services/api';
 
 export default function Login() {
@@ -11,8 +11,7 @@ export default function Login() {
     rememberMe: false
   });
   const [errors, setErrors] = useState({});
-
-  const navigate = useNavigate(); // ✅ Initialize navigation hook
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -21,10 +20,7 @@ export default function Login() {
       [name]: type === 'checkbox' ? checked : value
     }));
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -42,40 +38,113 @@ export default function Login() {
   };
 
   const handleSubmit = async () => {
-  const newErrors = validateForm();
-  if (Object.keys(newErrors).length === 0) {
-    try {
-      const response = await authAPI.login({
-        username: formData.username,
-        password: formData.password
-      });
-      
-      console.log('Login success:', response.data);
-      alert(`Welcome back, ${response.data.email || formData.username}!`);
-      localStorage.setItem('user', JSON.stringify(response.data));
-      
-      // Redirect based on role
-      const userRole = response.data.role;
-      
-      if (userRole === 'Admin') {
-        navigate('/admin/dashboard');
-      } else if (userRole === 'Canteen Personnel') {
-        navigate('/canteen/dashboard');
-      } else {
-        navigate('/home'); // Customer
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length === 0) {
+      try {
+    const response = await authAPI.login({
+      username: formData.username,
+      password: formData.password
+    });
+
+    console.log('Login response:', response.data);
+    let userData = response.data;
+        // Get user data from response
+
+
+        // Strategy 1: Check if backend returned the role
+        // if (!userData.role) {
+        //   console.log('No role in response, checking localStorage users...');
+
+        //   // Strategy 2: Find user in localStorage users array
+        //   const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        //   const foundUser = existingUsers.find(u =>
+        //     u.email === formData.username ||
+        //     u.email === userData.email ||
+        //     (u.firstName + ' ' + u.lastName).toLowerCase() === formData.username.toLowerCase()
+        //   );
+
+        //   if (foundUser && foundUser.role) {
+        //     console.log('Found user in localStorage with role:', foundUser.role);
+        //     userData = { ...userData, ...foundUser };
+        //   } else {
+        //     console.log('User not found in localStorage users');
+        //   }
+        // }
+
+        // // Strategy 3: If still no role, check if this email was just registered
+        // if (!userData.role) {
+        //   console.log('Still no role, checking recent signup...');
+        //   const recentSignup = localStorage.getItem('recentSignup');
+        //   if (recentSignup) {
+        //     const signupData = JSON.parse(recentSignup);
+        //     if (signupData.email === formData.username || signupData.email === userData.email) {
+        //       console.log('Found recent signup with role:', signupData.role);
+        //       userData = { ...userData, ...signupData };
+        //       localStorage.removeItem('recentSignup'); // Clean up
+        //     }
+        //   }
+        // }
+
+        // // Final check: Do we have a role?
+        // if (!userData.role) {
+        //   console.error('❌ No role found after all strategies!');
+        //   alert('Warning: No role found for this account. Please contact admin or sign up again.');
+          
+        //   // Show what we have for debugging
+        //   console.log('Available user data:', userData);
+        //   console.log('All users in storage:', JSON.parse(localStorage.getItem('users') || '[]'));
+          
+        //   // Default to Customer as fallback
+        //   userData.role = 'Customer';
+        // }
+
+        // // Save complete user data to localStorage
+        // localStorage.setItem('user', JSON.stringify(userData));
+       // Final check: Do we have a role?
+        if (!userData.role) {
+          console.error('❌ No role found after all strategies!');
+          alert('Warning: No role found for this account. Please contact admin or sign up again.');
+          userData.role = 'Customer';
+        }
+
+        // NORMALIZE ROLE - Remove underscores
+        if (userData.role) {
+          userData.role = userData.role.replace(/_/g, ' ');
+          console.log('✅ Normalized role:', userData.role);
+        }
+
+        // Save complete user data to localStorage
+        localStorage.setItem('user', JSON.stringify(userData));
+        console.log('✅ User saved to localStorage:', userData);
+
+        alert(`Welcome back, ${userData.firstName || userData.email || formData.username}!`);
+
+        // Redirect based on role
+        const userRole = userData.role;
+        console.log('Redirecting user with role:', userRole);
+
+        if (userRole === 'Admin') {
+          navigate('/admin/dashboard');
+        } else if (userRole === 'Canteen Personnel') {
+          navigate('/canteen/dashboard');
+        } else if (userRole === 'Customer') {
+          navigate('/home');
+        } else {
+          console.error('Unknown role:', userRole);
+          navigate('/home');
+        }
+
+        setFormData({ username: '', password: '', rememberMe: false });
+      } catch (error) {
+        console.error('Login error:', error);
+        const errorMsg = error.response?.data?.message || error.response?.data || 'Invalid credentials. Please try again.';
+        alert(errorMsg);
       }
-      
-      setFormData({ username: '', password: '', rememberMe: false });
-    } catch (error) {
-      console.error('Login error:', error);
-      const errorMsg = error.response?.data || 'Invalid credentials. Please try again.';
-      alert(errorMsg);
+    } else {
+      alert('Please fix the errors in the form.');
+      setErrors(newErrors);
     }
-  } else {
-    alert('Please fix the errors in the form.');
-    setErrors(newErrors);
-  }
-};
+  };
 
   return (
     <div className="app-container">
@@ -106,7 +175,7 @@ export default function Login() {
           <div className="card">
             <h2 className="card-title">Welcome Back</h2>
             <p className="card-subtitle">Log in to your TeknoEats account</p>
-            
+
             <div className="form-fields">
               {/* Username Input */}
               <div className="input-group">

@@ -9,7 +9,6 @@ import {
   TrendingUp,
   DollarSign
 } from 'lucide-react';
-
 export default function CanteenDashboard() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
