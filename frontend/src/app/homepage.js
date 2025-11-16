@@ -10,24 +10,24 @@ const CATEGORIES = ["Meals", "Foods", "Snacks", "Beverages"]
 
 const PRODUCTS = [
   // MEALS
-  { id: 1, name: "Chicken Meal", price: 95, category: "Meals", image: "/chicken-meal.jpg" },
-  { id: 2, name: "Fish Meal", price: 85, category: "Meals", image: "/fish-meal.jpg" },
-  { id: 3, name: "Beef Steak Meal", price: 120, category: "Meals", image: "/beef-steak-meal.jpg" },
-  { id: 4, name: "Pork Combo Meal", price: 105, category: "Meals", image: "/pork-combo.jpg" },
-  { id: 5, name: "Vegetarian Meal", price: 75, category: "Meals", image: "/colorful-vegetarian-meal.png" },
-  { id: 6, name: "Seafood Platter", price: 130, category: "Meals", image: "/seafood-platter.png" },
-  { id: 7, name: "Mixed Grill Meal", price: 125, category: "Meals", image: "/mixed-grill.png" },
-  { id: 8, name: "Pasta Carbonara Meal", price: 90, category: "Meals", image: "/pasta-carbonara.png" },
+  { id: 1, name: "Canteen Special", price: 130, category: "Meals", image: "/meals/canteenSpecial.png" },
+  { id: 2, name: "Tapa", price: 85, category: "Meals", image: "/meals/tapa.png" },
+  { id: 3, name: "Lechon Kawali", price: 120, category: "Meals", image: "/meals/lechonKawali.png" },
+  { id: 4, name: "Longganisa", price: 95, category: "Meals", image: "/meals/longganisa.png" },
+  { id: 5, name: "Tocino", price: 100, category: "Meals", image: "/meals/tocino.png" },
+  { id: 6, name: "Corned Beef", price: 95, category: "Meals", image: "/meals/cornedBeef.png" },
+  { id: 7, name: "Ham", price: 95, category: "Meals", image: "/meals/ham.png" },
+  { id: 8, name: "Siomai", price: 85, category: "Meals", image: "/meals/siomai.png" },
 
   // FOODS
-  { id: 9, name: "Rice", price: 50, category: "Foods", image: "/bowl-of-steamed-rice.jpg" },
-  { id: 10, name: "Fried Rice", price: 60, category: "Foods", image: "/fried-rice.png" },
-  { id: 11, name: "Panipat Biryani", price: 80, category: "Foods", image: "/flavorful-biryani.jpg" },
-  { id: 12, name: "Sunny Side Up", price: 50, category: "Foods", image: "/assorted-eggs-fried.jpg" },
-  { id: 13, name: "Spaghetti", price: 75, category: "Foods", image: "/classic-spaghetti.jpg" },
-  { id: 14, name: "Chicken Adobo", price: 85, category: "Foods", image: "/chicken-adobo.jpg" },
-  { id: 15, name: "Fried Chicken", price: 90, category: "Foods", image: "/crispy-fried-chicken.png" },
-  { id: 16, name: "Vegetables", price: 40, category: "Foods", image: "/assorted-vegetables.png" },
+  { id: 9, name: "Rice", price: 50, category: "Foods", image: "/food/rice.png" },
+  { id: 10, name: "Fried Rice", price: 60, category: "Foods", image: "/food/friedRice.png" },
+  { id: 11, name: "Pancit Bihon", price: 80, category: "Foods", image: "/food/pancitBihon.png" },
+  { id: 12, name: "Sunny Side Up", price: 50, category: "Foods", image: "/food/sunnySideUp.png" },
+  { id: 13, name: "Spaghetti", price: 75, category: "Foods", image: "/food/spaghetti.png" },
+  { id: 14, name: "Pork Adobo", price: 85, category: "Foods", image: "/food/porkAdobo.png" },
+  { id: 15, name: "Fried Chicken", price: 90, category: "Foods", image: "/food/friedChicken.png" },
+  { id: 16, name: "Baguio Beans", price: 40, category: "Foods", image: "/food/baguioBeans.png" },
 
   // SNACKS
   { id: 17, name: "Hotcake", price: 10, category: "Snacks", image: "/snacks/hotcake.png" },
