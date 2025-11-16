@@ -37,7 +37,7 @@ export default function SignUp() {
       uppercase: /[A-Z]/.test(password),
       lowercase: /[a-z]/.test(password),
       number: /\d/.test(password),
-      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+      special: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?/]/.test(password),
     });
   };
 
@@ -347,7 +347,7 @@ export default function SignUp() {
         <div className="modal-overlay" onClick={() => setShowTermsModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Terms and Conditions</h3>
+              <h3>TERMS AND CONDITIONS</h3>
               <button className="modal-close" onClick={() => setShowTermsModal(false)}>×</button>
             </div>
             <div className="modal-body">
@@ -812,9 +812,10 @@ export default function SignUp() {
 
         .modal-header h3 {
           margin: 0;
-          font-size: 1.5rem;
+          font-size: 1.75rem;
           font-weight: bold;
           color: white;
+          font-family: 'Marykate', sans-serif;
         }
 
         .modal-close {

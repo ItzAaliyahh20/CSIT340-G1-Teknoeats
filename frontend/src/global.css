@@ -8,3 +8,10 @@
 body {
   font-family: 'Geist', sans-serif;
 }
+
+@font-face {
+  font-family: 'Marykate';
+  src: url('./assets/fonts/marykate-regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
