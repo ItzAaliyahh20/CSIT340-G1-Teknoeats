@@ -17,7 +17,7 @@ export default function ProductCard({ product, isFavorite, onAddToCart, onToggle
         <img
           src={product.image || "/placeholder.svg"}
           alt={product.name}
-          className="w-full h-40 object-cover"
+          className="w-full h-40 object-contain"
         />
         <button
           onClick={onToggleFavorite}

@@ -40,14 +40,14 @@ const PRODUCTS = [
   { id: 24, name: "Calamari Rings", price: 85, category: "Snacks", image: "/fried-calamari.png" },
 
   // BEVERAGES
-  { id: 25, name: "Iced Tea", price: 30, category: "Beverages", image: "/refreshing-iced-tea.jpg" },
-  { id: 26, name: "Orange Juice", price: 35, category: "Beverages", image: "/fresh-orange-juice.png" },
-  { id: 27, name: "Coca Cola", price: 25, category: "Beverages", image: "/cola-drink-bottle.jpg" },
-  { id: 28, name: "Sprite", price: 25, category: "Beverages", image: "/sprite-lemon-drink.jpg" },
-  { id: 29, name: "Mango Shake", price: 50, category: "Beverages", image: "/placeholder.svg?height=200&width=200" },
-  { id: 30, name: "Strawberry Lemonade", price: 45, category: "Beverages", image: "/placeholder.svg?height=200&width=200" },
-  { id: 31, name: "Iced Coffee", price: 40, category: "Beverages", image: "/placeholder.svg?height=200&width=200" },
-  { id: 32, name: "Bottled Water", price: 15, category: "Beverages", image: "/placeholder.svg?height=200&width=200" },
+  { id: 25, name: "Iced Tea", price: 30, category: "Beverages", image: "/beverages/icedTea.png" },
+  { id: 26, name: "Orange Juice", price: 35, category: "Beverages", image: "/beverages/orangeJuice.png" },
+  { id: 27, name: "Coca Cola", price: 25, category: "Beverages", image: "/beverages/cola.png" },
+  { id: 28, name: "Sprite", price: 25, category: "Beverages", image: "/beverages/sprite.png" },
+  { id: 29, name: "Mango Shake", price: 50, category: "Beverages", image: "/beverages/mangoShake.png" },
+  { id: 30, name: "Mountain Dew", price: 45, category: "Beverages", image: "/beverages/mountainDew.png" },
+  { id: 31, name: "Coffee", price: 40, category: "Beverages", image: "/beverages/coffee.png" },
+  { id: 32, name: "Bottled Water", price: 15, category: "Beverages", image: "/beverages/bottledWater.png" },
 ]
 
 export default function HomePage() {
