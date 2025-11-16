@@ -30,14 +30,14 @@ const PRODUCTS = [
   { id: 16, name: "Vegetables", price: 40, category: "Foods", image: "/assorted-vegetables.png" },
 
   // SNACKS
-  { id: 17, name: "French Fries", price: 45, category: "Snacks", image: "/golden-french-fries.jpg" },
-  { id: 18, name: "Fried Spring Rolls", price: 55, category: "Snacks", image: "/crispy-spring-rolls.jpg" },
-  { id: 19, name: "Chicken Wings", price: 65, category: "Snacks", image: "/spicy-chicken-wings.png" },
-  { id: 20, name: "Mozzarella Sticks", price: 50, category: "Snacks", image: "/melted-mozzarella-sticks.jpg" },
-  { id: 21, name: "Nachos", price: 70, category: "Snacks", image: "/loaded-nachos.png" },
-  { id: 22, name: "Samosa", price: 35, category: "Snacks", image: "/spiced-samosa.jpg" },
-  { id: 23, name: "Onion Rings", price: 40, category: "Snacks", image: "/crispy-onion-rings.png" },
-  { id: 24, name: "Calamari Rings", price: 85, category: "Snacks", image: "/fried-calamari.png" },
+  { id: 17, name: "Hotcake", price: 10, category: "Snacks", image: "/snacks/hotcake.png" },
+  { id: 18, name: "Mango Float", price: 55, category: "Snacks", image: "/snacks/mangoFloat.png" },
+  { id: 19, name: "Meat Roll", price: 20, category: "Snacks", image: "/snacks/meatRoll.png" },
+  { id: 20, name: "Banana Cue", price: 20, category: "Snacks", image: "/snacks/bananaCue.png" },
+  { id: 21, name: "Nachos", price: 70, category: "Snacks", image: "/snacks/nachos.png" },
+  { id: 22, name: "Bread Loaf", price: 85, category: "Snacks", image: "/snacks/breadLoaf.png" },
+  { id: 23, name: "Kutsinta", price: 15, category: "Snacks", image: "/snacks/kutsinta.png" },
+  { id: 24, name: "Popcorn", price: 40, category: "Snacks", image: "/snacks/popcorn.png" },
 
   // BEVERAGES
   { id: 25, name: "Iced Tea", price: 30, category: "Beverages", image: "/beverages/icedTea.png" },
