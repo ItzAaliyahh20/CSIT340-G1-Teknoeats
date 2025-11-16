@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Eye, EyeOff, User, Lock, Mail, Phone } from 'lucide-react';
 import { authAPI } from './services/api';
 export default function SignUp() {
@@ -23,6 +23,13 @@ export default function SignUp() {
     special: false,
   });
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [isLoginActive, setIsLoginActive] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
+  // Update switch state when component mounts
+  React.useEffect(() => {
+    setIsLoginActive(false);
+  }, []);
 
   const checkPasswordStrength = (password) => {
     setPasswordStrength({
@@ -129,8 +136,11 @@ export default function SignUp() {
         <div className="header-content">
           <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
           <div className="header-buttons">
-            <a href="/signup" className="btn-signup">Sign Up</a>
-            <a href="/login" className="btn-login">Log In</a>
+            <div className="switch-container">
+              <a href="/signup" className="switch-option" onClick={() => setIsLoginActive(false)}>Sign Up</a>
+              <a href="/login" className="switch-option" onClick={() => setIsLoginActive(true)}>Log In</a>
+              <div className={`switch-slider ${isLoginActive ? 'login-active' : 'signup-active'}`}></div>
+            </div>
           </div>
         </div>
       </header>
@@ -313,7 +323,7 @@ export default function SignUp() {
                     className="checkbox-input"
                   />
                   <span className="checkbox-text">
-                    I agree to the <a href="/terms" className="terms-link">Terms and Conditions</a>
+                    I agree to the <span className="terms-link" onClick={() => setShowTermsModal(true)}>Terms and Conditions</span>
                   </span>
                 </label>
                 {errors.agreeTerms && <p className="error-message">{errors.agreeTerms}</p>}
@@ -331,6 +341,72 @@ export default function SignUp() {
           </div>
         </div>
       </main>
+
+      {/* Terms and Conditions Modal */}
+      {showTermsModal && (
+        <div className="modal-overlay" onClick={() => setShowTermsModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Terms and Conditions</h3>
+              <button className="modal-close" onClick={() => setShowTermsModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="terms-content">
+                <p><strong>Effective Date:</strong> November 17, 2025</p>
+                <p>Welcome to TeknoEats, the official canteen ordering application for Cebu Institute of Technology - University (CIT-U). These Terms and Conditions ("Terms") govern your access to and use of the TeknoEats mobile application and related services (collectively, the "Service").</p>
+                <p>By accessing or using the Service, you agree to be bound by these Terms and the policies referenced herein. If you do not agree to these Terms, you may not use the Service.</p>
+
+                <h4>1. User Eligibility and Scope</h4>
+                <p><strong>1.1. Eligibility:</strong> The Service is intended exclusively for current students, faculty, and staff of Cebu Institute of Technology - University (CIT-U). Use of the app requires a valid and verifiable CIT-U identity.</p>
+                <p><strong>1.2. Service Purpose:</strong> The Service is a digital platform that facilitates the ordering and payment for food and beverage items sold by authorized canteens located within the CIT-U campus (the "Vendors").</p>
+                <p><strong>1.3. User Status Requirement:</strong> Use of the Service is strictly limited to individuals with bonafide status (current student, faculty, or staff) within CIT-U. There are no additional age restrictions on access or usage.</p>
+
+                <h4>2. Ordering, Pricing, and Payment</h4>
+                <p><strong>2.1. Order Placement:</strong> You agree that any order placed through TeknoEats constitutes a final commitment to purchase the selected items from the respective Vendor.</p>
+                <p><strong>2.2. Pricing and Availability:</strong> Prices are set by the individual Vendors and are subject to change without prior notice. All orders are subject to the items' availability at the time the Vendor confirms the order. If an item is unavailable, the Vendor will notify you through the Service.</p>
+                <p><strong>2.3. Payment Methods:</strong> TeknoEats supports various payment methods as indicated in the app, which may include cash on pickup (COP) or digital payment options (e.g., integrated e-wallet, credit/debit card, or CIT-U ID-based payment systems, if applicable).</p>
+                <p><strong>2.4. Payment Responsibility:</strong> You are solely responsible for ensuring that all payments are processed correctly. If a digital payment fails, your order may be cancelled automatically by the system or the Vendor.</p>
+
+                <h4>3. Order Fulfilment and Responsibility</h4>
+                <p><strong>3.1. Vendor Responsibility:</strong> The Vendors, not TeknoEats or CIT-U, are solely responsible for the quality, preparation, safety, and hygiene of the food and beverage items ordered. TeknoEats acts only as an intermediary platform.</p>
+                <p><strong>3.2. Pickup:</strong> You are responsible for picking up your order from the designated Vendor location within the time frame specified by the app or the Vendor. Failure to pick up orders (especially for COP payments) may lead to account suspension.</p>
+                <p><strong>3.3. Accuracy:</strong> You must verify that the order received matches your placement details before leaving the pickup counter. Any discrepancies must be reported immediately to the Vendor staff.</p>
+
+                <h4>4. Cancellation and Refunds</h4>
+                <p><strong>4.1. User Cancellation:</strong> You may only cancel an order if the Vendor has not yet started preparing the food. The app will indicate the status of your order. Once preparation has begun, the order cannot be cancelled, and you will be charged the full amount.</p>
+                <p><strong>4.2. Vendor Cancellation:</strong> A Vendor may cancel an order due to circumstances such as item unavailability, technical issues, or canteen closures. If a pre-paid order is cancelled by the Vendor, a full refund will be processed promptly according to the chosen payment method's policy.</p>
+                <p><strong>4.3. Refund Process:</strong> Refunds for pre-paid orders will be processed by the payment provider (e.g., bank, e-wallet) and may take several business days to reflect in your account. TeknoEats is not responsible for refund processing times of third-party payment providers.</p>
+
+                <h4>5. User Conduct and Account Security</h4>
+                <p><strong>5.1. Account Credentials:</strong> You are responsible for maintaining the confidentiality of your TeknoEats account and CIT-U login credentials. You are responsible for all activities that occur under your account.</p>
+                <p><strong>5.2. Prohibited Conduct:</strong> You agree not to use the Service to:</p>
+                <ul>
+                  <li>Place fraudulent, false, or malicious orders.</li>
+                  <li>Engage in any activity that harasses, abuses, or harms any other user, Vendor staff, or CIT-U personnel.</li>
+                  <li>Attempt to disrupt, modify, or interfere with the functionality of the app or the ordering system.</li>
+                </ul>
+                <p><strong>5.3. Account Suspension:</strong> TeknoEats reserves the right, in consultation with the CIT-U Administration, to suspend or terminate your account immediately and without prior notice if you breach these Terms, particularly in cases involving fraud, misuse, or disrespect toward campus staff.</p>
+
+                <h4>6. Intellectual Property</h4>
+                <p><strong>6.1.</strong> All trademarks, logos, service marks, and copyrighted materials displayed on the TeknoEats app, including the "TeknoEats" name and CIT-U marks, are the property of CIT-U or its licensors and may not be used without prior written permission.</p>
+
+                <h4>7. Disclaimers and Limitation of Liability</h4>
+                <p><strong>7.1. "AS IS" Basis:</strong> The Service is provided on an "AS IS" and "AS AVAILABLE" basis. TeknoEats and CIT-U make no warranties, express or implied, regarding the service's continuous operation, accuracy, reliability, or freedom from errors.</p>
+                <p><strong>7.2. Limitation of Liability:</strong> To the maximum extent permitted by law, TeknoEats and CIT-U shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, arising from your use of the Service.</p>
+                <p><strong>7.3. Food Quality:</strong> TeknoEats and CIT-U are not responsible for allergic reactions, food poisoning, or any adverse health effects resulting from food purchased from Vendors through the Service. All food-related concerns must be directed to the responsible Vendor.</p>
+
+                <h4>8. Governing Law and Amendments</h4>
+                <p><strong>8.1. Governing Law:</strong> These Terms shall be governed by and construed in accordance with the laws of the Republic of the Philippines and the rules and regulations of the Cebu Institute of Technology - University.</p>
+                <p><strong>8.2. Amendments:</strong> TeknoEats and CIT-U reserve the right to modify or replace these Terms at any time. We will notify users of material changes via the app or through official CIT-U channels. Your continued use of the Service after any such changes constitutes your acceptance of the new Terms.</p>
+
+                <h4>9. Contact Information</h4>
+                <p>For technical support or questions regarding these Terms, please contact:</p>
+                <p><strong>Email:</strong> francesaaliyah.maturan@cit.edu | trixieann.rentuma@cit.edu | andre.salonga@cit.edu</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .app-container {
@@ -365,35 +441,60 @@ export default function SignUp() {
           gap: 1rem;
         }
 
-        .btn-signup, .btn-login {
-          padding: 0.5rem 1.5rem;
-          border-radius: 9999px;
+        .switch-container {
+          position: relative;
+          display: flex;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 25px;
+          padding: 2px;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          width: 180px;
+        }
+
+        .switch-option {
+          padding: 0.5rem;
+          border-radius: 23px;
           text-decoration: none;
           font-weight: 600;
+          font-size: 15px;
           transition: all 0.3s ease;
-          border: none;
           cursor: pointer;
+          color: #7f1d1d;
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 50%;
         }
 
-        .btn-signup {
+        .switch-option.active {
+          color: #7f1d1d;
+        }
+
+        .switch-option:hover {
+          color: #450a0a;
+        }
+
+        .switch-slider {
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          width: calc(50% - 2px);
+          height: calc(100% - 4px);
           background: white;
-          color: #7f1d1d;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          border-radius: 21px;
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          z-index: 1;
         }
 
-        .btn-login {
-          background: transparent;
-          color: #7f1d1d;
+        .switch-slider.login-active {
+          transform: translateX(100%);
         }
 
-        .btn-signup:hover {
-          background: #f9fafb;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-          transform: translateY(-1px);
-        }
-
-        .btn-login:hover {
-          background: #ca8a04;
+        .switch-slider.signup-active {
+          transform: translateX(0);
         }
 
         .main-content {
@@ -671,6 +772,133 @@ export default function SignUp() {
 
           .card-title {
             font-size: 1.5rem;
+          }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+          background: white;
+          border-radius: 1rem;
+          max-width: 600px;
+          width: 90%;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+          animation: slideIn 0.3s ease-out;
+        }
+
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.5rem;
+          border-bottom: 1px solid #e5e7eb;
+          background-color: #7f1d1d;
+        }
+
+        .modal-header h3 {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: bold;
+          color: white;
+        }
+
+        .modal-close {
+          background: none;
+          border: none;
+          font-size: 2rem;
+          cursor: pointer;
+          color: white;
+          padding: 0;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transition: background-color 0.2s;
+        }
+
+        .modal-close:hover {
+          background-color: rgba(255, 255, 255, 0.2);
+          color: white;
+        }
+
+        .modal-body {
+          padding: 1.5rem;
+        }
+
+        .terms-content h4 {
+          color: #1a202c;
+          font-size: 1.125rem;
+          font-weight: 600;
+          margin-top: 1.5rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .terms-content h4:first-child {
+          margin-top: 0;
+        }
+
+        .terms-content p {
+          color: #4b5563;
+          line-height: 1.6;
+          margin-bottom: 1rem;
+        }
+
+        .terms-content ul {
+          margin-left: 1.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .terms-content li {
+          color: #4b5563;
+          line-height: 1.6;
+          margin-bottom: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @media (max-width: 640px) {
+          .modal-content {
+            width: 95%;
+            max-height: 90vh;
+          }
+
+          .modal-header {
+            padding: 1rem;
+          }
+
+          .modal-body {
+            padding: 1rem;
           }
         }
       `}</style>
