@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './global.css';
-import Layout from "./layout"; 
+import './assets/fonts/marykate-regular.woff';
+import Layout from "./layout";
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

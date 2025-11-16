@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Eye, EyeOff, User, Lock, Mail, Phone } from 'lucide-react';
 import { authAPI } from './services/api';
 
@@ -18,12 +18,62 @@ export default function SignUp() {
     agreeTerms: false,
   });
   const [errors, setErrors] = useState({});
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false,
+  });
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [isLoginActive, setIsLoginActive] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
+  // Update switch state when component mounts
+  React.useEffect(() => {
+    setIsLoginActive(false);
+  }, []);
+
+  const checkPasswordStrength = (password) => {
+    setPasswordStrength({
+      length: password.length >= 6,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?/]/.test(password),
+    });
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let processedValue = type === 'checkbox' ? checked : value;
+
+    if (name === 'phoneNumber') {
+      // Remove non-digits and limit to 10 digits
+      let cleaned = value.replace(/\D/g, '').slice(0, 10);
+      // Prevent starting with 0
+      if (cleaned.length > 0 && cleaned[0] === '0') {
+        cleaned = cleaned.slice(1);
+      }
+      // Format as XXX XXX XXXX
+      let formatted = '';
+      if (cleaned.length <= 3) {
+        formatted = cleaned;
+      } else if (cleaned.length <= 6) {
+        formatted = `${cleaned.slice(0, 3)} ${cleaned.slice(3)}`;
+      } else {
+        formatted = `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6)}`;
+      }
+      processedValue = formatted;
+    }
+
+    if (name === 'password') {
+      checkPasswordStrength(value);
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: processedValue,
     }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -106,10 +156,13 @@ export default function SignUp() {
     <div className="app-container">
       <header className="header">
         <div className="header-content">
-          <h1 className="logo">TeknoEats</h1>
+          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
           <div className="header-buttons">
-            <a href="/signup" className="btn-signup">Sign Up</a>
-            <a href="/login" className="btn-login">Log In</a>
+            <div className="switch-container">
+              <a href="/signup" className="switch-option" onClick={() => setIsLoginActive(false)}>Sign Up</a>
+              <a href="/login" className="switch-option" onClick={() => setIsLoginActive(true)}>Log In</a>
+              <div className={`switch-slider ${isLoginActive ? 'login-active' : 'signup-active'}`}></div>
+            </div>
           </div>
         </div>
       </header>
@@ -195,18 +248,47 @@ export default function SignUp() {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
+                      onFocus={() => setPasswordFocused(true)}
+                      onBlur={() => setPasswordFocused(false)}
                       placeholder="Password"
                       className={`input-field ${errors.password ? 'input-error' : ''}`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
+                      onMouseDown={(e) => e.preventDefault()}
                       className="toggle-password"
                     >
                       {showPassword ? <EyeOff className="icon" /> : <Eye className="icon" />}
                     </button>
                   </div>
                   {errors.password && <p className="error-message">{errors.password}</p>}
+                  {/* Password Strength Indicator */}
+                  {passwordFocused && formData.password && (
+                    <div className="password-strength">
+                      <div className="strength-header">Password must include:</div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.length ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.length ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.length ? 'strength-text-valid' : 'strength-text-invalid'}>At least 6 characters</span>
+                      </div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.uppercase ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.uppercase ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.uppercase ? 'strength-text-valid' : 'strength-text-invalid'}>At least one uppercase letter</span>
+                      </div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.lowercase ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.lowercase ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.lowercase ? 'strength-text-valid' : 'strength-text-invalid'}>At least one lowercase letter</span>
+                      </div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.number ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.number ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.number ? 'strength-text-valid' : 'strength-text-invalid'}>At least one number</span>
+                      </div>
+                      <div className="strength-item">
+                        <span className={passwordStrength.special ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.special ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.special ? 'strength-text-valid' : 'strength-text-invalid'}>At least one special character</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="input-group" style={{ flex: 1, minWidth: '200px' }}>
@@ -237,16 +319,17 @@ export default function SignUp() {
                 <div className="input-wrapper">
                   <User className="input-icon" />
                   <select
-                      name="role"
-                      value={formData.role}
-                      onChange={handleInputChange}
-                      className={`input-field ${errors.role ? 'input-error' : ''}`}
-                    >
-                      <option value="">Select your role</option>
-                      <option value="Customer">Customer</option>
-                      <option value="Canteen Personnel">Canteen Personnel</option>
-                      <option value="Admin">Admin</option>
-                    </select>
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    className={`input-field select-role ${errors.role ? 'input-error' : ''}`}
+                    style={{ color: formData.role ? '#1a202c' : '#9ca3af' }}
+                  >
+                    <option value="" style={{ color: '#9ca3af' }}>Select your role</option>
+                    <option value="Customer" style={{ color: '#1a202c' }}>Customer</option>
+                    <option value="Canteen Personnel" style={{ color: '#1a202c' }}>Canteen Personnel</option>
+                    <option value="Admin" style={{ color: '#1a202c' }}>Admin</option>
+                  </select>
                 </div>
                 {errors.role && <p className="error-message">{errors.role}</p>}
               </div>
@@ -262,7 +345,7 @@ export default function SignUp() {
                     className="checkbox-input"
                   />
                   <span className="checkbox-text">
-                    I agree to the <a href="/terms" className="terms-link">Terms and Conditions</a>
+                    I agree to the <span className="terms-link" onClick={() => setShowTermsModal(true)}>Terms and Conditions</span>
                   </span>
                 </label>
                 {errors.agreeTerms && <p className="error-message">{errors.agreeTerms}</p>}
@@ -281,6 +364,72 @@ export default function SignUp() {
         </div>
       </main>
 
+      {/* Terms and Conditions Modal */}
+      {showTermsModal && (
+        <div className="modal-overlay" onClick={() => setShowTermsModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>TERMS AND CONDITIONS</h3>
+              <button className="modal-close" onClick={() => setShowTermsModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="terms-content">
+                <p><strong>Effective Date:</strong> November 17, 2025</p>
+                <p>Welcome to TeknoEats, the official canteen ordering application for Cebu Institute of Technology - University (CIT-U). These Terms and Conditions ("Terms") govern your access to and use of the TeknoEats mobile application and related services (collectively, the "Service").</p>
+                <p>By accessing or using the Service, you agree to be bound by these Terms and the policies referenced herein. If you do not agree to these Terms, you may not use the Service.</p>
+
+                <h4>1. User Eligibility and Scope</h4>
+                <p><strong>1.1. Eligibility:</strong> The Service is intended exclusively for current students, faculty, and staff of Cebu Institute of Technology - University (CIT-U). Use of the app requires a valid and verifiable CIT-U identity.</p>
+                <p><strong>1.2. Service Purpose:</strong> The Service is a digital platform that facilitates the ordering and payment for food and beverage items sold by authorized canteens located within the CIT-U campus (the "Vendors").</p>
+                <p><strong>1.3. User Status Requirement:</strong> Use of the Service is strictly limited to individuals with bonafide status (current student, faculty, or staff) within CIT-U. There are no additional age restrictions on access or usage.</p>
+
+                <h4>2. Ordering, Pricing, and Payment</h4>
+                <p><strong>2.1. Order Placement:</strong> You agree that any order placed through TeknoEats constitutes a final commitment to purchase the selected items from the respective Vendor.</p>
+                <p><strong>2.2. Pricing and Availability:</strong> Prices are set by the individual Vendors and are subject to change without prior notice. All orders are subject to the items' availability at the time the Vendor confirms the order. If an item is unavailable, the Vendor will notify you through the Service.</p>
+                <p><strong>2.3. Payment Methods:</strong> TeknoEats supports various payment methods as indicated in the app, which may include cash on pickup (COP) or digital payment options (e.g., integrated e-wallet, credit/debit card, or CIT-U ID-based payment systems, if applicable).</p>
+                <p><strong>2.4. Payment Responsibility:</strong> You are solely responsible for ensuring that all payments are processed correctly. If a digital payment fails, your order may be cancelled automatically by the system or the Vendor.</p>
+
+                <h4>3. Order Fulfilment and Responsibility</h4>
+                <p><strong>3.1. Vendor Responsibility:</strong> The Vendors, not TeknoEats or CIT-U, are solely responsible for the quality, preparation, safety, and hygiene of the food and beverage items ordered. TeknoEats acts only as an intermediary platform.</p>
+                <p><strong>3.2. Pickup:</strong> You are responsible for picking up your order from the designated Vendor location within the time frame specified by the app or the Vendor. Failure to pick up orders (especially for COP payments) may lead to account suspension.</p>
+                <p><strong>3.3. Accuracy:</strong> You must verify that the order received matches your placement details before leaving the pickup counter. Any discrepancies must be reported immediately to the Vendor staff.</p>
+
+                <h4>4. Cancellation and Refunds</h4>
+                <p><strong>4.1. User Cancellation:</strong> You may only cancel an order if the Vendor has not yet started preparing the food. The app will indicate the status of your order. Once preparation has begun, the order cannot be cancelled, and you will be charged the full amount.</p>
+                <p><strong>4.2. Vendor Cancellation:</strong> A Vendor may cancel an order due to circumstances such as item unavailability, technical issues, or canteen closures. If a pre-paid order is cancelled by the Vendor, a full refund will be processed promptly according to the chosen payment method's policy.</p>
+                <p><strong>4.3. Refund Process:</strong> Refunds for pre-paid orders will be processed by the payment provider (e.g., bank, e-wallet) and may take several business days to reflect in your account. TeknoEats is not responsible for refund processing times of third-party payment providers.</p>
+
+                <h4>5. User Conduct and Account Security</h4>
+                <p><strong>5.1. Account Credentials:</strong> You are responsible for maintaining the confidentiality of your TeknoEats account and CIT-U login credentials. You are responsible for all activities that occur under your account.</p>
+                <p><strong>5.2. Prohibited Conduct:</strong> You agree not to use the Service to:</p>
+                <ul>
+                  <li>Place fraudulent, false, or malicious orders.</li>
+                  <li>Engage in any activity that harasses, abuses, or harms any other user, Vendor staff, or CIT-U personnel.</li>
+                  <li>Attempt to disrupt, modify, or interfere with the functionality of the app or the ordering system.</li>
+                </ul>
+                <p><strong>5.3. Account Suspension:</strong> TeknoEats reserves the right, in consultation with the CIT-U Administration, to suspend or terminate your account immediately and without prior notice if you breach these Terms, particularly in cases involving fraud, misuse, or disrespect toward campus staff.</p>
+
+                <h4>6. Intellectual Property</h4>
+                <p><strong>6.1.</strong> All trademarks, logos, service marks, and copyrighted materials displayed on the TeknoEats app, including the "TeknoEats" name and CIT-U marks, are the property of CIT-U or its licensors and may not be used without prior written permission.</p>
+
+                <h4>7. Disclaimers and Limitation of Liability</h4>
+                <p><strong>7.1. "AS IS" Basis:</strong> The Service is provided on an "AS IS" and "AS AVAILABLE" basis. TeknoEats and CIT-U make no warranties, express or implied, regarding the service's continuous operation, accuracy, reliability, or freedom from errors.</p>
+                <p><strong>7.2. Limitation of Liability:</strong> To the maximum extent permitted by law, TeknoEats and CIT-U shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, arising from your use of the Service.</p>
+                <p><strong>7.3. Food Quality:</strong> TeknoEats and CIT-U are not responsible for allergic reactions, food poisoning, or any adverse health effects resulting from food purchased from Vendors through the Service. All food-related concerns must be directed to the responsible Vendor.</p>
+
+                <h4>8. Governing Law and Amendments</h4>
+                <p><strong>8.1. Governing Law:</strong> These Terms shall be governed by and construed in accordance with the laws of the Republic of the Philippines and the rules and regulations of the Cebu Institute of Technology - University.</p>
+                <p><strong>8.2. Amendments:</strong> TeknoEats and CIT-U reserve the right to modify or replace these Terms at any time. We will notify users of material changes via the app or through official CIT-U channels. Your continued use of the Service after any such changes constitutes your acceptance of the new Terms.</p>
+
+                <h4>9. Contact Information</h4>
+                <p>For technical support or questions regarding these Terms, please contact:</p>
+                <p><strong>Email:</strong> francesaaliyah.maturan@cit.edu | trixieann.rentuma@cit.edu | andre.salonga@cit.edu</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         .app-container {
           min-height: 100vh;
@@ -291,6 +440,7 @@ export default function SignUp() {
           background: linear-gradient(to right, #facc15, #eab308);
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
           padding: 1rem 0;
+          height: 80px;
         }
 
         .header-content {
@@ -303,9 +453,8 @@ export default function SignUp() {
         }
 
         .logo {
-          font-size: 1.875rem;
-          font-weight: bold;
-          color: #7f1d1d;
+          height: auto;
+          width: 180px;
           margin: 0;
         }
 
@@ -314,35 +463,60 @@ export default function SignUp() {
           gap: 1rem;
         }
 
-        .btn-signup, .btn-login {
-          padding: 0.5rem 1.5rem;
-          border-radius: 9999px;
+        .switch-container {
+          position: relative;
+          display: flex;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 25px;
+          padding: 2px;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          width: 180px;
+        }
+
+        .switch-option {
+          padding: 0.5rem;
+          border-radius: 23px;
           text-decoration: none;
           font-weight: 600;
+          font-size: 15px;
           transition: all 0.3s ease;
-          border: none;
           cursor: pointer;
+          color: #7f1d1d;
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 50%;
         }
 
-        .btn-signup {
+        .switch-option.active {
+          color: #7f1d1d;
+        }
+
+        .switch-option:hover {
+          color: #450a0a;
+        }
+
+        .switch-slider {
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          width: calc(50% - 2px);
+          height: calc(100% - 4px);
           background: white;
-          color: #7f1d1d;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          border-radius: 21px;
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          z-index: 1;
         }
 
-        .btn-login {
-          background: transparent;
-          color: #7f1d1d;
+        .switch-slider.login-active {
+          transform: translateX(100%);
         }
 
-        .btn-signup:hover {
-          background: #f9fafb;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-          transform: translateY(-1px);
-        }
-
-        .btn-login:hover {
-          background: #ca8a04;
+        .switch-slider.signup-active {
+          transform: translateX(0);
         }
 
         .main-content {
@@ -380,7 +554,7 @@ export default function SignUp() {
         .form-fields {
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 1rem;
         }
 
         .input-group {
@@ -412,6 +586,40 @@ export default function SignUp() {
           transition: all 0.2s;
           outline: none;
           box-sizing: border-box;
+          background-color: white;
+        }
+
+        .input-field[type="text"], .input-field[type="email"], .input-field[type="tel"], .input-field[type="password"] {
+          cursor: text;
+        }
+
+        .input-field[type="password"] {
+          padding-right: 3rem;
+        }
+
+        .input-field[type="password"] + .toggle-password {
+          right: 1rem;
+        }
+
+        .input-field.select-role {
+          padding: 0.875rem 2.5rem 0.875rem 3rem;
+          cursor: pointer;
+          appearance: none;
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: right 0.75rem center;
+          background-size: 1rem;
+        }
+
+        .input-field:focus {
+          border-color: #facc15;
+          box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1);
+        }
+
+        .input-field option {
+          padding: 0.5rem;
+          background-color: white;
+          color: #1a202c;
         }
 
         .input-field:focus {
@@ -531,6 +739,54 @@ export default function SignUp() {
           text-decoration: underline;
         }
 
+        .password-strength {
+          margin-top: 0.5rem;
+          font-size: 0.875rem;
+          animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .strength-header {
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .strength-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .strength-valid {
+          color: #10b981;
+          font-weight: bold;
+        }
+
+        .strength-invalid {
+          color: #6b7280;
+          font-weight: bold;
+        }
+
+        .strength-text-valid {
+          color: #10b981;
+        }
+
+        .strength-text-invalid {
+          color: #6b7280;
+        }
+
         @media (max-width: 640px) {
           .card {
             padding: 1.5rem;
@@ -538,6 +794,134 @@ export default function SignUp() {
 
           .card-title {
             font-size: 1.5rem;
+          }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+          background: white;
+          border-radius: 1rem;
+          max-width: 600px;
+          width: 90%;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+          animation: slideIn 0.3s ease-out;
+        }
+
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.5rem;
+          border-bottom: 1px solid #e5e7eb;
+          background-color: #7f1d1d;
+        }
+
+        .modal-header h3 {
+          margin: 0;
+          font-size: 1.75rem;
+          font-weight: bold;
+          color: white;
+          font-family: 'Marykate', sans-serif;
+        }
+
+        .modal-close {
+          background: none;
+          border: none;
+          font-size: 2rem;
+          cursor: pointer;
+          color: white;
+          padding: 0;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transition: background-color 0.2s;
+        }
+
+        .modal-close:hover {
+          background-color: rgba(255, 255, 255, 0.2);
+          color: white;
+        }
+
+        .modal-body {
+          padding: 1.5rem;
+        }
+
+        .terms-content h4 {
+          color: #1a202c;
+          font-size: 1.125rem;
+          font-weight: 600;
+          margin-top: 1.5rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .terms-content h4:first-child {
+          margin-top: 0;
+        }
+
+        .terms-content p {
+          color: #4b5563;
+          line-height: 1.6;
+          margin-bottom: 1rem;
+        }
+
+        .terms-content ul {
+          margin-left: 1.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .terms-content li {
+          color: #4b5563;
+          line-height: 1.6;
+          margin-bottom: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @media (max-width: 640px) {
+          .modal-content {
+            width: 95%;
+            max-height: 90vh;
+          }
+
+          .modal-header {
+            padding: 1rem;
+          }
+
+          .modal-body {
+            padding: 1rem;
           }
         }
       `}</style>

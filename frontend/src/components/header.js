@@ -24,8 +24,8 @@ export default function Header() {
 
       {/* Main header */}
       <div className="bg-[#FFD700] px-4 py-4 flex justify-between items-center">
-        <NavLink to="/" className="text-3xl font-bold text-[#8B3A3A]">
-          TeknoEats
+        <NavLink to="/" className="flex items-center">
+          <img src="/teknoeats-logo.png" alt="TeknoEats" className="h-10 w-auto" />
         </NavLink>
 
         <div className="flex-1 mx-8">

@@ -11,7 +11,14 @@ export default function Login() {
     rememberMe: false
   });
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
+  const [isLoginActive, setIsLoginActive] = useState(true);
+
+  const navigate = useNavigate(); // ✅ Initialize navigation hook
+
+  // Update switch state when component mounts or route changes
+  React.useEffect(() => {
+    setIsLoginActive(window.location.pathname === '/login');
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -151,20 +158,25 @@ export default function Login() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <h1 className="logo">TeknoEats</h1>
+          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
           <div className="header-buttons">
-            <NavLink
-              to="/signup"
-              className={({ isActive }) => isActive ? "btn-signup active" : "btn-signup"}
-            >
-              Sign Up
-            </NavLink>
-            <NavLink
-              to="/login"
-              className={({ isActive }) => isActive ? "btn-login active" : "btn-login"}
-            >
-              Log In
-            </NavLink>
+            <div className="switch-container">
+              <NavLink
+                to="/signup"
+                className="switch-option"
+                onClick={() => setIsLoginActive(false)}
+              >
+                Sign Up
+              </NavLink>
+              <NavLink
+                to="/login"
+                className="switch-option"
+                onClick={() => setIsLoginActive(true)}
+              >
+                Log In
+              </NavLink>
+              <div className={`switch-slider ${isLoginActive ? 'login-active' : 'signup-active'}`}></div>
+            </div>
           </div>
         </div>
       </header>
@@ -260,6 +272,7 @@ export default function Login() {
           background: linear-gradient(to right, #facc15, #eab308);
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
           padding: 1rem 0;
+          height: 80px;
         }
 
         .header-content {
@@ -272,9 +285,8 @@ export default function Login() {
         }
 
         .logo {
-          font-size: 1.875rem;
-          font-weight: bold;
-          color: #7f1d1d;
+          height: auto;
+          width: 180px;
           margin: 0;
         }
 
@@ -283,27 +295,60 @@ export default function Login() {
           gap: 1rem;
         }
 
-        .btn-signup, .btn-login {
-          padding: 0.5rem 1.5rem;
-          border-radius: 9999px;
+        .switch-container {
+          position: relative;
+          display: flex;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 25px;
+          padding: 2px;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          width: 180px;
+        }
+
+        .switch-option {
+          padding: 0.5rem;
+          border-radius: 23px;
           text-decoration: none;
           font-weight: 600;
+          font-size: 15px;
           transition: all 0.3s ease;
-          border: none;
           cursor: pointer;
-          background: transparent;
+          color: #7f1d1d;
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 50%;
+        }
+
+        .switch-option.active {
           color: #7f1d1d;
         }
 
-        .btn-signup.active, .btn-login.active {
-          background: white;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        .switch-option:hover {
+          color: #450a0a;
         }
 
-        .btn-signup:hover, .btn-login:hover {
-          background: #f9fafb;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-          transform: translateY(-1px);
+        .switch-slider {
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          width: calc(50% - 2px);
+          height: calc(100% - 4px);
+          background: white;
+          border-radius: 21px;
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          z-index: 1;
+        }
+
+        .switch-slider.login-active {
+          transform: translateX(100%);
+        }
+
+        .switch-slider.signup-active {
+          transform: translateX(0);
         }
 
         /* ... (rest of the CSS as in the original, copied below for completeness) */
