@@ -7,12 +7,14 @@ import com.teknoeats.backend.model.User;
 import com.teknoeats.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthResponse signup(SignupRequest request) {
         // Check if email already exists
@@ -26,7 +28,7 @@ public class UserService {
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setPassword(request.getPassword()); // In production, hash this!
+        user.setPassword(passwordEncoder.encode(request.getPassword())); // In production, hash this!
         user.setRole(User.Role.valueOf(request.getRole().replace(" ", "_")));
 
         User savedUser = userRepository.save(user);
@@ -44,9 +46,9 @@ public class UserService {
         User user = userRepository.findByEmail(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-        // Check password (In production, use BCrypt!)
+        // TEMPORARY: Plain text password check (for testing only!)
         if (!user.getPassword().equals(request.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new RuntimeExmodified:   ../backend/src/main/java/com/teknoeats/backend/service/UserService.javaception("Invalid credentials");
         }
 
         return new AuthResponse(
