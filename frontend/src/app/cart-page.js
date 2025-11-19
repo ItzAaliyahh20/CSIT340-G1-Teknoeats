@@ -3,7 +3,6 @@ import { useState, useEffect } from "react"
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/sidebar'
 import { ChevronLeft } from "lucide-react"
-import { Search } from "lucide-react"
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -89,16 +88,6 @@ export default function CartPage() {
     <div className="min-h-screen bg-gray-100">
       <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='cart' onSelectCategory={(category) => navigate('/home?category=' + category)} />
       <div className="ml-[250px]">
-        <div className="bg-[#FFD700] px-8 py-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="What are you craving for?"
-              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
-          </div>
-        </div>
         <main className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-[#8B3A3A] text-center mb-8">Cart</h1>
         {/* Cart Items */}

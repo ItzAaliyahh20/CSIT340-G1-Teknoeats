@@ -114,7 +114,7 @@ export default function HomePage() {
           <div className="relative">
             <input
               type="text"
-              placeholder="What are you craving for?"
+              placeholder="Looking for something?"
               className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
