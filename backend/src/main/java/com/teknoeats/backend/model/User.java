@@ -1,7 +1,17 @@
 package com.teknoeats.backend.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -21,6 +31,9 @@ public class User {
 
     @Column(length = 20)
     private String phoneNumber;
+
+    @Column(length = 255)
+    private String address;
 
     @Column(nullable = false)
     private String password;
@@ -50,12 +63,13 @@ public class User {
     }
 
     public User(Long id, String firstName, String lastName, String email,
-                String phoneNumber, String password, Role role) {
+                String phoneNumber, String address, String password, Role role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.address = address;
         this.password = password;
         this.role = role;
     }
@@ -99,6 +113,14 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getPassword() {

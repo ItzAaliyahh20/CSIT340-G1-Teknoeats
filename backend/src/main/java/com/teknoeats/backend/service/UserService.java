@@ -1,13 +1,14 @@
 package com.teknoeats.backend.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.teknoeats.backend.dto.AuthResponse;
 import com.teknoeats.backend.dto.LoginRequest;
 import com.teknoeats.backend.dto.SignupRequest;
-import com.teknoeats.backend.dto.AuthResponse;
 import com.teknoeats.backend.model.User;
 import com.teknoeats.backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
 public class UserService {
@@ -52,10 +53,28 @@ public class UserService {
         }
 
         return new AuthResponse(
-                "Login successful",
-                user.getId(),
-                user.getEmail(),
-                user.getRole().toString()
-        );
-    }
+                 "Login successful",
+                 user.getId(),
+                 user.getEmail(),
+                 user.getRole().toString()
+         );
+     }
+
+     public User getUserById(Long id) {
+         return userRepository.findById(id)
+                 .orElseThrow(() -> new RuntimeException("User not found"));
+     }
+
+     public User updateUser(Long id, User updatedUser) {
+         User existingUser = getUserById(id);
+
+         // Update fields (excluding password and role for security)
+         existingUser.setFirstName(updatedUser.getFirstName());
+         existingUser.setLastName(updatedUser.getLastName());
+         existingUser.setEmail(updatedUser.getEmail());
+         existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
+         existingUser.setAddress(updatedUser.getAddress());
+
+         return userRepository.save(existingUser);
+     }
 }
