@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Lock, Mail, Phone } from 'lucide-react';
 import { authAPI } from './services/api';
+
 export default function SignUp() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -79,7 +82,6 @@ export default function SignUp() {
 
   const validateForm = () => {
     const newErrors = {};
-    
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
@@ -90,45 +92,65 @@ export default function SignUp() {
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
     if (!formData.role) newErrors.role = 'Please select a role';
     if (!formData.agreeTerms) newErrors.agreeTerms = 'You must agree to the terms and conditions';
-    
     return newErrors;
   };
 
   const handleSubmit = async () => {
-   const newErrors = validateForm();
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        const response = await authAPI.signup({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          password: formData.password,
+          role: formData.role
+        });
 
-   if (Object.keys(newErrors).length === 0) {
-     try {
-       const response = await authAPI.signup({
-         firstName: formData.firstName,
-         lastName: formData.lastName,
-         email: formData.email,
-         phoneNumber: formData.phoneNumber,
-         password: formData.password,
-         role: formData.role
-       });
+        console.log('Signup success:', response.data);
+        
+        // Create user object to save
+        const userData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          role: formData.role,
+          id: response.data?.id || Date.now().toString()
+        };
 
-       console.log('Success:', response.data); // Debug log
-       alert(`Account created successfully! Welcome ${response.data.email}`);
-       setFormData({
-         firstName: '',
-         lastName: '',
-         email: '',
-         phoneNumber: '',
-         password: '',
-         confirmPassword: '',
-         role: '',
-         agreeTerms: false,
-       });
-     } catch (error) {
-       console.error('Error:', error); // Debug log
-       const errorMsg = error.response?.data || 'Registration failed. Please try again.';
-       alert(errorMsg);
-     }
-   } else {
-     setErrors(newErrors);
-   }
- };
+        // Save to localStorage immediately after signup
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        // Also save to users list for admin management
+        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        if (!existingUsers.find(u => u.email === userData.email)) {
+          existingUsers.push(userData);
+          localStorage.setItem('users', JSON.stringify(existingUsers));
+        }
+
+        alert(`Account created successfully! Welcome ${userData.email}`);
+
+        // Redirect based on role
+        if (userData.role === 'Admin') {
+          navigate('/admin/dashboard');
+        } else if (userData.role === 'Canteen Personnel') {
+          navigate('/canteen/dashboard');
+        } else {
+          navigate('/home');
+        }
+
+      } catch (error) {
+        console.error('Signup error:', error);
+        const errorMsg = error.response?.data || 'Registration failed. Please try again.';
+        alert(errorMsg);
+      }
+    } else {
+      alert('Please fix the errors in the form.');
+      setErrors(newErrors);
+    }
+  };
 
   return (
     <div className="app-container">
@@ -168,7 +190,7 @@ export default function SignUp() {
                   </div>
                   {errors.firstName && <p className="error-message">{errors.firstName}</p>}
                 </div>
-                
+
                 <div className="input-group" style={{ flex: 1, minWidth: '200px' }}>
                   <div className="input-wrapper">
                     <User className="input-icon" />
@@ -201,7 +223,7 @@ export default function SignUp() {
                   </div>
                   {errors.email && <p className="error-message">{errors.email}</p>}
                 </div>
-                
+
                 <div className="input-group" style={{ flex: 1, minWidth: '200px' }}>
                   <div className="input-wrapper">
                     <Phone className="input-icon" />
@@ -269,7 +291,7 @@ export default function SignUp() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="input-group" style={{ flex: 1, minWidth: '200px' }}>
                   <div className="input-wrapper">
                     <Lock className="input-icon" />
