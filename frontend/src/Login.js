@@ -188,7 +188,9 @@ export default function Login() {
       <style>{`
         .app-container {
           min-height: 100vh;
-          background: linear-gradient(to bottom right, #f9fafb, #f3f4f6);
+          background: linear-gradient(-45deg, #f9fafb, #ffffff, #f3f4f6, #f9fafb);
+          background-size: 400% 400%;
+          animation: gradientShift 15s ease infinite;
         }
 
         .header {
@@ -473,6 +475,18 @@ export default function Login() {
         .login-link:hover {
           color: #a16207;
           text-decoration: underline;
+        }
+
+        @keyframes gradientShift {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
         }
 
         @media (max-width: 640px) {

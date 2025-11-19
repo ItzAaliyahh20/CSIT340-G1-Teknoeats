@@ -148,8 +148,9 @@ export default function SignUp() {
       <main className="main-content">
         <div className="card-container">
           <div className="card">
-            <h2 className="card-title">Create an account</h2>
-            
+            <h2 className="card-title">[ CREATE ACCOUNT ]</h2>
+            <p className="card-subtitle">Skip the line and pounce on your favorites! :3</p>
+
             <div className="form-fields">
               {/* Name Fields - Side by Side */}
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -246,23 +247,23 @@ export default function SignUp() {
                     <div className="password-strength">
                       <div className="strength-header">Password must include:</div>
                       <div className="strength-item">
-                        <span className={passwordStrength.length ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.length ? '✓' : '✗'}</span>
-                        <span className={passwordStrength.length ? 'strength-text-valid' : 'strength-text-invalid'}>At least 6 characters</span>
+                        <span className={passwordStrength.length ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.length ? '( ✓ )' : '[ ✗ ]'}</span>
+                        <span className={passwordStrength.length ? 'strength-text-valid' : 'strength-text-invalid'}>At least six characters</span>
                       </div>
                       <div className="strength-item">
-                        <span className={passwordStrength.uppercase ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.uppercase ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.uppercase ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.uppercase ? '( ✓ )' : '[ ✗ ]'}</span>
                         <span className={passwordStrength.uppercase ? 'strength-text-valid' : 'strength-text-invalid'}>At least one uppercase letter</span>
                       </div>
                       <div className="strength-item">
-                        <span className={passwordStrength.lowercase ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.lowercase ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.lowercase ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.lowercase ? '( ✓ )' : '[ ✗ ]'}</span>
                         <span className={passwordStrength.lowercase ? 'strength-text-valid' : 'strength-text-invalid'}>At least one lowercase letter</span>
                       </div>
                       <div className="strength-item">
-                        <span className={passwordStrength.number ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.number ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.number ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.number ? '( ✓ )' : '[ ✗ ]'}</span>
                         <span className={passwordStrength.number ? 'strength-text-valid' : 'strength-text-invalid'}>At least one number</span>
                       </div>
                       <div className="strength-item">
-                        <span className={passwordStrength.special ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.special ? '✓' : '✗'}</span>
+                        <span className={passwordStrength.special ? 'strength-valid' : 'strength-invalid'}>{passwordStrength.special ? '( ✓ )' : '[ ✗ ]'}</span>
                         <span className={passwordStrength.special ? 'strength-text-valid' : 'strength-text-invalid'}>At least one special character</span>
                       </div>
                     </div>
@@ -323,14 +324,14 @@ export default function SignUp() {
                     className="checkbox-input"
                   />
                   <span className="checkbox-text">
-                    I agree to the <span className="terms-link" onClick={() => setShowTermsModal(true)}>Terms and Conditions</span>
+                    I agree to the <span className="terms-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTermsModal(true); }}>Terms and Conditions</span>
                   </span>
                 </label>
                 {errors.agreeTerms && <p className="error-message">{errors.agreeTerms}</p>}
               </div>
 
               <button onClick={handleSubmit} className="submit-button">
-                Submit
+                Sign Up
               </button>
             </div>
 
@@ -352,7 +353,6 @@ export default function SignUp() {
             </div>
             <div className="modal-body">
               <div className="terms-content">
-                <p><strong>Effective Date:</strong> November 17, 2025</p>
                 <p>Welcome to TeknoEats, the official canteen ordering application for Cebu Institute of Technology - University (CIT-U). These Terms and Conditions ("Terms") govern your access to and use of the TeknoEats mobile application and related services (collectively, the "Service").</p>
                 <p>By accessing or using the Service, you agree to be bound by these Terms and the policies referenced herein. If you do not agree to these Terms, you may not use the Service.</p>
 
@@ -411,7 +411,9 @@ export default function SignUp() {
       <style>{`
         .app-container {
           min-height: 100vh;
-          background: linear-gradient(to bottom right, #f9fafb, #f3f4f6);
+          background: linear-gradient(-45deg, #f9fafb, #ffffff, #f3f4f6, #f9fafb);
+          background-size: 400% 400%;
+          animation: gradientShift 15s ease infinite;
         }
 
         .header {
@@ -506,7 +508,7 @@ export default function SignUp() {
 
         .card-container {
           width: 100%;
-          max-width: 700px;
+          max-width: 450px;
         }
 
         .card {
@@ -522,13 +524,21 @@ export default function SignUp() {
         }
 
         .card-title {
-          font-size: 2rem;
+          font-size: 2.5rem;
           font-weight: bold;
           text-align: center;
-          margin-bottom: 2rem;
-          color: #1a202c;
+          font-family: 'Marykate', sans-serif;
+          -webkit-text-stroke: 1px #7f1d1d; /* Outline color and width */
+          color: #facc15; /* Text fill color */
         }
 
+        .card-subtitle {
+          text-align: center;
+          color: #6b7280;
+          margin-bottom: 2rem;
+          font-size: 0.95rem;
+        }
+          
         .form-fields {
           display: flex;
           flex-direction: column;
@@ -679,7 +689,7 @@ export default function SignUp() {
         }
 
         .login-link:hover {
-          color: #a16207;
+          color: #e6ad28ff;
         }
 
         .checkbox-group {
@@ -713,7 +723,7 @@ export default function SignUp() {
         }
 
         .terms-link:hover {
-          color: #a16207;
+          color: #e6ad28ff;
           text-decoration: underline;
         }
 
@@ -724,9 +734,9 @@ export default function SignUp() {
         }
 
         .strength-header {
-          font-weight: 600;
-          color: #374151;
-          margin-bottom: 0.5rem;
+          font-size: 1.3rem;
+          color: #7f1d1d;
+          font-family: 'Marykate', sans-serif;
         }
 
         @keyframes fadeIn {
@@ -735,7 +745,7 @@ export default function SignUp() {
             transform: translateY(-10px);
           }
           to {
-            opacity: 1;
+            opacity: 0.5;
             transform: translateY(0);
           }
         }
@@ -748,21 +758,22 @@ export default function SignUp() {
         }
 
         .strength-valid {
-          color: #10b981;
+          color: #ca8a04;
           font-weight: bold;
         }
 
         .strength-invalid {
-          color: #6b7280;
+          color: #9ca3af;
           font-weight: bold;
         }
 
         .strength-text-valid {
-          color: #10b981;
+          color: #ca8a04;
+          font-weight: bold;
         }
 
         .strength-text-invalid {
-          color: #6b7280;
+          color: #9ca3af;
         }
 
         @media (max-width: 640px) {
@@ -885,6 +896,18 @@ export default function SignUp() {
           to {
             opacity: 1;
             transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes gradientShift {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
           }
         }
 
