@@ -71,7 +71,6 @@ export default function Login() {
         alert(errorMsg);
       }
     } else {
-      alert('Please fix the errors in the form.');
       setErrors(newErrors);
     }
   };
@@ -108,8 +107,8 @@ export default function Login() {
       <main className="main-content">
         <div className="card-container">
           <div className="card">
-            <h2 className="card-title">Welcome Back</h2>
-            <p className="card-subtitle">Log in to your TeknoEats account</p>
+            <h2 className="card-title">[ WELCOME BACK ]</h2>
+            <p className="card-subtitle">Hey Wildcat, hungry again?</p>
             
             <div className="form-fields">
               {/* Username Input */}
@@ -304,11 +303,12 @@ export default function Login() {
         }
 
         .card-title {
-          font-size: 2rem;
+          font-size: 2.5rem;
           font-weight: bold;
           text-align: center;
-          margin-bottom: 0.5rem;
-          color: #1a202c;
+          font-family: 'Marykate', sans-serif;
+          -webkit-text-stroke: 1px #7f1d1d; /* Outline color and width */
+          color: #facc15; /* Text fill color */
         }
 
         .card-subtitle {
@@ -321,7 +321,7 @@ export default function Login() {
         .form-fields {
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 1rem;
         }
 
         .input-group {
@@ -429,7 +429,7 @@ export default function Login() {
         }
 
         .forgot-link:hover {
-          color: #a16207;
+          color: #e6ad28ff;
           text-decoration: underline;
         }
 
@@ -473,8 +473,7 @@ export default function Login() {
         }
 
         .login-link:hover {
-          color: #a16207;
-          text-decoration: underline;
+          color: #e6ad28ff;
         }
 
         @keyframes gradientShift {
