@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/header'
-import { ChevronLeft } from "lucide-react"
+import Sidebar from '../components/sidebar'
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -74,38 +73,28 @@ export default function CartPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100">
-        <Header />
-        <main className="max-w-4xl mx-auto px-4 py-8">
-          <p className="text-center">Loading cart...</p>
-        </main>
+        <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='cart' onSelectCategory={(category) => navigate('/home?category=' + category)} />
+        <div className="ml-[250px]">
+          <main className="max-w-4xl mx-auto px-4 py-8">
+            <p className="text-center">Loading cart...</p>
+          </main>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
-
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <button
-            onClick={() => navigate('/home')}
-            className="flex items-center gap-1 text-[#8B3A3A] hover:text-[#6B2A2A] transition font-semibold"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            Back
-          </button>
-        
-
-        <h1 className="text-3xl font-bold text-[#8B3A3A] text-center flex-1">Cart</h1>
-        <div className="w-20"></div>
-        </div>
+      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='cart' onSelectCategory={(category) => navigate('/home?category=' + category)} />
+      <div className="ml-[250px]">
+        <main className="max-w-4xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-[#8B3A3A] text-center mb-8">Cart</h1>
         {/* Cart Items */}
         {items.length === 0 ? (
           <div className="bg-white rounded-lg p-8 text-center mb-8">
             <p className="text-gray-600 text-lg">Your cart is empty</p>
             <button
-              onClick={() => navigate("/")} // <-- go to home
+              onClick={() => navigate('/home?category=Dashboard')} // <-- go to Dashboard
               className="mt-4 bg-[#8B3A3A] text-white px-6 py-2 rounded font-bold hover:bg-[#6B2A2A] transition"
             >
               Continue Shopping
@@ -206,7 +195,8 @@ export default function CartPage() {
             Proceed to Checkout
           </button>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

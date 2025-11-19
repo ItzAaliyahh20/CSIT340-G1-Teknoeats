@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from "react"
-import Header from '../components/header'
+import Sidebar from '../components/sidebar'
 import ProductCard from '../components/product-card'
-import { ChevronLeft } from "lucide-react"
 import { useNavigate } from 'react-router-dom';
+import { Search } from "lucide-react"
 
-const CATEGORIES = ["Meals", "Foods", "Snacks", "Beverages"]
+const CATEGORIES = ["Meals", "Food", "Snacks", "Beverages"]
 
 // All products from the main page
 const ALL_PRODUCTS = [
@@ -19,15 +19,15 @@ const ALL_PRODUCTS = [
   { id: 7, name: "Mixed Grill Meal", price: 125, category: "Meals", image: "/mixed-grill.png" },
   { id: 8, name: "Pasta Carbonara Meal", price: 90, category: "Meals", image: "/pasta-carbonara.png" },
 
-  // FOODS
-  { id: 9, name: "Rice", price: 50, category: "Foods", image: "/bowl-of-steamed-rice.jpg" },
-  { id: 10, name: "Fried Rice", price: 60, category: "Foods", image: "/fried-rice.png" },
-  { id: 11, name: "Panipat Biryani", price: 80, category: "Foods", image: "/flavorful-biryani.jpg" },
-  { id: 12, name: "Sunny Side Up", price: 50, category: "Foods", image: "/assorted-eggs-fried.jpg" },
-  { id: 13, name: "Spaghetti", price: 75, category: "Foods", image: "/classic-spaghetti.jpg" },
-  { id: 14, name: "Chicken Adobo", price: 85, category: "Foods", image: "/chicken-adobo.jpg" },
-  { id: 15, name: "Fried Chicken", price: 90, category: "Foods", image: "/crispy-fried-chicken.png" },
-  { id: 16, name: "Vegetables", price: 40, category: "Foods", image: "/assorted-vegetables.png" },
+  // FOOD
+  { id: 9, name: "Rice", price: 50, category: "Food", image: "/bowl-of-steamed-rice.jpg" },
+  { id: 10, name: "Fried Rice", price: 60, category: "Food", image: "/fried-rice.png" },
+  { id: 11, name: "Panipat Biryani", price: 80, category: "Food", image: "/flavorful-biryani.jpg" },
+  { id: 12, name: "Sunny Side Up", price: 50, category: "Food", image: "/assorted-eggs-fried.jpg" },
+  { id: 13, name: "Spaghetti", price: 75, category: "Food", image: "/classic-spaghetti.jpg" },
+  { id: 14, name: "Chicken Adobo", price: 85, category: "Food", image: "/chicken-adobo.jpg" },
+  { id: 15, name: "Fried Chicken", price: 90, category: "Food", image: "/crispy-fried-chicken.png" },
+  { id: 16, name: "Vegetables", price: 40, category: "Food", image: "/assorted-vegetables.png" },
 
   // SNACKS
   { id: 17, name: "French Fries", price: 45, category: "Snacks", image: "/golden-french-fries.jpg" },
@@ -87,19 +87,21 @@ export default function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
+      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='favorites' onSelectCategory={(category) => navigate('/home?category=' + category)} />
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => navigate('/home')}
-            className="flex items-center gap-2 text-[#8B3A3A] hover:text-[#6B2A2A] transition"
-          >
-            <ChevronLeft size={24} />
-            <span className="font-semibold">Back</span>
-          </button>
-          <h2 className="text-2xl font-bold text-[#8B3A3A] flex-1 text-center">Favorites</h2>
+      <div className="ml-[250px]">
+        <div className="bg-[#FFD700] px-8 py-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Looking for something?"
+              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
+          </div>
         </div>
+        <main className="max-w-7xl mx-auto px-4 py-8">
+          <h2 className="text-2xl font-bold text-[#8B3A3A] text-center mb-6">Favorites</h2>
 
         <div className="flex gap-4 mb-6 justify-center flex-wrap">
           {["All", ...CATEGORIES].map((category) => (
@@ -134,7 +136,8 @@ export default function FavoritesPage() {
             ))}
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

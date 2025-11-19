@@ -48,7 +48,7 @@ public class UserService {
 
         // TEMPORARY: Plain text password check (for testing only!)
         if (!user.getPassword().equals(request.getPassword())) {
-            throw new RuntimeExmodified:   ../backend/src/main/java/com/teknoeats/backend/service/UserService.javaception("Invalid credentials");
+            throw new RuntimeException("Invalid credentials");
         }
 
         return new AuthResponse(

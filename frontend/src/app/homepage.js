@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from "react"
-import Header from '../components/header'
-import Navigation from '../components/navigation'
+import Sidebar from '../components/sidebar'
 import HeroBanner from '../components/hero-banner'
 import ProductCard from '../components/product-card'
+import { Search } from "lucide-react"
+import { useSearchParams } from 'react-router-dom'
 
 
-const CATEGORIES = ["Meals", "Foods", "Snacks", "Beverages"]
+const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages"]
 
 const PRODUCTS = [
   // MEALS
@@ -19,15 +20,15 @@ const PRODUCTS = [
   { id: 7, name: "Ham", price: 95, category: "Meals", image: "/meals/ham.png" },
   { id: 8, name: "Siomai", price: 85, category: "Meals", image: "/meals/siomai.png" },
 
-  // FOODS
-  { id: 9, name: "Rice", price: 50, category: "Foods", image: "/food/rice.png" },
-  { id: 10, name: "Fried Rice", price: 60, category: "Foods", image: "/food/friedRice.png" },
-  { id: 11, name: "Pancit Bihon", price: 80, category: "Foods", image: "/food/pancitBihon.png" },
-  { id: 12, name: "Sunny Side Up", price: 50, category: "Foods", image: "/food/sunnySideUp.png" },
-  { id: 13, name: "Spaghetti", price: 75, category: "Foods", image: "/food/spaghetti.png" },
-  { id: 14, name: "Pork Adobo", price: 85, category: "Foods", image: "/food/porkAdobo.png" },
-  { id: 15, name: "Fried Chicken", price: 90, category: "Foods", image: "/food/friedChicken.png" },
-  { id: 16, name: "Baguio Beans", price: 40, category: "Foods", image: "/food/baguioBeans.png" },
+  // FOOD
+  { id: 9, name: "Rice", price: 50, category: "Food", image: "/food/rice.png" },
+  { id: 10, name: "Fried Rice", price: 60, category: "Food", image: "/food/friedRice.png" },
+  { id: 11, name: "Pancit Bihon", price: 80, category: "Food", image: "/food/pancitBihon.png" },
+  { id: 12, name: "Sunny Side Up", price: 50, category: "Food", image: "/food/sunnySideUp.png" },
+  { id: 13, name: "Spaghetti", price: 75, category: "Food", image: "/food/spaghetti.png" },
+  { id: 14, name: "Pork Adobo", price: 85, category: "Food", image: "/food/porkAdobo.png" },
+  { id: 15, name: "Fried Chicken", price: 90, category: "Food", image: "/food/friedChicken.png" },
+  { id: 16, name: "Baguio Beans", price: 40, category: "Food", image: "/food/baguioBeans.png" },
 
   // SNACKS
   { id: 17, name: "Hotcake", price: 10, category: "Snacks", image: "/snacks/hotcake.png" },
@@ -51,7 +52,8 @@ const PRODUCTS = [
 ]
 
 export default function HomePage() {
-  const [selectedCategory, setSelectedCategory] = useState("Foods")
+  const [searchParams] = useSearchParams()
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || "Dashboard")
   const [cart, setCart] = useState([])
   const [favorites, setFavorites] = useState([])
 
@@ -77,7 +79,7 @@ export default function HomePage() {
     localStorage.setItem("cart", JSON.stringify(cart))
   }, [cart])
 
-  const filteredProducts = PRODUCTS.filter((p) => p.category === selectedCategory)
+  const filteredProducts = selectedCategory === "Dashboard" ? PRODUCTS.filter((p) => p.category === "Meals") : PRODUCTS.filter((p) => p.category === selectedCategory)
 
   const addToCart = (product, quantity) => {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]")
@@ -106,32 +108,38 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
-      <Navigation
-        categories={CATEGORIES}
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
-      {selectedCategory === "Meals" && <HeroBanner />}
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white bg-[#8B3A3A] text-center py-3 mb-6 rounded">
-            {selectedCategory}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                isFavorite={favorites.includes(product.id)}
-                onAddToCart={(quantity) => addToCart(product, quantity)}
-                onToggleFavorite={() => toggleFavorite(product.id)}
-              />
-            ))}
+      <Sidebar categories={CATEGORIES} selectedItem={selectedCategory} onSelectCategory={setSelectedCategory} />
+      <div className="ml-[250px]">
+        <div className="bg-[#FFD700] px-8 py-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Looking for something?"
+              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
           </div>
         </div>
-      </main>
+        <main className="max-w-7xl mx-auto px-4 py-8">
+          {selectedCategory === "Dashboard" && <HeroBanner />}
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-white bg-[#8B3A3A] text-center py-3 mb-6 rounded">
+              {selectedCategory === "Dashboard" ? "Popular Items" : selectedCategory}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isFavorite={favorites.includes(product.id)}
+                  onAddToCart={(quantity) => addToCart(product, quantity)}
+                  onToggleFavorite={() => toggleFavorite(product.id)}
+                />
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
