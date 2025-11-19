@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/header";
+import Sidebar from '../components/sidebar'
 import { ChevronLeft } from "lucide-react";
+import { Search } from "lucide-react"
 
 export default function OrdersPage() {
   const navigate = useNavigate();
@@ -38,30 +39,32 @@ export default function OrdersPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100">
-        <Header />
-        <main className="max-w-4xl mx-auto px-4 py-8">
-          <p className="text-center">Loading orders...</p>
-        </main>
+        <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='orders' onSelectCategory={(category) => navigate('/home?category=' + category)} />
+        <div className="ml-[250px]">
+          <main className="max-w-4xl mx-auto px-4 py-8">
+            <p className="text-center">Loading orders...</p>
+          </main>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
-
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Back Button and Title */}
-        <div className="flex items-center gap-2 mb-8">
-          <button
-            onClick={() => navigate(-1)} // ✅ Fixed for React
-            className="flex items-center gap-1 text-[#8B3A3A] hover:text-[#6B2A2A] transition font-semibold"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            Back
-          </button>
-          <h1 className="text-3xl font-bold text-[#8B3A3A] flex-1 text-center">My Orders</h1>
+      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='orders' onSelectCategory={(category) => navigate('/home?category=' + category)} />
+      <div className="ml-[250px]">
+        <div className="bg-[#FFD700] px-8 py-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="What are you craving for?"
+              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
+          </div>
         </div>
+        <main className="max-w-4xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-[#8B3A3A] text-center mb-8">My Orders</h1>
 
         {/* Tabs */}
         <div className="flex gap-8 mb-8 justify-center pb-4 border-b border-gray-300">
@@ -118,7 +121,8 @@ export default function OrdersPage() {
             ))}
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 
 import { useState } from "react"
-import Header from '../components/header'
+import Sidebar from '../components/sidebar'
 import { LogOut } from "lucide-react"
+import { Search } from "lucide-react"
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState({
@@ -15,9 +16,19 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='profile' onSelectCategory={(category) => window.location.href = '/home?category=' + category} />
+      <div className="ml-[250px]">
+        <div className="bg-[#FFD700] px-8 py-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="What are you craving for?"
+              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
+          </div>
+        </div>
+        <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Orders Section */}
           <div className="lg:col-span-2">
@@ -99,7 +110,8 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

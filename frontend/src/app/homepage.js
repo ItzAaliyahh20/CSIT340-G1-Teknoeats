@@ -4,6 +4,7 @@ import Sidebar from '../components/sidebar'
 import HeroBanner from '../components/hero-banner'
 import ProductCard from '../components/product-card'
 import { Search } from "lucide-react"
+import { useSearchParams } from 'react-router-dom'
 
 
 const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages"]
@@ -51,7 +52,8 @@ const PRODUCTS = [
 ]
 
 export default function HomePage() {
-  const [selectedCategory, setSelectedCategory] = useState("Dashboard")
+  const [searchParams] = useSearchParams()
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || "Dashboard")
   const [cart, setCart] = useState([])
   const [favorites, setFavorites] = useState([])
 
@@ -106,7 +108,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar categories={CATEGORIES} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+      <Sidebar categories={CATEGORIES} selectedItem={selectedCategory} onSelectCategory={setSelectedCategory} />
       <div className="ml-[250px]">
         <div className="bg-[#FFD700] px-8 py-4">
           <div className="relative">

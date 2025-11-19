@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from "react"
-import Header from '../components/header'
+import Sidebar from '../components/sidebar'
 import ProductCard from '../components/product-card'
 import { ChevronLeft } from "lucide-react"
 import { useNavigate } from 'react-router-dom';
+import { Search } from "lucide-react"
 
 const CATEGORIES = ["Meals", "Foods", "Snacks", "Beverages"]
 
@@ -87,19 +88,21 @@ export default function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
+      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='favorites' onSelectCategory={(category) => navigate('/home?category=' + category)} />
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => navigate('/home')}
-            className="flex items-center gap-2 text-[#8B3A3A] hover:text-[#6B2A2A] transition"
-          >
-            <ChevronLeft size={24} />
-            <span className="font-semibold">Back</span>
-          </button>
-          <h2 className="text-2xl font-bold text-[#8B3A3A] flex-1 text-center">Favorites</h2>
+      <div className="ml-[250px]">
+        <div className="bg-[#FFD700] px-8 py-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="What are you craving for?"
+              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
+          </div>
         </div>
+        <main className="max-w-7xl mx-auto px-4 py-8">
+          <h2 className="text-2xl font-bold text-[#8B3A3A] text-center mb-6">Favorites</h2>
 
         <div className="flex gap-4 mb-6 justify-center flex-wrap">
           {["All", ...CATEGORIES].map((category) => (
@@ -134,7 +137,8 @@ export default function FavoritesPage() {
             ))}
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   )
 }
