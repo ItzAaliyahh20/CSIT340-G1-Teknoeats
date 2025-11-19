@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react"
 import Sidebar from '../components/sidebar'
 import ProductCard from '../components/product-card'
-import { ChevronLeft } from "lucide-react"
 import { useNavigate } from 'react-router-dom';
 import { Search } from "lucide-react"
 

@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/sidebar'
-import { ChevronLeft } from "lucide-react"
 
 export default function CartPage() {
   const navigate = useNavigate();

@@ -1,7 +1,6 @@
 
 import { useState } from "react"
 import Sidebar from '../components/sidebar'
-import { LogOut } from "lucide-react"
 import { Search } from "lucide-react"
 
 export default function ProfilePage() {
