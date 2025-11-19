@@ -429,7 +429,7 @@ export default function Login() {
         }
 
         .forgot-link:hover {
-          color: #e6ad28ff;
+          color: #a16207;
           text-decoration: underline;
         }
 
@@ -473,7 +473,8 @@ export default function Login() {
         }
 
         .login-link:hover {
-          color: #e6ad28ff;
+          color: #a16207;
+          text-decoration: underline;
         }
 
         @keyframes gradientShift {
