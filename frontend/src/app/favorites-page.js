@@ -6,7 +6,7 @@ import { ChevronLeft } from "lucide-react"
 import { useNavigate } from 'react-router-dom';
 import { Search } from "lucide-react"
 
-const CATEGORIES = ["Meals", "Foods", "Snacks", "Beverages"]
+const CATEGORIES = ["Meals", "Food", "Snacks", "Beverages"]
 
 // All products from the main page
 const ALL_PRODUCTS = [
@@ -20,15 +20,15 @@ const ALL_PRODUCTS = [
   { id: 7, name: "Mixed Grill Meal", price: 125, category: "Meals", image: "/mixed-grill.png" },
   { id: 8, name: "Pasta Carbonara Meal", price: 90, category: "Meals", image: "/pasta-carbonara.png" },
 
-  // FOODS
-  { id: 9, name: "Rice", price: 50, category: "Foods", image: "/bowl-of-steamed-rice.jpg" },
-  { id: 10, name: "Fried Rice", price: 60, category: "Foods", image: "/fried-rice.png" },
-  { id: 11, name: "Panipat Biryani", price: 80, category: "Foods", image: "/flavorful-biryani.jpg" },
-  { id: 12, name: "Sunny Side Up", price: 50, category: "Foods", image: "/assorted-eggs-fried.jpg" },
-  { id: 13, name: "Spaghetti", price: 75, category: "Foods", image: "/classic-spaghetti.jpg" },
-  { id: 14, name: "Chicken Adobo", price: 85, category: "Foods", image: "/chicken-adobo.jpg" },
-  { id: 15, name: "Fried Chicken", price: 90, category: "Foods", image: "/crispy-fried-chicken.png" },
-  { id: 16, name: "Vegetables", price: 40, category: "Foods", image: "/assorted-vegetables.png" },
+  // FOOD
+  { id: 9, name: "Rice", price: 50, category: "Food", image: "/bowl-of-steamed-rice.jpg" },
+  { id: 10, name: "Fried Rice", price: 60, category: "Food", image: "/fried-rice.png" },
+  { id: 11, name: "Panipat Biryani", price: 80, category: "Food", image: "/flavorful-biryani.jpg" },
+  { id: 12, name: "Sunny Side Up", price: 50, category: "Food", image: "/assorted-eggs-fried.jpg" },
+  { id: 13, name: "Spaghetti", price: 75, category: "Food", image: "/classic-spaghetti.jpg" },
+  { id: 14, name: "Chicken Adobo", price: 85, category: "Food", image: "/chicken-adobo.jpg" },
+  { id: 15, name: "Fried Chicken", price: 90, category: "Food", image: "/crispy-fried-chicken.png" },
+  { id: 16, name: "Vegetables", price: 40, category: "Food", image: "/assorted-vegetables.png" },
 
   // SNACKS
   { id: 17, name: "French Fries", price: 45, category: "Snacks", image: "/golden-french-fries.jpg" },

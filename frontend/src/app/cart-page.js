@@ -95,7 +95,7 @@ export default function CartPage() {
           <div className="bg-white rounded-lg p-8 text-center mb-8">
             <p className="text-gray-600 text-lg">Your cart is empty</p>
             <button
-              onClick={() => navigate("/")} // <-- go to home
+              onClick={() => navigate('/home?category=Dashboard')} // <-- go to Dashboard
               className="mt-4 bg-[#8B3A3A] text-white px-6 py-2 rounded font-bold hover:bg-[#6B2A2A] transition"
             >
               Continue Shopping

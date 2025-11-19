@@ -103,10 +103,6 @@ export default function ProfilePage() {
                 {isEditing ? "Save Changes" : "Edit Profile"}
               </button>
 
-              <button className="w-full bg-[#8B3A3A] text-white py-2 rounded font-bold hover:bg-[#6B2A2A] transition flex items-center justify-center gap-2">
-                <LogOut size={18} />
-                Sign Out
-              </button>
             </div>
           </div>
         </div>
