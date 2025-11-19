@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import Sidebar from '../components/sidebar'
 import HeroBanner from '../components/hero-banner'
 import ProductCard from '../components/product-card'
+import { Search } from "lucide-react"
 
 
 const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages"]
@@ -107,18 +108,21 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-100">
       <Sidebar categories={CATEGORIES} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
       <div className="ml-[250px]">
-        <div className="bg-[#FFD700] px-4 py-4">
-          <input
-            type="text"
-            placeholder="Search a product"
-            className="w-full px-4 py-2 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
-          />
+        <div className="bg-[#FFD700] px-8 py-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="What are you craving for?"
+              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
+          </div>
         </div>
-        {(selectedCategory === "Meals" || selectedCategory === "Dashboard") && <HeroBanner />}
         <main className="max-w-7xl mx-auto px-4 py-8">
+          {selectedCategory === "Dashboard" && <HeroBanner />}
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-white bg-[#8B3A3A] text-center py-3 mb-6 rounded">
-              {selectedCategory}
+              {selectedCategory === "Dashboard" ? "Popular Items" : selectedCategory}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
