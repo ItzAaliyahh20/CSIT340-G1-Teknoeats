@@ -28,7 +28,7 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory }) 
     <div className="fixed left-0 top-0 w-[250px] h-screen bg-white border-r flex flex-col z-10">
       {/* Logo */}
       <div className="p-4 pt-8 pb-8">
-        <NavLink to="/" className="flex items-center justify-center">
+        <NavLink to="/home?category=Dashboard" className="flex items-center justify-center">
           <img src="/teknoeats-logo.png" alt="TeknoEats" className="h-10 w-auto" />
         </NavLink>
       </div>
