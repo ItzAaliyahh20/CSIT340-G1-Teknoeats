@@ -167,7 +167,7 @@ export default function CanteenDashboard() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold text-gray-800">Quick Actions</h3>
             <button
-              onClick={() => navigate('/canteen/orders')}
+              onClick={() => navigate('/canteen/order')}
               className="text-[#8B3A3A] hover:underline font-semibold"
             >
               View All Orders →
@@ -175,21 +175,21 @@ export default function CanteenDashboard() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
-              onClick={() => navigate('/canteen/orders')}
+              onClick={() => navigate('/canteen/order')}
               className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white p-6 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition shadow-md"
             >
               <div className="text-4xl font-bold mb-2">{stats.pendingOrders}</div>
               <div className="text-sm font-semibold">New Pending Orders</div>
             </button>
             <button
-              onClick={() => navigate('/canteen/orders')}
+              onClick={() => navigate('/canteen/order')}
               className="bg-gradient-to-r from-blue-400 to-blue-500 text-white p-6 rounded-lg hover:from-blue-500 hover:to-blue-600 transition shadow-md"
             >
               <div className="text-4xl font-bold mb-2">{stats.preparingOrders}</div>
               <div className="text-sm font-semibold">Currently Preparing</div>
             </button>
             <button
-              onClick={() => navigate('/canteen/orders')}
+              onClick={() => navigate('/canteen/order')}
               className="bg-gradient-to-r from-green-400 to-green-500 text-white p-6 rounded-lg hover:from-green-500 hover:to-green-600 transition shadow-md"
             >
               <div className="text-4xl font-bold mb-2">{stats.readyOrders}</div>

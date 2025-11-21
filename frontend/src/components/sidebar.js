@@ -1,12 +1,51 @@
-"use client"
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Clock, User, ChefHat, Apple, Cookie, Coffee, LayoutDashboard, LogOut } from "lucide-react"
+import { Heart, ShoppingCart, Clock, User, ChefHat, Apple, Cookie, Coffee, LayoutDashboard, LogOut, UserCheck } from "lucide-react"
+import { getCurrentUser } from '../services/api'
 
 export default function Sidebar({ categories, selectedItem, onSelectCategory }) {
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const navigate = useNavigate();
+   const [showLogoutModal, setShowLogoutModal] = useState(false);
+   const [userName, setUserName] = useState('');
+   const [isLoggedIn, setIsLoggedIn] = useState(false);
+   const navigate = useNavigate();
+
+   useEffect(() => {
+     const fetchUserData = async () => {
+       try {
+         // Check if user is logged in first
+         const userData = localStorage.getItem('user')
+         if (!userData) {
+           setIsLoggedIn(false)
+           setUserName('')
+           return
+         }
+
+         const user = JSON.parse(userData)
+         if (!user || !user.id) {
+           setIsLoggedIn(false)
+           setUserName('')
+           return
+         }
+
+         // User appears to be logged in, fetch fresh data from API
+         const freshUserData = await getCurrentUser()
+
+         // Update with fresh data
+         const fullName = `${freshUserData.firstName || ''} ${freshUserData.lastName || ''}`.trim()
+         const displayName = fullName || freshUserData.email || 'User'
+         setUserName(displayName)
+         setIsLoggedIn(true)
+
+       } catch (error) {
+         console.error('Error fetching user data for greeting:', error)
+         // If API call fails, user might not be logged in or there's a network issue
+         setIsLoggedIn(false)
+         setUserName('')
+       }
+     }
+
+     fetchUserData()
+   }, [])
 
   const handleLogout = () => {
     // Here you can add logout logic, like clearing localStorage
@@ -104,6 +143,20 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory }) 
           </button>
         </div>
       </nav>
+
+      {/* Welcome User Section - Only show when logged in */}
+      {isLoggedIn && (
+        <div className="px-4 pb-4 mt-auto">
+          <div className="bg-gradient-to-r from-[#FFD700]/20 to-[#FFC107]/20 rounded-lg p-3 border border-[#FFD700]/30">
+            <div className="flex items-center gap-2">
+              <UserCheck size={20} className="text-[#8B3A3A] flex-shrink-0" />
+              <p className="text-sm font-semibold text-[#8B3A3A] truncate">
+                Welcome! {userName}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Logout Modal */}
       {showLogoutModal && (

@@ -37,6 +37,8 @@ public class UserService {
         return new AuthResponse(
                 "User registered successfully",
                 savedUser.getId(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
                 savedUser.getEmail(),
                 savedUser.getRole().toString()
         );
@@ -55,6 +57,8 @@ public class UserService {
         return new AuthResponse(
                  "Login successful",
                  user.getId(),
+                 user.getFirstName(),
+                 user.getLastName(),
                  user.getEmail(),
                  user.getRole().toString()
          );

@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api"
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -40,6 +40,17 @@ export const getOrderById = (orderId) => api.get(`/orders/detail/${orderId}`).th
 
 // Users
 export const getUserProfile = (userId) => api.get(`/users/${userId}`).then((res) => res.data)
+
+export const getCurrentUser = () => {
+  const userData = localStorage.getItem('user')
+  if (userData) {
+    const user = JSON.parse(userData)
+    if (user && user.id) {
+      return api.get(`/users/${user.id}`).then((res) => res.data)
+    }
+  }
+  return Promise.reject(new Error('No user logged in'))
+}
 
 export const updateUserProfile = (userId, profileData) =>
   api.put(`/users/${userId}`, profileData).then((res) => res.data)

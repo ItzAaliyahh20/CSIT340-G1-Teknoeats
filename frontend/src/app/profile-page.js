@@ -1,7 +1,5 @@
-
 import { useState, useEffect } from "react"
 import Sidebar from '../components/sidebar'
-import { Search } from "lucide-react"
 import { getUserProfile, updateUserProfile } from '../services/api'
 
 export default function ProfilePage() {
@@ -20,22 +18,29 @@ export default function ProfilePage() {
    useEffect(() => {
      const fetchUserProfile = async () => {
        try {
-         const user = JSON.parse(localStorage.getItem('user'))
-         if (user && user.id) {
-           const response = await getUserProfile(user.id)
-           setProfileData({
-             firstName: response.firstName || "",
-             lastName: response.lastName || "",
-             email: response.email || "",
-             phoneNumber: response.phoneNumber || "",
-             address: response.address || "",
-           })
-         } else {
-           setError("User not logged in")
-         }
+         console.log('Starting to fetch user profile...')
+         console.log('API base URL should be:', "http://localhost:8080/api")
+
+         // Try to fetch user ID 1 directly for testing
+         const userId = 1
+         console.log('Fetching profile for user ID:', userId)
+
+         const response = await getUserProfile(userId)
+         console.log('API response received:', response)
+
+         setProfileData({
+           firstName: response.firstName || "",
+           lastName: response.lastName || "",
+           email: response.email || "",
+           phoneNumber: response.phoneNumber || "",
+           address: response.address || "",
+         })
+
+         console.log('Profile data set successfully')
        } catch (err) {
-         setError("Failed to load profile data")
-         console.error(err)
+         console.error('Error in fetchUserProfile:', err)
+         console.error('Error details:', err.response || err)
+         setError(`Failed to load profile data: ${err.message}`)
        } finally {
          setLoading(false)
        }
@@ -45,140 +50,137 @@ export default function ProfilePage() {
    }, [])
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='profile' onSelectCategory={(category) => window.location.href = '/home?category=' + category} />
       <div className="ml-[250px]">
-        <div className="bg-[#FFD700] px-8 py-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Looking for something?"
-              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
-          </div>
+        <div className="bg-[#FFD700] px-10 py-12 shadow-lg">
         </div>
-        <main className="max-w-7xl mx-auto px-4 py-8">
+        <main className="px-4 py-8">
         {loading && (
-          <div className="text-center py-8">
-            <p className="text-gray-600">Loading profile...</p>
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B3A3A] mx-auto mb-4"></div>
+              <p className="text-gray-600 text-lg">Loading your profile...</p>
+            </div>
           </div>
         )}
         {error && (
-          <div className="text-center py-8">
-            <p className="text-red-600">{error}</p>
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-center bg-red-50 border border-red-200 rounded-lg p-8 max-w-md">
+              <div className="text-red-500 text-6xl mb-4">⚠️</div>
+              <h3 className="text-red-800 font-semibold text-lg mb-2">Oops! Something went wrong</h3>
+              <p className="text-red-600">{error}</p>
+            </div>
           </div>
         )}
         {!loading && !error && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Orders Section */}
-            <div className="lg:col-span-2">
-              <h2 className="text-2xl font-bold text-[#8B3A3A] mb-6">My Orders</h2>
-              <div className="bg-white rounded-lg p-6">
-                <div className="flex gap-4 mb-6">
-                  {["All", "Active", "Past"].map((tab) => (
-                    <button key={tab} className="px-4 py-2 text-gray-600 hover:text-[#8B3A3A] font-semibold">
-                      {tab}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-gray-600">No orders yet</p>
-              </div>
-            </div>
-
-            {/* Profile Section */}
-            <div className="bg-[#FFD700] rounded-lg p-6 h-fit">
-              <div className="text-center mb-6">
-                <div className="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <span className="text-2xl text-gray-600 font-bold">
-                    {profileData.firstName?.charAt(0)}{profileData.lastName?.charAt(0)}
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-[#8B3A3A]">Profile Information</h3>
-              </div>
-
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-[#8B3A3A] mb-1">First Name</label>
-                  <input
-                    type="text"
-                    value={profileData.firstName}
-                    disabled={!isEditing}
-                    onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
-                    className="w-full px-3 py-2 bg-white rounded border border-gray-300 disabled:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition"
-                  />
+          <div className="flex justify-center items-start min-h-[calc(100vh-200px)] py-8">
+            {/* Profile Section - Full Width */}
+            <div className="w-full max-w-7xl">
+              <div className="bg-gradient-to-br from-[#FFD700] to-[#FFC107] rounded-2xl shadow-2xl p-8 md:p-12">
+                <div className="text-center mb-8">
+                  <div className="w-32 h-32 bg-white rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg">
+                    <span className="text-4xl text-[#8B3A3A] font-bold">
+                      {profileData.firstName?.charAt(0)}{profileData.lastName?.charAt(0)}
+                    </span>
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-bold text-[#8B3A3A] mb-2">Profile Management</h2>
+                  <p className="text-[#8B3A3A]/80 text-lg">Manage your account information</p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-[#8B3A3A] mb-1">Last Name</label>
-                  <input
-                    type="text"
-                    value={profileData.lastName}
-                    disabled={!isEditing}
-                    onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
-                    className="w-full px-3 py-2 bg-white rounded border border-gray-300 disabled:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition"
-                  />
-                </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+                <h3 className="text-xl font-bold text-[#8B3A3A] mb-6 text-center">Personal Information</h3>
 
-                <div>
-                  <label className="block text-sm font-semibold text-[#8B3A3A] mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={profileData.email}
-                    disabled={!isEditing}
-                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                    className="w-full px-3 py-2 bg-white rounded border border-gray-300 disabled:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition"
-                  />
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-[#8B3A3A] mb-2">First Name</label>
+                    <input
+                      type="text"
+                      value={profileData.firstName}
+                      disabled={!isEditing}
+                      onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                      className="w-full px-4 py-3 bg-white rounded-lg border-2 border-gray-200 disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition-all duration-200 text-gray-800"
+                      placeholder="Enter your first name"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-[#8B3A3A] mb-1">Phone</label>
-                  <input
-                    type="tel"
-                    value={profileData.phoneNumber}
-                    disabled={!isEditing}
-                    onChange={(e) => setProfileData({ ...profileData, phoneNumber: e.target.value })}
-                    className="w-full px-3 py-2 bg-white rounded border border-gray-300 disabled:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-[#8B3A3A] mb-2">Last Name</label>
+                    <input
+                      type="text"
+                      value={profileData.lastName}
+                      disabled={!isEditing}
+                      onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                      className="w-full px-4 py-3 bg-white rounded-lg border-2 border-gray-200 disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition-all duration-200 text-gray-800"
+                      placeholder="Enter your last name"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-[#8B3A3A] mb-1">Address</label>
-                  <input
-                    type="text"
-                    value={profileData.address}
-                    disabled={!isEditing}
-                    onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
-                    className="w-full px-3 py-2 bg-white rounded border border-gray-300 disabled:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition"
-                  />
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-[#8B3A3A] mb-2">Email Address</label>
+                    <input
+                      type="email"
+                      value={profileData.email}
+                      disabled={!isEditing}
+                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                      className="w-full px-4 py-3 bg-white rounded-lg border-2 border-gray-200 disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition-all duration-200 text-gray-800"
+                      placeholder="Enter your email address"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-[#8B3A3A] mb-2">Phone Number</label>
+                    <input
+                      type="tel"
+                      value={profileData.phoneNumber}
+                      disabled={!isEditing}
+                      onChange={(e) => setProfileData({ ...profileData, phoneNumber: e.target.value })}
+                      className="w-full px-4 py-3 bg-white rounded-lg border-2 border-gray-200 disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition-all duration-200 text-gray-800"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-[#8B3A3A] mb-2">Address</label>
+                    <input
+                      type="text"
+                      value={profileData.address}
+                      disabled={!isEditing}
+                      onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                      className="w-full px-4 py-3 bg-white rounded-lg border-2 border-gray-200 disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent transition-all duration-200 text-gray-800"
+                      placeholder="Enter your address"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="flex justify-center mt-8">
                 {isEditing ? (
-                  <div className="flex gap-3">
+                  <div className="flex gap-4 w-full max-w-md">
                     <button
                       onClick={async () => {
                         try {
-                          const user = JSON.parse(localStorage.getItem('user'))
-                          if (user && user.id) {
-                            await updateUserProfile(user.id, profileData)
-                            alert("Profile updated successfully!")
-                            setIsEditing(false)
-                          }
+                          // For debugging: use user ID 1
+                          const userId = 1
+                          console.log('Updating profile for user ID:', userId)
+                          console.log('Profile data to update:', profileData)
+
+                          await updateUserProfile(userId, profileData)
+                          alert("Profile updated successfully!")
+                          setIsEditing(false)
                         } catch (err) {
                           alert("Failed to update profile")
-                          console.error(err)
+                          console.error('Update error:', err)
                         }
                       }}
-                      className="flex-1 bg-[#8B3A3A] text-white py-2 rounded font-bold hover:bg-[#6B2A2A] transition"
+                      className="flex-1 bg-[#8B3A3A] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#6B2A2A] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                       disabled={loading}
                     >
                       Save Changes
                     </button>
                     <button
                       onClick={() => setIsEditing(false)}
-                      className="flex-1 bg-gray-300 text-gray-700 py-2 rounded font-bold hover:bg-gray-400 transition"
+                      className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200 shadow-md hover:shadow-lg"
                     >
                       Cancel
                     </button>
@@ -186,11 +188,12 @@ export default function ProfilePage() {
                 ) : (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="w-full bg-white text-[#8B3A3A] py-2 rounded font-bold hover:bg-gray-100 transition border-2 border-[#8B3A3A]"
+                    className="bg-white text-[#8B3A3A] py-3 px-8 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200 border-2 border-[#8B3A3A] shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
-                    Edit Profile
+                    ✏️ Edit Profile
                   </button>
                 )}
+              </div>
               </div>
             </div>
           </div>
