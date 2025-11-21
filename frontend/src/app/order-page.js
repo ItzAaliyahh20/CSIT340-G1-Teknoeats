@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../components/sidebar'
-import { Search } from "lucide-react"
+
 
 export default function OrdersPage() {
   const navigate = useNavigate();
@@ -52,15 +52,7 @@ export default function OrdersPage() {
     <div className="min-h-screen bg-gray-100">
       <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='orders' onSelectCategory={(category) => navigate('/home?category=' + category)} />
       <div className="ml-[250px]">
-        <div className="bg-[#FFD700] px-8 py-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Looking for something?"
-              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
-          </div>
+        <div className="bg-[#FFD700] px-10 py-12 shadow-lg">
         </div>
         <main className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-[#8B3A3A] text-center mb-8">My Orders</h1>
@@ -73,7 +65,7 @@ export default function OrdersPage() {
               onClick={() => setActiveTab(tab)}
               className={`px-6 py-2 rounded-full font-bold transition ${
                 activeTab === tab
-                  ? "bg-white text-[#8B3A3A] border-2 border-gray-300"
+                  ? "bg-white text-[#8B3A3A] border-2 border-[#8B3A3A]"
                   : "text-[#8B3A3A] hover:bg-gray-200"
               }`}
             >
@@ -103,7 +95,7 @@ export default function OrdersPage() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <img
-                      src="/cozy-italian-restaurant.png"
+                      src="/restaurant2.svg"
                       alt="Restaurant"
                       className="w-12 h-12 rounded-full"
                     />

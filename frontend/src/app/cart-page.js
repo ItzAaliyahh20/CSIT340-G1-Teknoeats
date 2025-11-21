@@ -67,7 +67,7 @@ export default function CartPage() {
 
     // Show success and redirect
     alert("Order placed successfully! Your order is pending.")
-    navigate("/orders") // just call navigate directly, no .push
+    navigate("/order") // just call navigate directly, no .push
   }
 
   if (isLoading) {
@@ -75,6 +75,7 @@ export default function CartPage() {
       <div className="min-h-screen bg-gray-100">
         <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='cart' onSelectCategory={(category) => navigate('/home?category=' + category)} />
         <div className="ml-[250px]">
+          <div className="bg-[#FFD700] px-10 py-9"></div>
           <main className="max-w-4xl mx-auto px-4 py-8">
             <p className="text-center">Loading cart...</p>
           </main>
@@ -87,6 +88,7 @@ export default function CartPage() {
     <div className="min-h-screen bg-gray-100">
       <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='cart' onSelectCategory={(category) => navigate('/home?category=' + category)} />
       <div className="ml-[250px]">
+        <div className="bg-[#FFD700] px-10 py-12 shadow-lg"></div>
         <main className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-[#8B3A3A] text-center mb-8">Cart</h1>
         {/* Cart Items */}

@@ -164,7 +164,7 @@ function App() {
             } 
           />
           <Route 
-            path="/canteen/orders" 
+            path="/canteen/order" 
             element={
               <ProtectedRoute allowedRoles={['Canteen Personnel']}>
                 <OrderQueue />

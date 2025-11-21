@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, Edit2, Trash2, Search, X } from 'lucide-react';
 
-const CATEGORIES = ["Meals", "Foods", "Snacks", "Beverages"];
+const CATEGORIES = ["Meals", "Food", "Snacks", "Beverages"];
 
 // API BASE URL
 const API_BASE_URL = "http://localhost:8080/api";

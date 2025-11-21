@@ -90,14 +90,14 @@ export default function FavoritesPage() {
       <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='favorites' onSelectCategory={(category) => navigate('/home?category=' + category)} />
 
       <div className="ml-[250px]">
-        <div className="bg-[#FFD700] px-8 py-4">
-          <div className="relative">
+        <div className="bg-gradient-to-r from-[#FFD700] to-[#FFC107] px-8 py-6 shadow-lg">
+          <div className="relative max-w-md mx-auto">
             <input
               type="text"
               placeholder="Looking for something?"
-              className="w-full px-4 py-2 pl-10 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
+              className="w-full px-6 py-3 pl-12 rounded-full bg-white/90 backdrop-blur-sm text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] shadow-md"
             />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} strokeWidth={3} />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} strokeWidth={2} />
           </div>
         </div>
         <main className="max-w-7xl mx-auto px-4 py-8">

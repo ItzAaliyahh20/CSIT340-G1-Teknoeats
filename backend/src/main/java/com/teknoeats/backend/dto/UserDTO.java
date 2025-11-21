@@ -6,18 +6,20 @@ public class UserDTO {
     private String lastName;
     private String email;
     private String phoneNumber;
+    private String address;
     private String role;
 
     // Default Constructor
     public UserDTO() {}
 
     // Constructor with all fields
-    public UserDTO(Long id, String firstName, String lastName, String email, String phoneNumber, String role) {
+    public UserDTO(Long id, String firstName, String lastName, String email, String phoneNumber, String address, String role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.address = address;
         this.role = role;
     }
 
@@ -60,6 +62,14 @@ public class UserDTO {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getRole() {
