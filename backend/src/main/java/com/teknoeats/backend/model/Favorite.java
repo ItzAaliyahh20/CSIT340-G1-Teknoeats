@@ -17,27 +17,27 @@ public class Favorite {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String userId; // store user identifier
+    private Long userId; // store user identifier
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "menu_item_id")
-    private MenuItem menuItem;
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     // Constructors
     public Favorite() {}
 
-    public Favorite(String userId, MenuItem menuItem) {
+    public Favorite(Long userId, Product product) {
         this.userId = userId;
-        this.menuItem = menuItem;
+        this.product = product;
     }
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
-    public MenuItem getMenuItem() { return menuItem; }
-    public void setMenuItem(MenuItem menuItem) { this.menuItem = menuItem; }
+    public Product getProduct() { return product; }
+    public void setProduct(Product product) { this.product = product; }
 }

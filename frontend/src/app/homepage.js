@@ -4,6 +4,7 @@ import HeroBanner from '../components/hero-banner'
 import ProductCard from '../components/product-card'
 import { Search } from "lucide-react"
 import { useSearchParams } from 'react-router-dom'
+import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser } from '../services/api'
 
 const API_BASE_URL = "http://localhost:8080/api";
 const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages"]
@@ -18,41 +19,50 @@ export default function HomePage() {
 
   const [cart, setCart] = useState([])
   const [favorites, setFavorites] = useState([])
+  const [user, setUser] = useState(null)
 
   // ⭐ FETCH PRODUCTS FROM BACKEND
   useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/products`);
-      if (response.ok) {
-        const data = await response.json();
-        console.log("✅ Products fetched:", data.length);
-        setProducts(data);
-      } else {
-        console.error("❌ Failed to fetch products");
-        alert("Failed to load products from server");
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_BASE_URL}/products`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("✅ Products fetched:", data.length);
+          setProducts(data);
+        } else {
+          console.error("❌ Failed to fetch products");
+          alert("Failed to load products from server");
+        }
+      } catch (error) {
+        console.error("❌ Error fetching products:", error);
+        alert("Error connecting to server");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("❌ Error fetching products:", error);
-      alert("Error connecting to server");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load favorites
-  useEffect(() => {
-    const saved = localStorage.getItem("favorites")
-    if (saved) setFavorites(JSON.parse(saved))
+    };
+    loadProducts();
   }, [])
 
+  // ⭐ FETCH USER AND FAVORITES
   useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites))
-  }, [favorites])
+    const loadUserData = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
+        if (currentUser) {
+          const favs = await getFavorites(currentUser.id);
+          setFavorites(favs.map(f => f.product.id));
+        }
+      } catch (error) {
+        console.error("❌ Error fetching user data:", error);
+        // No alert for user data, as it's optional
+      }
+    };
+    loadUserData();
+  }, [])
+
 
   // Load cart
   useEffect(() => {
@@ -87,12 +97,23 @@ export default function HomePage() {
     setCart(updatedCart)
   }
 
-  const toggleFavorite = (id) => {
-    setFavorites(
-      favorites.includes(id)
-        ? favorites.filter((f) => f !== id)
-        : [...favorites, id]
-    )
+  const toggleFavorite = async (productId) => {
+    if (!user) {
+      alert("Please log in to add favorites")
+      return
+    }
+    try {
+      if (favorites.includes(productId)) {
+        await removeFromFavorites(user.id, productId)
+        setFavorites(favorites.filter(id => id !== productId))
+      } else {
+        await addToFavorites(user.id, productId)
+        setFavorites([...favorites, productId])
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error)
+      alert("Failed to update favorite")
+    }
   }
 
   // ⭐ Loading UI

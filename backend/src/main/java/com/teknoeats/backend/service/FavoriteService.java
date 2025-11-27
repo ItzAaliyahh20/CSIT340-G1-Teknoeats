@@ -3,39 +3,41 @@ package com.teknoeats.backend.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.teknoeats.backend.model.Favorite;
-import com.teknoeats.backend.model.MenuItem;
+import com.teknoeats.backend.model.Product;
 import com.teknoeats.backend.repository.FavoriteRepository;
-import com.teknoeats.backend.repository.MenuItemRepository;
+import com.teknoeats.backend.repository.ProductRepository;
 
 @Service
 public class FavoriteService {
 
     private final FavoriteRepository favoriteRepository;
-    private final MenuItemRepository menuItemRepository;
+    private final ProductRepository productRepository;
 
-    public FavoriteService(FavoriteRepository favoriteRepository, MenuItemRepository menuItemRepository) {
+    public FavoriteService(FavoriteRepository favoriteRepository, ProductRepository productRepository) {
         this.favoriteRepository = favoriteRepository;
-        this.menuItemRepository = menuItemRepository;
+        this.productRepository = productRepository;
     }
 
-    public List<Favorite> getFavorites(String userId) {
+    public List<Favorite> getFavorites(Long userId) {
         return favoriteRepository.findByUserId(userId);
     }
 
-    public Favorite addFavorite(String userId, Long menuItemId) {
-    MenuItem item = menuItemRepository.findById(menuItemId)
-            .orElseThrow(() -> new RuntimeException("Item not found"));
+    public Favorite addFavorite(Long userId, Long productId) {
+    Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new RuntimeException("Product not found"));
 
     Favorite favorite = new Favorite();
     favorite.setUserId(userId);
-    favorite.setMenuItem(item);
+    favorite.setProduct(product);
 
     return favoriteRepository.save(favorite);
 }
 
-    public void removeFavorite(String userId, Long menuItemId) {
-        favoriteRepository.deleteByUserIdAndMenuItemId(userId, menuItemId);
+    @Transactional
+    public void removeFavorite(Long userId, Long productId) {
+        favoriteRepository.deleteByUserIdAndProductId(userId, productId);
     }
 }
