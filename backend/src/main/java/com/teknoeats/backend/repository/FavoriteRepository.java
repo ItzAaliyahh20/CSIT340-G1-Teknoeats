@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.teknoeats.backend.model.Favorite;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
-    List<Favorite> findByUserId(String userId);
-    void deleteByUserIdAndMenuItemId(String userId, Long menuItemId);
+    List<Favorite> findByUserId(Long userId);
+    void deleteByUserIdAndProductId(Long userId, Long productId);
 }

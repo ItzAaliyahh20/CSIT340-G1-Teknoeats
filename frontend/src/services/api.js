@@ -45,8 +45,8 @@ export const getCurrentUser = () => {
   const userData = localStorage.getItem('user')
   if (userData) {
     const user = JSON.parse(userData)
-    if (user && user.id) {
-      return api.get(`/users/${user.id}`).then((res) => res.data)
+    if (user && user.userId) {
+      return api.get(`/users/${user.userId}`).then((res) => res.data)
     }
   }
   return Promise.reject(new Error('No user logged in'))
