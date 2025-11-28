@@ -4,7 +4,7 @@ import HeroBanner from '../components/hero-banner'
 import ProductCard from '../components/product-card'
 import { Search } from "lucide-react"
 import { useSearchParams } from 'react-router-dom'
-import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser } from '../services/api'
+import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser, getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart } from '../services/api'
 
 const API_BASE_URL = "http://localhost:8080/api";
 const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages"]
@@ -45,7 +45,7 @@ export default function HomePage() {
     loadProducts();
   }, [])
 
-  // ⭐ FETCH USER AND FAVORITES
+  // ⭐ FETCH USER, FAVORITES AND CART
   useEffect(() => {
     const loadUserData = async () => {
       try {
@@ -54,6 +54,9 @@ export default function HomePage() {
         if (currentUser) {
           const favs = await getFavorites(currentUser.id);
           setFavorites(favs.map(f => f.product.id));
+
+          const cartItems = await getCart(currentUser.id);
+          setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })));
         }
       } catch (error) {
         console.error("❌ Error fetching user data:", error);
@@ -64,15 +67,6 @@ export default function HomePage() {
   }, [])
 
 
-  // Load cart
-  useEffect(() => {
-    const saved = localStorage.getItem("cart")
-    if (saved) setCart(JSON.parse(saved))
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart))
-  }, [cart])
 
   // ⭐ Filtering now uses products fetched from backend
   const filteredProducts =
@@ -80,21 +74,20 @@ export default function HomePage() {
       ? products.filter((p) => p.category === "Meals")
       : products.filter((p) => p.category === selectedCategory)
 
-  const addToCart = (product, quantity) => {
-    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]")
-    const existing = existingCart.find((item) => item.id === product.id)
-
-    let updatedCart
-    if (existing) {
-      updatedCart = existingCart.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
-      )
-    } else {
-      updatedCart = [...existingCart, { ...product, quantity }]
+  const addToCart = async (product, quantity) => {
+    if (!user) {
+      alert("Please log in to add to cart")
+      return
     }
-
-    localStorage.setItem("cart", JSON.stringify(updatedCart))
-    setCart(updatedCart)
+    try {
+      await apiAddToCart(user.id, product.id, quantity)
+      // Refresh cart
+      const cartItems = await getCart(user.id)
+      setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
+    } catch (error) {
+      console.error("Error adding to cart:", error)
+      alert("Failed to add to cart")
+    }
   }
 
   const toggleFavorite = async (productId) => {

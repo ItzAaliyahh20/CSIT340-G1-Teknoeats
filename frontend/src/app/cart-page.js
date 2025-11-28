@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/sidebar'
+import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart, getCurrentUser } from '../services/api'
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -9,33 +10,57 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState("Gcash")
   const [pickupTime, setPickupTime] = useState("now")
   const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart")
-    if (savedCart) {
-      setItems(JSON.parse(savedCart))
+    const loadCart = async () => {
+      try {
+        const currentUser = await getCurrentUser()
+        setUser(currentUser)
+        if (currentUser) {
+          const cartItems = await getCart(currentUser.id)
+          setItems(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
+        }
+      } catch (error) {
+        console.error("Error loading cart:", error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-    setIsLoading(false)
+    loadCart()
   }, [])
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-  const updateQuantity = (id, quantity) => {
+  const updateQuantity = async (id, quantity) => {
     if (quantity <= 0) {
-      removeItem(id)
+      await removeItem(id)
     } else {
-      const updatedItems = items.map((item) =>
-        item.id === id ? { ...item, quantity } : item
-      )
-      setItems(updatedItems)
-      localStorage.setItem("cart", JSON.stringify(updatedItems))
+      if (!user) return
+      try {
+        // Remove existing and add with new quantity
+        await apiRemoveFromCart(user.id, id)
+        // Assuming addToCart API adds the quantity
+        // But since backend increments, we need to add with the new total quantity
+        // For simplicity, refresh cart after remove and add
+        await apiAddToCart(user.id, id, quantity)
+        const cartItems = await getCart(user.id)
+        setItems(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
+      } catch (error) {
+        console.error("Error updating quantity:", error)
+      }
     }
   }
 
-  const removeItem = (id) => {
-    const updatedItems = items.filter((item) => item.id !== id)
-    setItems(updatedItems)
-    localStorage.setItem("cart", JSON.stringify(updatedItems))
+  const removeItem = async (id) => {
+    if (!user) return
+    try {
+      await apiRemoveFromCart(user.id, id)
+      const cartItems = await getCart(user.id)
+      setItems(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
+    } catch (error) {
+      console.error("Error removing item:", error)
+    }
   }
 
   const handleCheckout = () => {
