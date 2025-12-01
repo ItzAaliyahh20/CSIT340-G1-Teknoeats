@@ -49,10 +49,18 @@ public class UserService {
         User user = userRepository.findByEmail(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-        // TEMPORARY: Plain text password check (for testing only!)
-        if (!user.getPassword().equals(request.getPassword())) {
+        // Debug logging
+        System.out.println("Login attempt for email: " + request.getUsername());
+        System.out.println("Input password: " + request.getPassword());
+        System.out.println("Stored password hash: " + user.getPassword());
+
+        // Verify password using BCrypt
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            System.out.println("Password mismatch");
             throw new RuntimeException("Invalid credentials");
         }
+
+        System.out.println("Login successful");
 
         return new AuthResponse(
                  "Login successful",
