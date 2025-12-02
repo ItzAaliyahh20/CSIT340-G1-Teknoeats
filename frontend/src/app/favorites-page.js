@@ -17,22 +17,33 @@ export default function FavoritesPage() {
    const [user, setUser] = useState(null)
 
    useEffect(() => {
-     const loadData = async () => {
-       try {
-         const currentUser = await getCurrentUser()
-         setUser(currentUser)
-         if (currentUser) {
-           const prods = await getProducts()
-           setProducts(prods)
-           const favs = await getFavorites(currentUser.id)
-           setFavorites(favs.map(f => f.product.id))
-         }
-       } catch (error) {
-         console.error("Error loading data:", error)
-       } finally {
-         
-       }
-     }
+     // At the top
+const BACKEND_URL = "http://localhost:8080";
+
+// In loadData function:
+const loadData = async () => {
+  try {
+    const currentUser = await getCurrentUser();
+    setUser(currentUser);
+    if (currentUser) {
+      const prods = await getProducts();
+      
+      // FIX: Add full URL to image paths
+      const prodsWithFixedImages = prods.map(product => ({
+        ...product,
+        image: product.image?.startsWith('/uploads') 
+          ? `${BACKEND_URL}${product.image}` 
+          : product.image
+      }));
+      
+      setProducts(prodsWithFixedImages);
+      const favs = await getFavorites(currentUser.id);
+      setFavorites(favs.map(f => f.product.id));
+    }
+  } catch (error) {
+    console.error("Error loading data:", error);
+  }
+};
      loadData()
    }, [])
 

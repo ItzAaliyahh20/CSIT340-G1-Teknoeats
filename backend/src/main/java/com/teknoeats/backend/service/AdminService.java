@@ -31,31 +31,22 @@ public class AdminService {
 
     // ========== PRODUCT MANAGEMENT ==========
 
-    public Product addProduct(ProductDTO dto) {
-        Product product = new Product();
-        product.setName(dto.getName());
-        product.setPrice(dto.getPrice());
-        product.setCategory(dto.getCategory());
-        product.setImage(dto.getImage());
-        product.setStock(dto.getStock() != null ? dto.getStock() : 0);
-
-        return productRepository.save(product);
+    public Product addProduct(Product product) {
+    return productRepository.save(product);
     }
 
-    public Product updateProduct(Long id, ProductDTO dto) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        product.setName(dto.getName());
-        product.setPrice(dto.getPrice());
-        product.setCategory(dto.getCategory());
-        product.setImage(dto.getImage());
-        if (dto.getStock() != null) {
-            product.setStock(dto.getStock());
-        }
-
-        return productRepository.save(product);
-    }
+    public Product updateProduct(Long id, Product updatedProduct) {
+    Product product = productRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Product not found"));
+    
+    product.setName(updatedProduct.getName());
+    product.setPrice(updatedProduct.getPrice());
+    product.setCategory(updatedProduct.getCategory());
+    product.setImage(updatedProduct.getImage());
+    product.setStock(updatedProduct.getStock());
+    
+    return productRepository.save(product);
+}
 
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
@@ -137,40 +128,44 @@ public class AdminService {
     // ========== DASHBOARD STATISTICS ==========
 
     public DashboardStatsDTO getDashboardStats() {
-        List<Order> allOrders = orderRepository.findAll();
-
-        BigDecimal totalRevenue = allOrders.stream()
-                .map(Order::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        long pendingCount = allOrders.stream()
-                .filter(o -> o.getStatus() == Order.OrderStatus.pending)
-                .count();
-
-        long preparingCount = allOrders.stream()
-                .filter(o -> o.getStatus() == Order.OrderStatus.preparing)
-                .count();
-
-        long readyCount = allOrders.stream()
-                .filter(o -> o.getStatus() == Order.OrderStatus.ready)
-                .count();
-
-        long completedCount = allOrders.stream()
-                .filter(o -> o.getStatus() == Order.OrderStatus.delivered)
-                .count();
-
-        DashboardStatsDTO stats = new DashboardStatsDTO();
-        stats.setTotalOrders(allOrders.size());
-        stats.setTotalRevenue(totalRevenue);
-        stats.setTotalUsers((int) userRepository.count());
-        stats.setTotalProducts((int) productRepository.count());
-        stats.setPendingOrders((int) pendingCount);
-        stats.setPreparingOrders((int) preparingCount);
-        stats.setReadyOrders((int) readyCount);
-        stats.setCompletedOrders((int) completedCount);
-
-        return stats;
-    }
+    List<Order> allOrders = orderRepository.findAll();
+    
+    // Count ACTUAL products in database
+    long productCount = productRepository.count();
+    System.out.println("📊 Total products in database: " + productCount); // Debug log
+    
+    BigDecimal totalRevenue = allOrders.stream()
+            .map(Order::getTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    
+    long pendingCount = allOrders.stream()
+            .filter(o -> o.getStatus() == Order.OrderStatus.pending)
+            .count();
+    
+    long preparingCount = allOrders.stream()
+            .filter(o -> o.getStatus() == Order.OrderStatus.preparing)
+            .count();
+    
+    long readyCount = allOrders.stream()
+            .filter(o -> o.getStatus() == Order.OrderStatus.ready)
+            .count();
+    
+    long completedCount = allOrders.stream()
+            .filter(o -> o.getStatus() == Order.OrderStatus.delivered)
+            .count();
+    
+    DashboardStatsDTO stats = new DashboardStatsDTO();
+    stats.setTotalOrders(allOrders.size());
+    stats.setTotalRevenue(totalRevenue);
+    stats.setTotalUsers((int) userRepository.count());
+    stats.setTotalProducts((int) productCount); // Use the counted value
+    stats.setPendingOrders((int) pendingCount);
+    stats.setPreparingOrders((int) preparingCount);
+    stats.setReadyOrders((int) readyCount);
+    stats.setCompletedOrders((int) completedCount);
+    
+    return stats;
+}
 
     // Helper method
     private UserDTO convertUserToDTO(User user) {
