@@ -5,10 +5,12 @@ import {
   UtensilsCrossed, 
   ShoppingBag, 
   Users, 
-  LogOut,
-  TrendingUp,
-  DollarSign,
-  Package
+  LogOut, 
+  TrendingUp, 
+  DollarSign, 
+  Package,
+  ChevronRight,
+  AlertCircle
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -21,9 +23,9 @@ export default function AdminDashboard() {
     pendingOrders: 0,
     completedOrders: 0
   });
+  const [recentOrders, setRecentOrders] = useState([]);
 
   useEffect(() => {
-    // Load statistics from localStorage
     const orders = JSON.parse(localStorage.getItem('orders') || '[]');
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     
@@ -34,11 +36,13 @@ export default function AdminDashboard() {
     setStats({
       totalOrders: orders.length,
       totalRevenue: totalRevenue,
-      totalUsers: users.length + 1, // +1 for current user
+      totalUsers: users.length + 1,
       totalProducts: 32,
       pendingOrders: pendingOrders,
       completedOrders: completedOrders
     });
+    
+    setRecentOrders(orders.slice(-5).reverse());
   }, []);
 
   const handleLogout = () => {
@@ -46,50 +50,68 @@ export default function AdminDashboard() {
     navigate('/login');
   };
 
-  const StatCard = ({ icon: Icon, label, value, color, subtext }) => (
-    <div className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition">
+  const StatCard = ({ icon: Icon, label, value, color, subtext, bgGradient }) => (
+    <div className={`bg-gradient-to-br ${bgGradient} rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}>
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-sm font-medium mb-1">{label}</p>
-          <p className={`text-3xl font-bold ${color}`}>{value}</p>
-          {subtext && <p className="text-xs text-gray-500 mt-1">{subtext}</p>}
+        <div className="flex-1">
+          <p className="text-white/80 text-sm font-medium mb-2">{label}</p>
+          <p className={`text-4xl font-bold text-white mb-1`}>{value}</p>
+          {subtext && <p className="text-white/70 text-xs">{subtext}</p>}
         </div>
-        <div className={`${color} bg-opacity-10 p-4 rounded-full`}>
-          <Icon className={color} size={32} />
+        <div className="bg-white/20 p-4 rounded-xl backdrop-blur-sm">
+          <Icon className="text-white" size={32} />
         </div>
       </div>
     </div>
   );
 
+  const QuickActionCard = ({ icon: Icon, title, onClick, gradient }) => (
+    <button
+      onClick={onClick}
+      className={`bg-gradient-to-br ${gradient} p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-white group`}
+    >
+      <div className="flex flex-col items-center gap-3">
+        <div className="bg-white/20 p-4 rounded-full group-hover:scale-110 transition-transform">
+          <Icon size={32} />
+        </div>
+        <span className="font-semibold text-lg">{title}</span>
+      </div>
+    </button>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
-      <header className="bg-[#8B3A3A] text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <LayoutDashboard size={32} />
-            <div>
-              <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-              <p className="text-sm text-gray-200">TeknoEats Management System</p>
+      <header className="bg-gradient-to-r from-[#8B3A3A] to-[#6B2A2A] text-white shadow-2xl sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
+                <LayoutDashboard size={32} />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+                <p className="text-white/80 text-sm">TeknoEats Management System</p>
+              </div>
             </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-white text-[#8B3A3A] px-6 py-3 rounded-xl hover:bg-gray-100 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+            >
+              <LogOut size={18} />
+              Logout
+            </button>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 bg-white text-[#8B3A3A] px-4 py-2 rounded-lg hover:bg-gray-100 transition font-semibold"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="mb-8 bg-gradient-to-r from-[#FFD700] to-[#FFC107] rounded-2xl p-8 shadow-lg">
+          <h2 className="text-4xl font-bold text-[#8B3A3A] mb-2">
             Welcome, Administrator
           </h2>
-          <p className="text-gray-600">
+          <p className="text-[#8B3A3A]/80 text-lg">
             Here's what's happening with your canteen today
           </p>
         </div>
@@ -100,116 +122,124 @@ export default function AdminDashboard() {
             icon={ShoppingBag}
             label="Total Orders"
             value={stats.totalOrders}
-            color="text-blue-600"
             subtext={`${stats.pendingOrders} pending`}
+            bgGradient="from-blue-500 to-blue-600"
           />
           <StatCard
             icon={DollarSign}
             label="Total Revenue"
-            value={`₱${stats.totalRevenue.toFixed(2)}`}
-            color="text-green-600"
-            subtext="All time"
+            value={`₱${stats.totalRevenue.toFixed(0)}`}
+            subtext="All time earnings"
+            bgGradient="from-green-500 to-green-600"
           />
           <StatCard
             icon={Users}
             label="Total Users"
             value={stats.totalUsers}
-            color="text-purple-600"
             subtext="Active customers"
+            bgGradient="from-purple-500 to-purple-600"
           />
           <StatCard
             icon={Package}
             label="Menu Items"
             value={stats.totalProducts}
-            color="text-orange-600"
             subtext="Available products"
+            bgGradient="from-orange-500 to-orange-600"
           />
         </div>
 
         {/* Quick Actions */}
         <div className="mb-8">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button
+          <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <ChevronRight className="text-[#8B3A3A]" />
+            Quick Actions
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <QuickActionCard
+              icon={UtensilsCrossed}
+              title="Manage Menu"
               onClick={() => navigate('/admin/menu')}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition flex flex-col items-center gap-3 hover:bg-[#8B3A3A] hover:text-white group"
-            >
-              <UtensilsCrossed size={40} className="text-[#8B3A3A] group-hover:text-white" />
-              <span className="font-semibold">Manage Menu</span>
-            </button>
-            
-            <button
+              gradient="from-[#8B3A3A] to-[#6B2A2A]"
+            />
+            <QuickActionCard
+              icon={ShoppingBag}
+              title="View Orders"
               onClick={() => navigate('/admin/orders')}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition flex flex-col items-center gap-3 hover:bg-[#8B3A3A] hover:text-white group"
-            >
-              <ShoppingBag size={40} className="text-[#8B3A3A] group-hover:text-white" />
-              <span className="font-semibold">View Orders</span>
-            </button>
-            
-            <button
+              gradient="from-blue-500 to-blue-600"
+            />
+            <QuickActionCard
+              icon={Users}
+              title="Manage Users"
               onClick={() => navigate('/admin/users')}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition flex flex-col items-center gap-3 hover:bg-[#8B3A3A] hover:text-white group"
-            >
-              <Users size={40} className="text-[#8B3A3A] group-hover:text-white" />
-              <span className="font-semibold">Manage Users</span>
-            </button>
-            
-            <button
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition flex flex-col items-center gap-3 hover:bg-[#8B3A3A] hover:text-white group"
-            >
-              <TrendingUp size={40} className="text-[#8B3A3A] group-hover:text-white" />
-              <span className="font-semibold">View Reports</span>
-            </button>
+              gradient="from-purple-500 to-purple-600"
+            />
+            <QuickActionCard
+              icon={TrendingUp}
+              title="View Reports"
+              onClick={() => {}}
+              gradient="from-green-500 to-green-600"
+            />
           </div>
         </div>
 
         {/* Recent Orders */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold text-gray-800">Recent Orders</h3>
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <AlertCircle className="text-[#8B3A3A]" />
+              Recent Orders
+            </h3>
             <button
               onClick={() => navigate('/admin/orders')}
-              className="text-[#8B3A3A] hover:underline font-semibold"
+              className="text-[#8B3A3A] hover:text-[#6B2A2A] font-semibold flex items-center gap-1 transition-colors"
             >
-              View All →
+              View All
+              <ChevronRight size={20} />
             </button>
           </div>
-          
+
           {stats.totalOrders === 0 ? (
-            <p className="text-gray-500 text-center py-8">No orders yet</p>
+            <div className="text-center py-16 bg-gray-50 rounded-xl">
+              <ShoppingBag size={64} className="mx-auto text-gray-300 mb-4" />
+              <p className="text-gray-500 text-lg font-medium">No orders yet</p>
+              <p className="text-gray-400 text-sm">Orders will appear here once placed</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Order ID</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">Amount</th>
+                <thead>
+                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Order ID</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Date</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Status</th>
+                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {JSON.parse(localStorage.getItem('orders') || '[]')
-                    .slice(-5)
-                    .reverse()
-                    .map((order) => (
-                      <tr key={order.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">#{order.id.slice(-6)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{order.date}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            order.status === 'ready' ? 'bg-blue-100 text-blue-800' :
-                            'bg-green-100 text-green-800'
-                          }`}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
-                          ₱{order.total?.toFixed(2) || '0.00'}
-                        </td>
-                      </tr>
-                    ))}
+                <tbody className="divide-y divide-gray-100">
+                  {recentOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                        #{order.id.slice(-6)}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{order.date}</td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`px-4 py-1.5 rounded-full text-xs font-bold ${
+                            order.status === 'pending'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : order.status === 'ready'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}
+                        >
+                          {order.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-bold text-gray-900 text-right">
+                        ₱{order.total?.toFixed(2) || '0.00'}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
