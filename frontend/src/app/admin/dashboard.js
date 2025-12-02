@@ -1,17 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  UtensilsCrossed, 
-  ShoppingBag, 
-  Users, 
-  LogOut, 
-  TrendingUp, 
-  DollarSign, 
-  Package,
-  ChevronRight,
-  AlertCircle
-} from 'lucide-react';
+import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Users, LogOut, TrendingUp, DollarSign, Package, ChevronRight, AlertCircle } from 'lucide-react';
+
+const API_BASE_URL = "http://localhost:8080/api";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -19,30 +10,80 @@ export default function AdminDashboard() {
     totalOrders: 0,
     totalRevenue: 0,
     totalUsers: 0,
-    totalProducts: 32,
+    totalProducts: 0,
     pendingOrders: 0,
     completedOrders: 0
   });
   const [recentOrders, setRecentOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Function to fetch stats from backend
+  const fetchStats = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/dashboard/stats`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📊 Stats fetched:', data);
+        setStats({
+          totalOrders: data.totalOrders || 0,
+          totalRevenue: data.totalRevenue || 0,
+          totalUsers: data.totalUsers || 0,
+          totalProducts: data.totalProducts || 0,
+          pendingOrders: data.pendingOrders || 0,
+          completedOrders: data.completedOrders || 0
+        });
+      } else {
+        console.error('Failed to fetch stats');
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  // Function to fetch recent orders
+  const fetchRecentOrders = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/orders`);
+      if (response.ok) {
+        const data = await response.json();
+        setRecentOrders(data.slice(-5).reverse());
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load
   useEffect(() => {
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    fetchStats();
+    fetchRecentOrders();
+  }, []);
+
+  // Listen for storage events (when products are added/updated)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'productsUpdated') {
+        console.log('🔄 Products updated, refreshing stats...');
+        fetchStats();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
     
-    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-    const pendingOrders = orders.filter(o => o.status === 'pending').length;
-    const completedOrders = orders.filter(o => o.status === 'delivered').length;
+    // Also listen for custom event from same window
+    const handleCustomEvent = () => {
+      console.log('🔄 Products updated (custom event), refreshing stats...');
+      fetchStats();
+    };
     
-    setStats({
-      totalOrders: orders.length,
-      totalRevenue: totalRevenue,
-      totalUsers: users.length + 1,
-      totalProducts: 32,
-      pendingOrders: pendingOrders,
-      completedOrders: completedOrders
-    });
-    
-    setRecentOrders(orders.slice(-5).reverse());
+    window.addEventListener('productsUpdated', handleCustomEvent);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('productsUpdated', handleCustomEvent);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -78,6 +119,17 @@ export default function AdminDashboard() {
       </div>
     </button>
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B3A3A] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -198,7 +250,7 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          {stats.totalOrders === 0 ? (
+          {recentOrders.length === 0 ? (
             <div className="text-center py-16 bg-gray-50 rounded-xl">
               <ShoppingBag size={64} className="mx-auto text-gray-300 mb-4" />
               <p className="text-gray-500 text-lg font-medium">No orders yet</p>
@@ -219,9 +271,9 @@ export default function AdminDashboard() {
                   {recentOrders.map((order) => (
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                        #{order.id.slice(-6)}
+                        #{order.id.toString().slice(-6)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{order.date}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{order.createdAt}</td>
                       <td className="px-6 py-4">
                         <span
                           className={`px-4 py-1.5 rounded-full text-xs font-bold ${

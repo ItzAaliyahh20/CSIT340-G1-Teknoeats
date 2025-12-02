@@ -2,6 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, Edit2, Trash2, Search, X } from 'lucide-react';
 
+const triggerStatsRefresh = () => {
+  // Trigger a custom event to notify dashboard
+  window.dispatchEvent(new Event('productsUpdated'));
+  
+  // Also update localStorage as a fallback
+  localStorage.setItem('productsUpdated', Date.now().toString());
+  
+  console.log('✅ Stats refresh triggered');
+};
+
 const CATEGORIES = ["Meals", "Food", "Snacks", "Beverages"];
 
 // API BASE URL
@@ -82,31 +92,35 @@ export default function MenuManagement() {
 
     // DELETE PRODUCT - CALL BACKEND API
     const handleDeleteProduct = async (productId) => {
-        if (window.confirm('Are you sure you want to delete this item?')) {
-            setLoading(true);
-            try {
-                const response = await fetch(`${API_BASE_URL}/admin/menu/products/${productId}`, {
-                    method: 'DELETE',
-                });
+  if (window.confirm('Are you sure you want to delete this item?')) {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/menu/products/${productId}`, {
+        method: 'DELETE',
+      });
 
-                if (response.ok) {
-                    console.log('✅ Product deleted from backend');
-                    alert('Product deleted successfully!');
-                    // Reload products from backend
-                    fetchProducts();
-                } else {
-                    const error = await response.text();
-                    console.error('❌ Delete failed:', error);
-                    alert('Failed to delete product: ' + error);
-                }
-            } catch (error) {
-                console.error('❌ Error deleting product:', error);
-                alert('Error connecting to server');
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
+      if (response.ok) {
+        console.log('✅ Product deleted from backend');
+        alert('Product deleted successfully!');
+        
+        // Reload products from backend
+        fetchProducts();
+        
+        // 🔥 TRIGGER STATS REFRESH
+        triggerStatsRefresh();
+      } else {
+        const error = await response.text();
+        console.error('❌ Delete failed:', error);
+        alert('Failed to delete product: ' + error);
+      }
+    } catch (error) {
+      console.error('❌ Error deleting product:', error);
+      alert('Error connecting to server');
+    } finally {
+      setLoading(false);
+    }
+  }
+};
 
     // SUBMIT FORM - CALL BACKEND API
     // In the handleSubmit function, replace the image handling section:
@@ -122,19 +136,15 @@ const handleSubmit = async (e) => {
   setLoading(true);
 
   try {
-    // Create FormData for multipart upload
     const formDataToSend = new FormData();
     formDataToSend.append('name', formData.name);
     formDataToSend.append('price', formData.price);
     formDataToSend.append('category', formData.category);
     formDataToSend.append('stock', formData.stock || 0);
 
-    // Handle image
     if (formData.imageFile) {
-      // New image file selected
       formDataToSend.append('image', formData.imageFile);
     } else if (editingProduct && formData.image) {
-      // Editing and keeping existing image
       formDataToSend.append('existingImage', formData.image);
     }
 
@@ -153,7 +163,14 @@ const handleSubmit = async (e) => {
 
     if (response.ok) {
       alert(editingProduct ? 'Product updated successfully!' : 'Product added successfully!');
+      
+      // Refresh the products list
       fetchProducts();
+      
+      // 🔥 TRIGGER STATS REFRESH
+      triggerStatsRefresh();
+      
+      // Close modal and reset form
       setShowModal(false);
       setFormData({
         name: '',
