@@ -20,7 +20,8 @@ export default function MenuManagement() {
         price: '',
         category: 'Meals',
         stock: '',
-        image: ''
+        image: '',
+        imageFile: null // Add this
     });
 
     // FETCH PRODUCTS FROM BACKEND ON LOAD
@@ -108,79 +109,71 @@ export default function MenuManagement() {
     };
 
     // SUBMIT FORM - CALL BACKEND API
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // In the handleSubmit function, replace the image handling section:
 
-        if (!formData.name || !formData.price || !formData.category) {
-            alert('Please fill in all required fields');
-            return;
-        }
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!formData.name || !formData.price || !formData.category) {
+    alert('Please fill in all required fields');
+    return;
+  }
 
-        setLoading(true);
+  setLoading(true);
 
-        try {
-            const productData = {
-                name: formData.name,
-                price: parseFloat(formData.price),
-                category: formData.category,
-                image: formData.image,
-                stock: parseInt(formData.stock) || 0
-            };
+  try {
+    // Create FormData for multipart upload
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('price', formData.price);
+    formDataToSend.append('category', formData.category);
+    formDataToSend.append('stock', formData.stock || 0);
 
-            let response;
+    // Handle image
+    if (formData.imageFile) {
+      // New image file selected
+      formDataToSend.append('image', formData.imageFile);
+    } else if (editingProduct && formData.image) {
+      // Editing and keeping existing image
+      formDataToSend.append('existingImage', formData.image);
+    }
 
-            if (editingProduct) {
-                // UPDATE EXISTING PRODUCT
-                console.log('Updating product:', editingProduct.id);
-                response = await fetch(`${API_BASE_URL}/admin/menu/products/${editingProduct.id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(productData)
-                });
-            } else {
-                // ADD NEW PRODUCT
-                console.log('Adding new product');
-                response = await fetch(`${API_BASE_URL}/admin/menu/products`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(productData)
-                });
-            }
+    let response;
+    if (editingProduct) {
+      response = await fetch(`${API_BASE_URL}/admin/menu/products/${editingProduct.id}`, {
+        method: 'PUT',
+        body: formDataToSend,
+      });
+    } else {
+      response = await fetch(`${API_BASE_URL}/admin/menu/products`, {
+        method: 'POST',
+        body: formDataToSend,
+      });
+    }
 
-            if (response.ok) {
-                const savedProduct = await response.json();
-                console.log('✅ Product saved to backend:', savedProduct);
-                alert(editingProduct ? 'Product updated successfully!' : 'Product added successfully!');
-                
-                // Reload products from backend
-                fetchProducts();
-                
-                // Close modal and reset form
-                setShowModal(false);
-                setFormData({
-                    name: '',
-                    price: '',
-                    category: 'Meals',
-                    stock: '',
-                    image: '/placeholder.svg'
-                });
-            } else {
-                const error = await response.text();
-                console.error('❌ Save failed:', error);
-                alert('Failed to save product: ' + error);
-            }
-        } catch (error) {
-            console.error('❌ Error saving product:', error);
-            alert('Error connecting to server');
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    if (response.ok) {
+      alert(editingProduct ? 'Product updated successfully!' : 'Product added successfully!');
+      fetchProducts();
+      setShowModal(false);
+      setFormData({
+        name: '',
+        price: '',
+        category: 'Meals',
+        stock: '',
+        image: '',
+        imageFile: null
+      });
+    } else {
+      const error = await response.text();
+      alert('Failed to save product: ' + error);
+    }
+  } catch (error) {
+    console.error('Error saving product:', error);
+    alert('Error connecting to server');
+  } finally {
+    setLoading(false);
+  }
+};
     return (
         <div className="min-h-screen bg-gray-100">
             {/* Header */}
@@ -269,7 +262,9 @@ export default function MenuManagement() {
                             className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
                         >
                             <img
-                                src={product.image || product.imageUrl || "/placeholder.svg"}
+                                src={product.image?.startsWith('/uploads') 
+                                    ? `http://localhost:8080${product.image}` 
+                                    : (product.image || "/placeholder.svg")}
                                 alt={product.name}
                                 className="w-full h-40 object-cover"
                             />
@@ -395,16 +390,35 @@ export default function MenuManagement() {
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                    Image URL
+                                    Product Image
                                 </label>
                                 <input
-                                    type="text"
-                                    value={formData.image}
-                                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                        setFormData({
+                                        ...formData,
+                                        imageFile: file,
+                                        image: URL.createObjectURL(file) // Preview
+                                        });
+                                    }
+                                    }}
                                     className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none"
-                                    placeholder="/placeholder.svg"
                                     disabled={loading}
                                 />
+                                {formData.image && (
+                                    <div className="mt-2">
+                                    <img
+                                        src={formData.image.startsWith('blob:') 
+                                        ? formData.image 
+                                        : `http://localhost:8080${formData.image}`}
+                                        alt="Preview"
+                                        className="w-32 h-32 object-cover rounded border-2 border-gray-300"
+                                    />
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex gap-3 pt-4">

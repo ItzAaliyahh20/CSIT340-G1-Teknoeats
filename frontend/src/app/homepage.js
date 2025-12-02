@@ -7,21 +7,19 @@ import { useSearchParams } from 'react-router-dom'
 import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser, getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart } from '../services/api'
 
 const API_BASE_URL = "http://localhost:8080/api";
+const BACKEND_URL = "http://localhost:8080"; // Add this constant
 const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages"]
 
 export default function HomePage() {
   const [searchParams] = useSearchParams()
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || "Dashboard")
-
-  // ⭐ New states from old homepage
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
-
   const [cart, setCart] = useState([])
   const [favorites, setFavorites] = useState([])
   const [user, setUser] = useState(null)
 
-  // ⭐ FETCH PRODUCTS FROM BACKEND
+  // FETCH PRODUCTS FROM BACKEND
   useEffect(() => {
     const loadProducts = async () => {
       setLoading(true);
@@ -29,14 +27,24 @@ export default function HomePage() {
         const response = await fetch(`${API_BASE_URL}/products`);
         if (response.ok) {
           const data = await response.json();
-          console.log("✅ Products fetched:", data.length);
-          setProducts(data);
+          console.log("✓ Products fetched:", data.length);
+          
+          // Fix image URLs for each product
+          const productsWithFixedImages = data.map(product => ({
+            ...product,
+            // If image starts with /uploads, prepend backend URL
+            image: product.image?.startsWith('/uploads') 
+              ? `${BACKEND_URL}${product.image}` 
+              : product.image
+          }));
+          
+          setProducts(productsWithFixedImages);
         } else {
-          console.error("❌ Failed to fetch products");
+          console.error("✖ Failed to fetch products");
           alert("Failed to load products from server");
         }
       } catch (error) {
-        console.error("❌ Error fetching products:", error);
+        console.error("✖ Error fetching products:", error);
         alert("Error connecting to server");
       } finally {
         setLoading(false);
@@ -45,7 +53,7 @@ export default function HomePage() {
     loadProducts();
   }, [])
 
-  // ⭐ FETCH USER, FAVORITES AND CART
+  // FETCH USER, FAVORITES AND CART
   useEffect(() => {
     const loadUserData = async () => {
       try {
@@ -54,25 +62,19 @@ export default function HomePage() {
         if (currentUser) {
           const favs = await getFavorites(currentUser.id);
           setFavorites(favs.map(f => f.product.id));
-
           const cartItems = await getCart(currentUser.id);
           setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })));
         }
       } catch (error) {
-        console.error("❌ Error fetching user data:", error);
-        // No alert for user data, as it's optional
+        console.error("✖ Error fetching user data:", error);
       }
     };
     loadUserData();
   }, [])
 
-
-
-  // ⭐ Filtering now uses products fetched from backend
-  const filteredProducts =
-    selectedCategory === "Dashboard"
-      ? products.filter((p) => p.category === "Meals")
-      : products.filter((p) => p.category === selectedCategory)
+  const filteredProducts = selectedCategory === "Dashboard" 
+    ? products.filter((p) => p.category === "Meals")
+    : products.filter((p) => p.category === selectedCategory)
 
   const addToCart = async (product, quantity) => {
     if (!user) {
@@ -81,7 +83,6 @@ export default function HomePage() {
     }
     try {
       await apiAddToCart(user.id, product.id, quantity)
-      // Refresh cart
       const cartItems = await getCart(user.id)
       setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
     } catch (error) {
@@ -109,12 +110,14 @@ export default function HomePage() {
     }
   }
 
-  // ⭐ Loading UI
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100">
-        <Sidebar categories={CATEGORIES} selectedItem={selectedCategory} onSelectCategory={setSelectedCategory} />
-        
+        <Sidebar 
+          categories={CATEGORIES} 
+          selectedItem={selectedCategory} 
+          onSelectCategory={setSelectedCategory} 
+        />
         <div className="ml-[250px] px-4 py-10">
           <p className="text-gray-600 text-lg">Loading products...</p>
         </div>
@@ -124,10 +127,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar categories={CATEGORIES} selectedItem={selectedCategory} onSelectCategory={setSelectedCategory} />
-
+      <Sidebar 
+        categories={CATEGORIES} 
+        selectedItem={selectedCategory} 
+        onSelectCategory={setSelectedCategory} 
+      />
       <div className="ml-[250px]">
-          <div className="bg-gradient-to-r from-[#FFD700] to-[#FFC107] px-8 py-6 shadow-lg">
+        <div className="bg-gradient-to-r from-[#FFD700] to-[#FFC107] px-8 py-6 shadow-lg">
           <div className="relative max-w-md mx-auto">
             <input
               type="text"
@@ -137,16 +143,15 @@ export default function HomePage() {
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} strokeWidth={2} />
           </div>
         </div>
-        
 
         <main className="max-w-7xl mx-auto px-4 py-8">
           {selectedCategory === "Dashboard" && <HeroBanner />}
-
+          
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-white bg-[#8B3A3A] text-center py-3 mb-6 rounded">
               {selectedCategory === "Dashboard" ? "Popular Items" : selectedCategory}
             </h2>
-
+            
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
                 <ProductCard
