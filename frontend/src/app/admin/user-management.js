@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Search, UserPlus, Edit2, Trash2, X } from 'lucide-react';
+import { Search, UserPlus, Edit2, Trash2, X } from 'lucide-react';
+import AdminSidebar from '../../components/admin-sidebar';
+
+const API_BASE_URL = "http://localhost:8080/api";
 
 export default function UserManagement() {
   const navigate = useNavigate();
@@ -21,18 +24,24 @@ export default function UserManagement() {
     loadUsers();
   }, []);
 
-  const loadUsers = () => {
-    const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    // Add current logged-in user if not already in list
-    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-    if (currentUser.email && !savedUsers.find(u => u.email === currentUser.email)) {
-      savedUsers.unshift(currentUser);
+  const loadUsers = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/users`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Users loaded:', data);
+        setUsers(data);
+      } else {
+        alert('Failed to load users from server');
+      }
+    } catch (error) {
+      console.error('Error loading users:', error);
+      alert('Error connecting to server');
     }
-    setUsers(savedUsers);
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = 
+    const matchesSearch =
       user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.lastName?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -64,16 +73,32 @@ export default function UserManagement() {
     setShowModal(true);
   };
 
-  const handleDeleteUser = (userEmail) => {
+  const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      const updatedUsers = users.filter(u => u.email !== userEmail);
-      setUsers(updatedUsers);
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-      alert('User deleted successfully!');
+      try {
+        console.log('Deleting user with ID:', userId);
+        
+        // FIX: Use the user ID directly
+        const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          alert('User deleted successfully!');
+          loadUsers(); // Reload from server
+        } else {
+          const errorText = await response.text();
+          console.error('Delete error:', errorText);
+          alert('Failed to delete user: ' + errorText);
+        }
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Error connecting to server');
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.role) {
@@ -81,47 +106,60 @@ export default function UserManagement() {
       return;
     }
 
-    // Email validation
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
       alert('Please enter a valid email');
       return;
     }
 
-    if (editingUser) {
-      // Update existing user
-      const updatedUsers = users.map(u =>
-        u.email === editingUser.email ? { ...u, ...formData } : u
-      );
-      setUsers(updatedUsers);
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-      
-      // Update current user if editing self
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      if (currentUser.email === editingUser.email) {
-        localStorage.setItem('user', JSON.stringify({ ...currentUser, ...formData }));
-      }
-      
-      alert('User updated successfully!');
-    } else {
-      // Add new user
-      const existingUser = users.find(u => u.email === formData.email);
-      if (existingUser) {
-        alert('User with this email already exists!');
-        return;
-      }
+    try {
+      if (editingUser) {
+        // Update existing user
+        const response = await fetch(`${API_BASE_URL}/admin/users/${editingUser.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
 
-      const newUser = {
-        ...formData,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString()
-      };
-      const updatedUsers = [...users, newUser];
-      setUsers(updatedUsers);
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-      alert('User added successfully!');
+        if (response.ok) {
+          alert('User updated successfully!');
+          loadUsers();
+          setShowModal(false);
+        } else {
+          const error = await response.text();
+          alert('Failed to update user: ' + error);
+        }
+      } else {
+        // Create new user
+        const response = await fetch(`${API_BASE_URL}/admin/users`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phoneNumber: formData.phoneNumber,
+            password: 'Password123!', // Default password
+            role: formData.role
+          }),
+        });
+
+        if (response.ok) {
+          alert('User added successfully!');
+          loadUsers();
+          setShowModal(false);
+        } else {
+          const error = await response.text();
+          alert('Failed to add user: ' + error);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving user:', error);
+      alert('Error connecting to server');
     }
-
-    setShowModal(false);
   };
 
   const getRoleBadgeColor = (role) => {
@@ -138,146 +176,150 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-[#8B3A3A] text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar - Fixed */}
+      <div className="fixed left-0 top-0 h-screen z-50">
+        <AdminSidebar currentPage="/admin/users" />
+      </div>
+
+      {/* Main Content - With left margin */}
+      <div className="flex-1 ml-64">
+        {/* Header */}
+        <header className="bg-[#8B3A3A] text-white shadow-lg sticky top-0 z-40">
+          <div className="px-6 py-4 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-bold">User Management</h1>
+            </div>
             <button
-              onClick={() => navigate('/admin/dashboard')}
-              className="hover:bg-[#6B2A2A] p-2 rounded transition"
+              onClick={handleAddUser}
+              className="flex items-center gap-2 bg-[#FFD700] text-[#8B3A3A] px-4 py-1 rounded-lg hover:bg-yellow-400 transition font-semibold"
             >
-              <ChevronLeft size={24} />
+              <UserPlus size={20} />
+              Add New User
             </button>
-            <h1 className="text-2xl font-bold">User Management</h1>
           </div>
-          <button
-            onClick={handleAddUser}
-            className="flex items-center gap-2 bg-[#FFD700] text-[#8B3A3A] px-4 py-2 rounded-lg hover:bg-yellow-400 transition font-semibold"
-          >
-            <UserPlus size={20} />
-            Add New User
-          </button>
-        </div>
-      </header>
+        </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Search and Filter */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none"
-              />
+        <div className="px-6 py-8">
+          {/* Search and Filter */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Search */}
+              <div className="flex-1 relative">
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  placeholder="Search by name or email..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none"
+                />
+              </div>
+              {/* Role Filter */}
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none font-semibold"
+              >
+                <option value="All">All Roles</option>
+                <option value="Admin">Admin</option>
+                <option value="Canteen Personnel">Canteen Personnel</option>
+                <option value="Customer">Customer</option>
+              </select>
             </div>
+          </div>
 
-            {/* Role Filter */}
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none font-semibold"
-            >
-              <option value="All">All Roles</option>
-              <option value="Admin">Admin</option>
-              <option value="Canteen Personnel">Canteen Personnel</option>
-              <option value="Customer">Customer</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Total Users</p>
-            <p className="text-3xl font-bold text-[#8B3A3A]">{users.length}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Admins</p>
-            <p className="text-3xl font-bold text-red-600">
-              {users.filter(u => u.role === 'Admin').length}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Canteen Staff</p>
-            <p className="text-3xl font-bold text-blue-600">
-              {users.filter(u => u.role === 'Canteen Personnel').length}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Customers</p>
-            <p className="text-3xl font-bold text-green-600">
-              {users.filter(u => u.role === 'Customer').length}
-            </p>
-          </div>
-        </div>
-
-        {/* Users Table */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {filteredUsers.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No users found</p>
+          {/* Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <p className="text-sm text-gray-600 mb-1">Total Users</p>
+              <p className="text-3xl font-bold text-[#8B3A3A]">{users.length}</p>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-[#8B3A3A] text-white">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Email</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Phone</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold">Role</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {filteredUsers.map((user, index) => (
-                    <tr key={user.email || index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <p className="font-semibold text-gray-900">
-                          {user.firstName} {user.lastName}
-                        </p>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {user.phoneNumber || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(user.role)}`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex justify-center gap-2">
-                          <button
-                            onClick={() => handleEditUser(user)}
-                            className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                            title="Edit User"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteUser(user.email)}
-                            className="p-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
-                            title="Delete User"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <p className="text-sm text-gray-600 mb-1">Admins</p>
+              <p className="text-3xl font-bold text-red-600">
+                {users.filter(u => u.role === 'Admin').length}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <p className="text-sm text-gray-600 mb-1">Canteen Staff</p>
+              <p className="text-3xl font-bold text-blue-600">
+                {users.filter(u => u.role === 'Canteen Personnel').length}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <p className="text-sm text-gray-600 mb-1">Customers</p>
+              <p className="text-3xl font-bold text-green-600">
+                {users.filter(u => u.role === 'Customer').length}
+              </p>
+            </div>
+          </div>
+
+          {/* Users Table */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            {filteredUsers.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">No users found</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-[#8B3A3A] text-white">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold">Email</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold">Phone</th>
+                      <th className="px-6 py-4 text-center text-sm font-semibold">Role</th>
+                      <th className="px-6 py-4 text-center text-sm font-semibold">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredUsers.map((user) => (
+                      <tr key={user.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <p className="font-semibold text-gray-900">
+                            {user.firstName} {user.lastName}
+                          </p>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {user.email}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {user.phoneNumber || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(user.role)}`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => handleEditUser(user)}
+                              className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                              title="Edit User"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUser(user.id)}
+                              className="p-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                              title="Delete User"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -296,7 +338,6 @@ export default function UserManagement() {
                 <X size={24} />
               </button>
             </div>
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -311,7 +352,6 @@ export default function UserManagement() {
                     required
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
                     Last Name *
@@ -325,7 +365,6 @@ export default function UserManagement() {
                   />
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Email *
@@ -339,7 +378,6 @@ export default function UserManagement() {
                   disabled={!!editingUser}
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Phone Number
@@ -351,7 +389,6 @@ export default function UserManagement() {
                   className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Role *
@@ -367,7 +404,6 @@ export default function UserManagement() {
                   <option value="Admin">Admin</option>
                 </select>
               </div>
-
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
