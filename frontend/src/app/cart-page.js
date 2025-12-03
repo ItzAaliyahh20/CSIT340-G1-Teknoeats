@@ -84,36 +84,54 @@ export default function CartPage() {
     }
   }
 
-  const handleCheckout = () => {
-    const newOrder = {
-      id: Date.now().toString(),
-      date: new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      status: "pending",
-      items: items,
-      restaurant: "Counter A - CIT-U Canteen",
+  const handleCheckout = async () => {
+  if (!user) {
+    alert('Please log in to place an order');
+    return;
+  }
+
+  try {
+    const orderData = {
+      items: items.map(item => ({
+        productId: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        category: item.category,
+        image: item.image
+      })),
       total: total,
       paymentMethod: paymentMethod,
-      pickupTime: pickupTime,
+      pickupTime: pickupTime === 'now' ? 'Pick up within 5-10 minutes' : 'Pick up later',
+      restaurant: 'Counter A - CIT-U Canteen'
+    };
+
+    // Create order in backend
+    const response = await fetch(`http://localhost:8080/api/orders/create?userId=${user.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create order');
     }
 
-    const existingOrders = localStorage.getItem("orders")
-    const allOrders = existingOrders ? JSON.parse(existingOrders) : []
-    allOrders.push(newOrder)
-    localStorage.setItem("orders", JSON.stringify(allOrders))
+    // Clear cart in backend
+    for (const item of items) {
+      await apiRemoveFromCart(user.id, item.id);
+    }
 
-    // Clear cart
-    localStorage.setItem("cart", JSON.stringify([]))
-    setItems([])
-
-    alert("Order placed successfully! Your order is pending.")
-    navigate("/order")
+    setItems([]);
+    alert('Order placed successfully! Your order is pending.');
+    navigate('/order');
+  } catch (error) {
+    console.error('Error placing order:', error);
+    alert('Failed to place order. Please try again.');
   }
+};
 
   if (isLoading) {
     return (
