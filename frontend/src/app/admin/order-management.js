@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Search, Eye, Filter } from 'lucide-react';
+import { Search, Eye, Filter } from 'lucide-react';
+import AdminSidebar from '../../components/admin-sidebar';
 
+const API_BASE_URL = "http://localhost:8080/api";
 export default function OrderManagement() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
@@ -10,7 +12,8 @@ export default function OrderManagement() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   // ------------------------------------
   // ✔ FIX: Define filterOrders BEFORE useEffect
   // ------------------------------------
@@ -34,8 +37,19 @@ export default function OrderManagement() {
   // ------------------------------------
 
   const loadOrders = () => {
-    const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    setOrders(savedOrders);
+    setLoading(true);
+    setError(null);
+    fetch(`${API_BASE_URL}/admin/orders`)
+      .then(res => res.json())
+      .then(data => {
+        console.log('Orders from API:', data);
+        setOrders(data);
+      })
+      .catch(err => {
+        console.error('Error fetching orders:', err);
+        setError('Failed to load orders from server');
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -48,17 +62,26 @@ export default function OrderManagement() {
   }, [filterOrders]);
 
   const updateOrderStatus = (orderId, newStatus) => {
-    const updatedOrders = orders.map(order =>
-      order.id === orderId ? { ...order, status: newStatus } : order
-    );
-    setOrders(updatedOrders);
-    localStorage.setItem('orders', JSON.stringify(updatedOrders));
-    
-    if (selectedOrder && selectedOrder.id === orderId) {
-      setSelectedOrder({ ...selectedOrder, status: newStatus });
-    }
-    
-    alert(`Order status updated to ${newStatus}`);
+    fetch(`${API_BASE_URL}/admin/orders/${orderId}/status?status=${newStatus}`, {
+      method: 'PUT'
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log('Order status updated:', data);
+        // Update the order in the list
+        const updatedOrders = orders.map(o => 
+          o.id === orderId ? data : o
+        );
+        setOrders(updatedOrders);
+        if (selectedOrder && selectedOrder.id === orderId) {
+          setSelectedOrder(data);
+        }
+        alert(`Order status updated to ${newStatus}`);
+      })
+      .catch(err => {
+        console.error('Error updating order status:', err);
+        alert('Failed to update order status');
+      });
   };
 
   const getStatusColor = (status) => {
@@ -80,19 +103,32 @@ export default function OrderManagement() {
     setSelectedOrder(order);
     setShowDetailsModal(true);
   };
+  if (loading) {
+      return (
+        <div className="flex-1 ml-64">
+          <div className="w-64 fixed left-0 top-0 h-screen">
+            <AdminSidebar currentPage="/admin/orders" />
+          </div>
+          <div className="flex-1 ml-64 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B3A3A] mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading menu...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="flex-1 ml-64">
+      <div className="fixed left-0 top-0 h-screen z-50">
+            <AdminSidebar currentPage="/admin/orders" />
+      </div>
+      <div className="flex-1 ml-64"></div>
       {/* Header */}
-      <header className="bg-[#8B3A3A] text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/admin/dashboard')}
-              className="hover:bg-[#6B2A2A] p-2 rounded transition"
-            >
-              <ChevronLeft size={24} />
-            </button>
+      <header className="bg-[#8B3A3A] text-white shadow-lg sticky top-0 z-40">
+        <div className="px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-4">       
             <h1 className="text-2xl font-bold">Order Management</h1>
           </div>
           <div className="flex items-center gap-2">
@@ -104,7 +140,22 @@ export default function OrderManagement() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+
+
+      <div className="px-6 py-8">
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
+            <p className="text-red-700">{error}</p>
+            <button
+              onClick={loadOrders}
+              className="mt-2 text-red-700 hover:text-red-900 font-semibold"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        
         {/* Search + Filter */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
@@ -161,10 +212,10 @@ export default function OrderManagement() {
                     <tr key={order.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <span className="font-mono text-sm font-semibold text-gray-900">
-                          #{order.id.slice(-8)}
+                          #{order.id.toString().slice(-8)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{order.date}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{order.createdAt || order.date}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{order.restaurant}</td>
                       <td className="px-6 py-4 text-sm">
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">
@@ -251,11 +302,11 @@ export default function OrderManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Order ID</p>
-                  <p className="font-mono font-bold">#{selectedOrder.id.slice(-8)}</p>
+                  <p className="font-mono font-bold">#{selectedOrder.id.toString().slice(-8)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Date & Time</p>
-                  <p className="font-semibold">{selectedOrder.date}</p>
+                  <p className="font-semibold">{selectedOrder.createdAt || selectedOrder.date}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Payment Method</p>

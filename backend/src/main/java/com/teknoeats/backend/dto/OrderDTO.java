@@ -13,6 +13,7 @@ public class OrderDTO {
     private String restaurant;
     private List<OrderItemDTO> items;
     private String date;
+    private String createdAt;
 
     // Default Constructor
     public OrderDTO() {}
@@ -88,5 +89,13 @@ public class OrderDTO {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }

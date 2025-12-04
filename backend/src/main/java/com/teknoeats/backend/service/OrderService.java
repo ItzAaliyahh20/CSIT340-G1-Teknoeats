@@ -78,21 +78,24 @@ public class OrderService {
         return convertToDTO(order);
     }
 
-    // Convert Order entity to DTO
+    // Convert Order entity to DTO with complete information
     public OrderDTO convertToDTO(Order order) {
         OrderDTO dto = new OrderDTO();
         dto.setId(order.getId());
+        dto.setUserId(order.getUser().getId());
         dto.setStatus(order.getStatus().name());
         dto.setTotal(order.getTotal());
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setPickupTime(order.getPickupTime());
         dto.setRestaurant(order.getRestaurant());
 
-        // Format date
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a");
-        dto.setDate(order.getCreatedAt().format(formatter));
+        // Format date - handle both createdAt formats
+        if (order.getCreatedAt() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a");
+            dto.setDate(order.getCreatedAt().format(formatter));
+        }
 
-        // Convert items
+        // Convert items with complete product information
         List<OrderItemDTO> itemDTOs = order.getItems().stream()
                 .map(item -> {
                     OrderItemDTO itemDTO = new OrderItemDTO();

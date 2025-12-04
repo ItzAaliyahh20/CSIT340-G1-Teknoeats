@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import Sidebar from '../components/sidebar'
-import { getUserProfile, updateUserProfile } from '../services/api'
+import { getUserProfile, updateUserProfile, getCurrentUser } from '../services/api'
+
+const API_BASE_URL = "http://localhost:8080/api";
 
 export default function ProfilePage() {
    const [profileData, setProfileData] = useState({
@@ -16,38 +18,38 @@ export default function ProfilePage() {
    const [error, setError] = useState(null)
 
    useEffect(() => {
-     const fetchUserProfile = async () => {
-       try {
-         console.log('Starting to fetch user profile...')
-         console.log('API base URL should be:', "http://localhost:8080/api")
+        // In profile-page.js, replace the fetchUserProfile function:
+        const fetchUserProfile = async () => {
+            try {
+                // The getCurrentUser function in api.js handles all the localStorage reading and parsing.
+                console.log('Fetching current user profile...');
+                
+                // 🌟 FIX 1: Use the robust getCurrentUser() function
+                const response = await getCurrentUser(); 
+                
+                console.log('API response received:', response);
+                
+                setProfileData({
+                    firstName: response.firstName || "",
+                    lastName: response.lastName || "",
+                    email: response.email || "",
+                    phoneNumber: response.phoneNumber || "",
+                    address: response.address || "",
+                });
+                
+                setLoading(false);
 
-         // Try to fetch user ID 1 directly for testing
-         const userId = 1
-         console.log('Fetching profile for user ID:', userId)
+            } catch (err) {
+                // This catch block will now handle "No user logged in" thrown by getCurrentUser()
+                console.error('Error in fetchUserProfile:', err);
+                // Use err.message to display the specific error (e.g., 'No user logged in')
+                setError(`Failed to load profile data: ${err.message}`);
+                setLoading(false);
+            }
+        }
 
-         const response = await getUserProfile(userId)
-         console.log('API response received:', response)
-
-         setProfileData({
-           firstName: response.firstName || "",
-           lastName: response.lastName || "",
-           email: response.email || "",
-           phoneNumber: response.phoneNumber || "",
-           address: response.address || "",
-         })
-
-         console.log('Profile data set successfully')
-       } catch (err) {
-         console.error('Error in fetchUserProfile:', err)
-         console.error('Error details:', err.response || err)
-         setError(`Failed to load profile data: ${err.message}`)
-       } finally {
-         setLoading(false)
-       }
-     }
-
-     fetchUserProfile()
-   }, [])
+        fetchUserProfile();
+    }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -158,26 +160,36 @@ export default function ProfilePage() {
                 {isEditing ? (
                   <div className="flex gap-4 w-full max-w-md">
                     <button
-                      onClick={async () => {
-                        try {
-                          // For debugging: use user ID 1
-                          const userId = 1
-                          console.log('Updating profile for user ID:', userId)
-                          console.log('Profile data to update:', profileData)
+  onClick={async () => {
+    try {
+      // 🌟 FIX 2: Get the user ID from localStorage before updating
+      const userData = localStorage.getItem('user');
+      const user = userData ? JSON.parse(userData) : null;
+      const userId = user?.userId; // Use the userId field from your api.js definition
 
-                          await updateUserProfile(userId, profileData)
-                          alert("Profile updated successfully!")
-                          setIsEditing(false)
-                        } catch (err) {
-                          alert("Failed to update profile")
-                          console.error('Update error:', err)
-                        }
-                      }}
-                      className="flex-1 bg-[#8B3A3A] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#6B2A2A] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                      disabled={loading}
-                    >
-                      Save Changes
-                    </button>
+      if (!userId) {
+        alert("Error: User is not logged in or ID is missing.");
+        return;
+      }
+      
+      console.log('Updating profile for user ID:', userId);
+      console.log('Profile data to update:', profileData);
+
+      // Pass the retrieved userId to the service function
+      await updateUserProfile(userId, profileData); 
+      
+      alert("Profile updated successfully!");
+      setIsEditing(false);
+    } catch (err) {
+      alert("Failed to update profile");
+      console.error('Update error:', err);
+    }
+  }}
+  className="flex-1 bg-[#8B3A3A] ..."
+  disabled={loading}
+>
+  Save Changes
+</button>
                     <button
                       onClick={() => setIsEditing(false)}
                       className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200 shadow-md hover:shadow-lg"
