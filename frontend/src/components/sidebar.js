@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { Heart, ShoppingCart, Clock, User, ChefHat, Apple, Cookie, Coffee, LayoutDashboard, LogOut, UserCheck } from "lucide-react"
 import { getCurrentUser } from '../services/api'
 
-export default function Sidebar({ categories, selectedItem, onSelectCategory }) {
-   const [showLogoutModal, setShowLogoutModal] = useState(false);
-   const [userName, setUserName] = useState('');
-   const [isLoggedIn, setIsLoggedIn] = useState(false);
-   const navigate = useNavigate();
+export default function Sidebar({ categories, selectedItem, onSelectCategory, shadow }) {
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [userName, setUserName] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    // Get current search parameter to preserve it in navigation
+    const currentSearch = searchParams.get('search');
+    const searchParam = currentSearch ? `?search=${encodeURIComponent(currentSearch)}` : '';
 
    useEffect(() => {
      const fetchUserData = async () => {
@@ -64,7 +69,7 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory }) 
   };
 
   return (
-    <div className="fixed left-0 top-0 w-[250px] h-screen bg-white border-r flex flex-col z-10">
+    <div className={`fixed left-0 top-0 w-[250px] h-screen bg-white border-r flex flex-col z-10 ${shadow ? 'shadow-xl' : ''}`}>
       {/* Logo */}
       <div className="p-4 pt-8 pb-8">
         <NavLink to="/home?category=Dashboard" className="flex items-center justify-center">
@@ -92,7 +97,7 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory }) 
               {category}
             </button>
           ))}
-          <NavLink to="/favorites" className={`relative flex items-center gap-2 text-left font-semibold text-lg py-2 transition-colors ${
+          <NavLink to={`/favorites${searchParam}`} className={`relative flex items-center gap-2 text-left font-semibold text-lg py-2 transition-colors ${
             selectedItem === 'favorites'
               ? "text-[#8B3A3A] pl-4"
               : "text-gray-600 hover:text-[#8B3A3A] pl-2"
@@ -103,7 +108,7 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory }) 
             <Heart size={24} className="ml-2" />
             Favorites
           </NavLink>
-          <NavLink to="/cart" className={`relative flex items-center gap-2 text-left font-semibold text-lg py-2 transition-colors ${
+          <NavLink to={`/cart${searchParam}`} className={`relative flex items-center gap-2 text-left font-semibold text-lg py-2 transition-colors ${
             selectedItem === 'cart'
               ? "text-[#8B3A3A] pl-4"
               : "text-gray-600 hover:text-[#8B3A3A] pl-2"
@@ -114,7 +119,7 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory }) 
             <ShoppingCart size={24} className="ml-2" />
             Cart
           </NavLink>
-          <NavLink to="/order" className={`relative flex items-center gap-2 text-left font-semibold text-lg py-2 transition-colors ${
+          <NavLink to={`/order${searchParam}`} className={`relative flex items-center gap-2 text-left font-semibold text-lg py-2 transition-colors ${
             selectedItem === 'orders'
               ? "text-[#8B3A3A] pl-4"
               : "text-gray-600 hover:text-[#8B3A3A] pl-2"
@@ -162,8 +167,8 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory }) 
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
-            <h3 className="text-lg font-bold text-[#8B3A3A] mb-4">Confirm Logout</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to log out?</p>
+            <h3 className="text-xl font-bold text-black mb-4 text-center">Confirm Logout</h3>
+            <p className="text-gray-600 mb-6 text-center">Are you sure you want to log out?</p>
             <div className="flex gap-4">
               <button
                 onClick={() => setShowLogoutModal(false)}

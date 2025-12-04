@@ -257,7 +257,14 @@ export default function MenuManagement() {
                 {/* Loading Indicator */}
                 {loading && (
                     <div className="text-center py-8">
-                        <p className="text-gray-600">Loading...</p>
+                        <div className="flex flex-col items-center justify-center space-y-4">
+                            <img 
+                                src="/teknoeats-loading.png" 
+                                alt="Loading" 
+                                className="w-20 h-20 animate-pulse"
+                            />
+                            <p className="text-gray-600">Loading...</p>
+                        </div>
                     </div>
                 )}
 

@@ -15,3 +15,48 @@ body {
   font-weight: normal;
   font-style: normal;
 }
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background: linear-gradient(45deg, #8B3A3A, #FFC107, #8B3A3A, #FFC107, #8B3A3A);
+  background-size: 400% 400%;
+  animation: gradientShift 2s ease infinite;
+}
+
+/* Custom CSS to ensure visibility and hide native controls for DATE INPUT */
+
+/* 1. Hide the native calendar picker indicator across major browsers */
+input[type="date"].appearance-none::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute; /* Allows it to occupy the whole input area for clicking */
+    cursor: pointer;
+    background: none; /* Ensure no residual background color from the native icon */
+}
+
+/* 2. Hide the native spin buttons (up/down arrows) */
+input[type="date"].appearance-none::-webkit-inner-spin-button {
+    display: none;
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* 3. Re-enable text cursor for date field, which can be disabled by appearance-none */
+input[type="date"].appearance-none {
+    /* Set the cursor appearance for the text entry area */
+    cursor: text;
+    /* Ensure text color is inherited/visible */
+    color: inherit;
+}
+
+/* For Firefox compatibility */
+input[type="date"].appearance-none {
+    /* Hide the default date input content/padding for Firefox */
+    padding-right: 0 !important;
+}
