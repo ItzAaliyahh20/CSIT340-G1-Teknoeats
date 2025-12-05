@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/sidebar'
 import { Search, Clock, Trash2, X, Banknote, ShoppingBasket, Calendar, ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart, getCurrentUser } from '../services/api'
+import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart, getCurrentUser, getOrderById } from '../services/api'
 
 const BACKEND_URL = "http://localhost:8080"; // Add this constant
 
@@ -57,19 +57,26 @@ export default function CartPage() {
   }
   useEffect(() => {
     const loadCart = async () => {
+      console.log("loadCart started, viewOrderId:", viewOrderId, "reorderId:", reorderId)
       try {
         const currentUser = await getCurrentUser()
+        console.log("Current user:", currentUser)
         setUser(currentUser)
         if (viewOrderId) {
-          const orders = JSON.parse(localStorage.getItem('orders') || '[]')
-          const order = orders.find(o => o.id === viewOrderId)
-          if (order) {
-            setViewOrder(order)
-            setItems(order.items.map(i => ({ ...i, quantity: i.quantity })))
+          try {
+            const order = await getOrderById(viewOrderId)
+            console.log("View order:", order)
+            if (order) {
+              setViewOrder(order)
+              setItems(order.items.map(i => ({ ...i, quantity: i.quantity })))
+            }
+          } catch (error) {
+            console.error("Error fetching order:", error)
           }
         } else if (reorderId) {
           const orders = JSON.parse(localStorage.getItem('orders') || '[]')
           const order = orders.find(o => o.id === reorderId)
+          console.log("Reorder order:", order)
           if (order && currentUser) {
             // Add items to cart
             for (const item of order.items) {
@@ -81,6 +88,7 @@ export default function CartPage() {
           }
         } else if (currentUser) {
           const cartItems = await getCart(currentUser.id)
+          console.log("Raw cart items from API:", cartItems)
           // FIX: Add full URL to image paths
           const cartItemsWithFixedImages = cartItems.map(c => ({
             ...c.product,
@@ -89,6 +97,7 @@ export default function CartPage() {
               ? `${BACKEND_URL}${c.product.image}`
               : c.product.image
           }))
+          console.log("Cart items with fixed images:", cartItemsWithFixedImages)
           setItems(cartItemsWithFixedImages)
         }
       } catch (error) {
@@ -115,10 +124,14 @@ export default function CartPage() {
   )
 
   const updateQuantity = async (id, quantity) => {
+    console.log("updateQuantity called for id:", id, "quantity:", quantity)
     if (quantity <= 0) {
       await removeItem(id)
     } else {
-      if (!user) return
+      if (!user) {
+        console.log("No user, returning")
+        return
+      }
 
       // Check if quantity exceeds maximum limit
       if (quantity > 20) {
@@ -127,6 +140,7 @@ export default function CartPage() {
       }
 
       try {
+        console.log("Updating local state")
         // Update local state first to maintain order
         setItems(prevItems =>
           prevItems.map(item =>
@@ -134,9 +148,11 @@ export default function CartPage() {
           )
         )
 
+        console.log("Updating backend")
         // Then update backend
         await apiRemoveFromCart(user.id, id)
         await apiAddToCart(user.id, id, quantity)
+        console.log("Backend updated successfully")
       } catch (error) {
         console.error("Error updating quantity:", error)
         // Revert local state on error
@@ -147,14 +163,21 @@ export default function CartPage() {
   }
 
   const removeItem = async (id) => {
-    if (!user) return
+    console.log("removeItem called for id:", id)
+    if (!user) {
+      console.log("No user, returning")
+      return
+    }
     try {
       // Get item details before removing for toast message
       const itemToRemove = items.find(item => item.id === id)
+      console.log("Item to remove:", itemToRemove)
 
+      console.log("Updating local state")
       // Update local state first to maintain order
       setItems(prevItems => prevItems.filter(item => item.id !== id))
 
+      console.log("Removing from backend")
       // Then update backend
       await apiRemoveFromCart(user.id, id)
 
@@ -186,6 +209,7 @@ export default function CartPage() {
   }
 
   const handleCheckout = async () => {
+    console.log("handleCheckout started")
     const newOrder = {
       id: Date.now().toString(),
       date: new Date().toLocaleDateString("en-US", {
@@ -196,13 +220,20 @@ export default function CartPage() {
         minute: "2-digit",
       }),
       status: "pending",
-      items: items,
+      items: items.map(item => ({
+        productId: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        category: item.category,
+        image: item.image
+      })),
       restaurant: "Counter A - CIT-U Canteen",
       total: total,
       paymentMethod: paymentMethod,
-      pickupTime: pickupTime === 'now' ? 'Pick up within 5-10 minutes' : 'Pick up later',
-      restaurant: 'Counter A - CIT-U Canteen'
+      pickupTime: pickupTime === 'now' ? 'Pick up within 5-10 minutes' : 'Pick up later'
     };
+    console.log("New order object:", newOrder)
 
     // Create order in backend
     const response = await fetch(`http://localhost:8080/api/orders/create?userId=${user.id}`, {
@@ -210,8 +241,9 @@ export default function CartPage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(orderData)
+      body: JSON.stringify(newOrder)
     });
+    console.log("Order creation response:", response)
 
     // Clear cart from backend
     for (const item of items) {
@@ -226,7 +258,6 @@ export default function CartPage() {
     showToast("Order placed successfully! Your order is pending.", 'success')
     setTimeout(() => navigate("/order"), 1000) // Delay navigation to allow toast to show
   }
-};
 
   if (isLoading) {
     return (

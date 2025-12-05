@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from '../components/sidebar'
-import { Search, Clock, Apple } from "lucide-react"
+import { Search, Clock, Apple, X } from "lucide-react"
 import { motion } from "framer-motion"
-import { getCurrentUser } from '../services/api'
+import { getCurrentUser, getOrders } from '../services/api'
 
 
 export default function OrdersPage() {
@@ -15,6 +15,8 @@ export default function OrdersPage() {
    const [user, setUser] = useState(null);
    const [currentTime, setCurrentTime] = useState(new Date());
    const [ripples, setRipples] = useState({});
+   const [showDetailsModal, setShowDetailsModal] = useState(false);
+   const [selectedOrder] = useState(null);
 
    // Use URL search parameter for search query to persist across pages
    const searchQuery = searchParams.get('search') || ""
@@ -29,16 +31,22 @@ export default function OrdersPage() {
    }
 
   useEffect(() => {
-    const savedOrders = localStorage.getItem("orders");
-    if (savedOrders) {
-      const parsedOrders = JSON.parse(savedOrders);
-      const sortedOrders = parsedOrders.sort((a, b) => parseInt(b.id) - parseInt(a.id)); // newest first
-      setOrders(sortedOrders);
-    }
-  };
-
-  fetchOrders();
-}, []);
+    const loadOrders = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        if (currentUser && currentUser.id) {
+          const userOrders = await getOrders(currentUser.id);
+          const sortedOrders = userOrders.sort((a, b) => parseInt(b.id) - parseInt(a.id)); // newest first
+          setOrders(sortedOrders);
+        }
+      } catch (error) {
+        console.error("Error loading orders:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadOrders();
+  }, []);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -75,6 +83,15 @@ export default function OrdersPage() {
   const getActionButton = (status) => {
     if (status === "delivered") return "Reorder Items";
     return "View Order";
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'ready': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'delivered': return 'bg-green-100 text-green-800 border-green-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
   };
 
   const handleContinueShopping = (e) => {

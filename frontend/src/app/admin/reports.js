@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../../components/admin-sidebar';
-import { ChevronLeft, Download, TrendingUp, DollarSign, ShoppingBag, Users, Calendar, Package } from 'lucide-react';
+import { Download, TrendingUp, DollarSign, ShoppingBag, Users, Calendar, Package } from 'lucide-react';
 
 const API_BASE_URL = "http://localhost:8080/api";
 
 export default function AdminReports() {
-  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalOrders: 0,
     totalRevenue: 0,
@@ -17,7 +15,6 @@ export default function AdminReports() {
   });
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
-  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('all');
 
@@ -49,12 +46,6 @@ export default function AdminReports() {
         setProducts(productsData);
       }
 
-      // Fetch all users from backend
-      const usersRes = await fetch(`${API_BASE_URL}/admin/users`);
-      if (usersRes.ok) {
-        const usersData = await usersRes.json();
-        setUsers(usersData);
-      }
     } catch (error) {
       console.error('Error fetching data:', error);
       alert('Failed to load reports data from server');

@@ -1,18 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  UtensilsCrossed, 
-  ShoppingBag, 
-  Users, 
-  TrendingUp, 
-  LogOut, 
-  ChevronLeft, 
-  ChevronRight
+import {
+  LayoutDashboard,
+  UtensilsCrossed,
+  ShoppingBag,
+  Users,
+  TrendingUp,
+  LogOut
 } from 'lucide-react';
 
 export default function AdminSidebar({ currentPage }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed] = useState(false);
   const [adminData, setAdminData] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();

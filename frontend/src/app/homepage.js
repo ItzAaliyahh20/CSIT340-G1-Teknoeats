@@ -5,7 +5,7 @@ import ProductCard from '../components/product-card'
 import { Search, Clock, X } from "lucide-react"
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from "framer-motion"
-import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser, getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart } from '../services/api'
+import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser, getCart, addToCart as apiAddToCart } from '../services/api'
 
 const API_BASE_URL = "http://localhost:8080/api";
 const BACKEND_URL = "http://localhost:8080"; // Add this constant
@@ -144,7 +144,7 @@ export default function HomePage() {
       if (wasFavorite) {
         await removeFromFavorites(user.id, productId)
         setFavorites(favorites.filter(id => id !== productId))
-        showToast(`Removed ${product?.name || 'item'} from your favorites.`, 'max')
+        showToast(`Removed ${product?.name || 'item'} from your favorites.`, 'success')
       } else {
         await addToFavorites(user.id, productId)
         setFavorites([...favorites, productId])

@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
-import { Heart, X } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { Heart } from "lucide-react"
+import { motion } from "framer-motion"
 
 export default function ProductCard({ product, isFavorite, onAddToCart, onToggleFavorite, cartQuantity = 0, showToast }) {
   const [quantity, setQuantity] = useState(1)
@@ -47,9 +47,9 @@ export default function ProductCard({ product, isFavorite, onAddToCart, onToggle
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"> 
       <div className="relative"> 
         <img
-          src={imageUrl}
-          alt={product.name} 
-          className="w-full h-40 object-contain" 
+          src={product.image || "/placeholder.svg"}
+          alt={product.name}
+          className="w-full h-40 object-contain"
         />
         <button
           onClick={() => {

@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Search, UserPlus, Edit2, Trash2, X } from 'lucide-react';
 import AdminSidebar from '../../components/admin-sidebar';
 
 const API_BASE_URL = "http://localhost:8080/api";
 
 export default function UserManagement() {
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');

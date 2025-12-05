@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Search, Eye, Filter } from 'lucide-react';
 import AdminSidebar from '../../components/admin-sidebar';
 
 const API_BASE_URL = "http://localhost:8080/api";
 export default function OrderManagement() {
-  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');

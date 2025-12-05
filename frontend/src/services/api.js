@@ -34,9 +34,9 @@ export const removeFromCart = (userId, productId) =>
 export const createOrder = (userId, cartItems, paymentMethod, pickupTime) =>
   api.post("/orders/create", { userId, cartItems, paymentMethod, pickupTime }).then((res) => res.data)
 
-export const getOrders = (userId) => api.get(`/orders/${userId}`).then((res) => res.data)
+export const getOrders = (userId) => api.get(`/orders/user/${userId}`).then((res) => res.data)
 
-export const getOrderById = (orderId) => api.get(`/orders/detail/${orderId}`).then((res) => res.data)
+export const getOrderById = (orderId) => api.get(`/orders/${orderId}`).then((res) => res.data)
 
 // Users
 export const getUserProfile = (userId) => api.get(`/users/${userId}`).then((res) => res.data)

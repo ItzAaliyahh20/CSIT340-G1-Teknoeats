@@ -35,20 +35,31 @@ export default function FavoritesPage() {
 
    useEffect(() => {
      const loadData = async () => {
+       console.log("FavoritesPage: Starting loadData")
        setLoading(true)
        try {
+         console.log("FavoritesPage: Calling getCurrentUser")
          const currentUser = await getCurrentUser()
+         console.log("FavoritesPage: getCurrentUser result:", currentUser)
          setUser(currentUser)
          if (currentUser) {
+           console.log("FavoritesPage: Calling getProducts")
            const prods = await getProducts()
+           console.log("FavoritesPage: getProducts result length:", prods.length)
            setProducts(prods)
+           console.log("FavoritesPage: Calling getFavorites for user:", currentUser.id)
            const favs = await getFavorites(currentUser.id)
+           console.log("FavoritesPage: getFavorites result:", favs)
            setFavorites(favs.map(f => f.product.id))
+           console.log("FavoritesPage: Favorites set to:", favs.map(f => f.product.id))
+         } else {
+           console.log("FavoritesPage: No current user, skipping product/favorite load")
          }
        } catch (error) {
-         console.error("Error loading data:", error)
+         console.error("FavoritesPage: Error loading data:", error)
        } finally {
          setLoading(false)
+         console.log("FavoritesPage: loadData completed")
        }
      }
      loadData()
@@ -67,6 +78,8 @@ export default function FavoritesPage() {
      .filter((p) => p !== undefined)
      .filter((p) => selectedCategory === "All Categories" || p.category === selectedCategory)
      .filter((p) => searchQuery === "" || p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+
+   console.log("FavoritesPage: filteredFavoriteProducts length:", filteredFavoriteProducts.length, "favorites:", favorites.length, "products:", products.length)
 
    const addToCart = async (product, quantity = 1) => {
      if (!user) {
@@ -97,25 +110,32 @@ export default function FavoritesPage() {
    }
 
    const toggleFavorite = async (productId) => {
+     console.log("FavoritesPage: toggleFavorite called with productId:", productId)
      if (!user) {
+       console.log("FavoritesPage: No user logged in")
        alert("Please log in to add favorites")
        return
      }
      try {
        const product = products.find(p => p.id === productId)
        const wasFavorite = favorites.includes(productId)
-       
+       console.log("FavoritesPage: Product found:", product, "wasFavorite:", wasFavorite)
+
        if (wasFavorite) {
+         console.log("FavoritesPage: Removing from favorites")
          await removeFromFavorites(user.id, productId)
          setFavorites(favorites.filter(id => id !== productId))
-         showToast(`Removed ${product?.name || 'item'} from your favorites.`, 'max')
+         console.log("FavoritesPage: Favorites updated after removal")
+         showToast(`Removed ${product?.name || 'item'} from your favorites.`, 'success')
        } else {
+         console.log("FavoritesPage: Adding to favorites")
          await addToFavorites(user.id, productId)
          setFavorites([...favorites, productId])
+         console.log("FavoritesPage: Favorites updated after addition")
          showToast(`Added ${product?.name || 'item'} to your favorites!`, 'success')
        }
      } catch (error) {
-       console.error("Error toggling favorite:", error)
+       console.error("FavoritesPage: Error toggling favorite:", error)
        alert("Failed to update favorite")
      }
    }
