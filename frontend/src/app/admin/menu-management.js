@@ -294,9 +294,117 @@ export default function MenuManagement() {
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+            </header>
+
+            <div className="max-w-7xl mx-auto px-6 py-8">
+                {/* Search and Filter */}
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div className="flex flex-col md:flex-row gap-4">
+                        {/* Search */}
+                        <div className="flex-1 relative">
+                            <Search
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                size={20}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Search products..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none"
+                            />
+                        </div>
+
+                        {/* Category Filter */}
+                        <div className="flex gap-2 flex-wrap">
+                            <button
+                                onClick={() => setSelectedCategory("All")}
+                                className={`px-4 py-2 rounded-lg font-semibold transition ${
+                                    selectedCategory === "All"
+                                        ? "bg-[#8B3A3A] text-white"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                }`}
+                            >
+                                All
+                            </button>
+                            {CATEGORIES.map(category => (
+                                <button
+                                    key={category}
+                                    onClick={() => setSelectedCategory(category)}
+                                    className={`px-4 py-2 rounded-lg font-semibold transition ${
+                                        selectedCategory === category
+                                            ? "bg-[#8B3A3A] text-white"
+                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                    }`}
+                                >
+                                    {category}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Loading Indicator */}
+                {loading && (
+                    <div className="text-center py-8">
+                        <div className="flex flex-col items-center justify-center space-y-4">
+                            <img 
+                                src="/teknoeats-loading.png" 
+                                alt="Loading" 
+                                className="w-20 h-20 animate-pulse"
+                            />
+                            <p className="text-gray-600">Loading...</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Products Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredProducts.map(product => (
+                        <div
+                            key={product.id}
+                            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
+                        >
+                            <img
+                                src={product.image || product.imageUrl || "/placeholder.svg"}
+                                alt={product.name}
+                                className="w-full h-40 object-cover"
+                            />
+                            <div className="p-4">
+                                <h3 className="font-bold text-gray-800 mb-1">{product.name}</h3>
+                                <p className="text-sm text-gray-600 mb-2">{product.category}</p>
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-lg font-bold text-red-600">
+                                        ₱{product.price.toFixed(2)}
+                                    </span>
+                                    <span className={`text-sm font-semibold ${
+                                        product.stock > 10 ? 'text-green-600' : 'text-orange-600'
+                                    }`}>
+                                        Stock: {product.stock || 0}
+                                    </span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleEditProduct(product)}
+                                        className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                                        disabled={loading}
+                                    >
+                                        <Edit2 size={16} />
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteProduct(product.id)}
+                                        className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition"
+                                        disabled={loading}
+                                    >
+                                        <Trash2 size={16} />
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
 
           {filteredProducts.length === 0 && !loading && (
             <div className="text-center py-12 bg-white rounded-lg shadow-md">
