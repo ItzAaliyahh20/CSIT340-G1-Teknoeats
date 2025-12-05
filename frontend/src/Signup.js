@@ -466,7 +466,7 @@ export default function SignUp() {
         }
 
         .header {
-          background: linear-gradient(to right, #facc15, #eab308);
+          background: linear-gradient(to right, #ffd700, #ffc107);
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
           padding: 1rem 0;
           height: 80px;
@@ -552,7 +552,7 @@ export default function SignUp() {
           font-size: 15px;
           transition: all 0.3s ease;
           cursor: pointer;
-          color: #7f1d1d;
+          color: #8b3a3a;
           position: relative;
           z-index: 2;
           display: flex;
@@ -562,11 +562,11 @@ export default function SignUp() {
         }
 
         .switch-option.active {
-          color: #7f1d1d;
+          color: #8b3a3a;
         }
 
         .switch-option:hover {
-          color: #450a0a;
+          color: #7a3232;
         }
 
         .switch-slider {
@@ -680,8 +680,8 @@ export default function SignUp() {
           font-weight: bold;
           text-align: center;
           font-family: 'Marykate', sans-serif;
-          -webkit-text-stroke: 1px #7f1d1d; /* Outline color and width */
-          color: #facc15; /* Text fill color */
+          -webkit-text-stroke: 1px #8b3a3a;
+          color: #ffd700; /* Text fill color */
         }
 
         .card-subtitle {
@@ -752,7 +752,7 @@ export default function SignUp() {
         }
 
         .input-field:focus {
-          border-color: #facc15;
+          border-color: #ffd700;
           box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1);
         }
 
@@ -763,7 +763,7 @@ export default function SignUp() {
         }
 
         .input-field:focus {
-          border-color: #facc15;
+          border-color: #ffd700;
           box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1);
         }
 
@@ -803,8 +803,13 @@ export default function SignUp() {
 
         .submit-button {
           width: 100%;
+<<<<<<< HEAD
           padding: 0.875rem 1rem;
           background: linear-gradient(to right, #991b1b, #7f1d1d);
+=======
+          padding: 0.75rem 1rem;
+          background: linear-gradient(to right, #8b3a3a, #7a3232);
+>>>>>>> 031c01e (fix(signup): minor_design_changes_to_sign_up_page)
           color: white;
           border: none;
           border-radius: 0.5rem;
@@ -819,8 +824,13 @@ export default function SignUp() {
         }
 
         .submit-button:hover {
+<<<<<<< HEAD
           background: linear-gradient(to right, #7f1d1d, #450a0a);
           transform: translateY(-2px);
+=======
+          background: linear-gradient(to right, #7a3232, #7a3232, #7f1d1d);
+          transform: scale(1.02);
+>>>>>>> 031c01e (fix(signup): minor_design_changes_to_sign_up_page)
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
@@ -850,14 +860,14 @@ export default function SignUp() {
         }
 
         .login-link {
-          color: #ca8a04;
+          color: #e0a800df;
           font-weight: 600;
           text-decoration: none;
           transition: color 0.3s ease;
         }
 
         .login-link:hover {
-          color: #e6ad28ff;
+          color: #ffc107;
         }
 
         .checkbox-group {
@@ -875,7 +885,7 @@ export default function SignUp() {
           width: 18px;
           height: 18px;
           cursor: pointer;
-          accent-color: #ca8a04;
+          accent-color: #ffc107;
         }
 
         .checkbox-text {
@@ -884,14 +894,14 @@ export default function SignUp() {
         }
 
         .terms-link {
-          color: #ca8a04;
+          color: #e0a800df;
           font-weight: 600;
           text-decoration: none;
           transition: color 0.3s ease;
         }
 
         .terms-link:hover {
-          color: #e6ad28ff;
+          color: #ffc107;
           text-decoration: underline;
         }
 
@@ -903,7 +913,7 @@ export default function SignUp() {
 
         .strength-header {
           font-size: 1.3rem;
-          color: #7f1d1d;
+          color: #8b3a3a;
           font-family: 'Marykate', sans-serif;
         }
 
@@ -926,7 +936,7 @@ export default function SignUp() {
         }
 
         .strength-valid {
-          color: #ca8a04;
+          color: #e0a800df;
           font-weight: bold;
         }
 
@@ -936,7 +946,7 @@ export default function SignUp() {
         }
 
         .strength-text-valid {
-          color: #ca8a04;
+          color: #e0a800df;
           font-weight: bold;
         }
 
@@ -992,7 +1002,7 @@ export default function SignUp() {
           align-items: center;
           padding: 1.5rem;
           border-bottom: 1px solid #e5e7eb;
-          background-color: #7f1d1d;
+          background: linear-gradient(to right, #8b3a3a, #7a3232);
         }
 
         .modal-header h3 {
