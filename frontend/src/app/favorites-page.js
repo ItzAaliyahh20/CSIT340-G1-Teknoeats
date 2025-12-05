@@ -91,7 +91,7 @@ export default function FavoritesPage() {
        // Refresh cart
        const cartItems = await getCart(user.userId)
        setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
-       showToast(`Successfully added ${quantity} ${quantity === 1 ? 'item' : 'items'} of ${product.name} to your cart.`, 'success')
+       // Toast is handled by ProductCard component
      } catch (error) {
        console.error("Error adding to cart:", error)
        alert("Failed to add item to cart")

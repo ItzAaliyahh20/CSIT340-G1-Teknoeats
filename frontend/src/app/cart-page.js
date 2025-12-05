@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/sidebar'
-import { Search, Clock, Trash2, X, Banknote, ShoppingBasket, Calendar, ChevronDown } from "lucide-react"
+import { Clock, Trash2, X, Banknote, ShoppingBasket, Calendar, ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart, getCurrentUser, getOrderById, createOrder } from '../services/api'
 
@@ -29,17 +29,6 @@ export default function CartPage() {
    const [checkoutRipples, setCheckoutRipples] = useState([])
    const [viewOrder, setViewOrder] = useState(null)
 
-   // Use URL search parameter for search query to persist across pages
-   const searchQuery = searchParams.get('search') || ""
-   const setSearchQuery = (query) => {
-     const newSearchParams = new URLSearchParams(searchParams)
-     if (query) {
-       newSearchParams.set('search', query)
-     } else {
-       newSearchParams.delete('search')
-     }
-     setSearchParams(newSearchParams)
-   }
 
   // Generate time options from 7:30 AM to 5:30 PM in 15-minute intervals
   const timeOptions = []
@@ -119,9 +108,6 @@ export default function CartPage() {
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-  const filteredItems = items.filter((item) =>
-    searchQuery === "" || item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
 
   const updateQuantity = async (id, quantity) => {
     console.log("updateQuantity called for id:", id, "quantity:", quantity)
@@ -284,18 +270,6 @@ export default function CartPage() {
               </p>
             </div>
 
-            <div className="absolute left-1/2 transform -translate-x-1/2 max-w-xl">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Looking for something?"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-6 py-3 pl-12 rounded-full bg-white text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] shadow-md"
-                />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} strokeWidth={2} />
-              </div>
-            </div>
           </div>
           <main className="max-w-7xl mx-auto px-4 py-8">
             <div className="flex flex-col items-center justify-center space-y-4">
@@ -314,10 +288,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='cart' onSelectCategory={(category) => {
-        const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
-        navigate(`/home?category=${category}${searchParam}`);
-      }} />
+      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='cart' onSelectCategory={(category) => navigate('/home?category=' + category)} />
       <div className="ml-[250px]">
         <div className="bg-gradient-to-r from-[#FFD700] to-[#FFC107] px-8 py-6 shadow-lg flex justify-between items-center relative">
           <div className="text-left">
@@ -341,18 +312,6 @@ export default function CartPage() {
             </p>
           </div>
 
-          <div className="absolute left-1/2 transform -translate-x-1/2 max-w-xl">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Looking for something?"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-6 py-3 pl-12 rounded-full bg-white text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] shadow-md"
-              />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} strokeWidth={2} />
-            </div>
-          </div>
 
           {user && (
             <div className="text-right flex items-center justify-end">
@@ -377,7 +336,7 @@ export default function CartPage() {
         }}>
           {viewOrder ? 'ORDER DETAILS' : 'CART'}
         </h2>
-        {filteredItems.length === 0 ? (
+        {items.length === 0 ? (
           <div className="text-center space-y-4 py-12">
             <ShoppingBasket size={64} strokeWidth={1.1} className="text-gray-400 mb-4 mx-auto animate-pulse" />
             <p className="text-gray-600 text-lg">Your cart is empty. Fill it with your cravings!</p>
@@ -405,7 +364,7 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {filteredItems.map((item, index) => (
+                {items.map((item, index) => (
                    <motion.div
                      key={item.id}
                      initial={{ opacity: 0, y: 30 }}
