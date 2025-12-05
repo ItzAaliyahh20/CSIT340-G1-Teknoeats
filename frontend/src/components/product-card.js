@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import { Heart, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -44,13 +43,13 @@ export default function ProductCard({ product, isFavorite, onAddToCart, onToggle
     showToast(`Successfully added ${quantity} ${quantity === 1 ? 'item' : 'items'} of ${product.name} to your cart.`, 'success')
   }
 
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-      <div className="relative">
+  return ( 
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"> 
+      <div className="relative"> 
         <img
-          src={product.image || "/placeholder.svg"}
-          alt={product.name}
-          className="w-full h-40 object-contain"
+          src={imageUrl}
+          alt={product.name} 
+          className="w-full h-40 object-contain" 
         />
         <button
           onClick={() => {

@@ -1,10 +1,11 @@
-
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/sidebar'
 import { Search, Clock, Trash2, X, Banknote, ShoppingBasket, Calendar, ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart, getCurrentUser } from '../services/api'
+
+const BACKEND_URL = "http://localhost:8080"; // Add this constant
 
 export default function CartPage() {
    const navigate = useNavigate();
@@ -80,7 +81,15 @@ export default function CartPage() {
           }
         } else if (currentUser) {
           const cartItems = await getCart(currentUser.id)
-          setItems(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
+          // FIX: Add full URL to image paths
+          const cartItemsWithFixedImages = cartItems.map(c => ({
+            ...c.product,
+            quantity: c.quantity,
+            image: c.product.image?.startsWith('/uploads')
+              ? `${BACKEND_URL}${c.product.image}`
+              : c.product.image
+          }))
+          setItems(cartItemsWithFixedImages)
         }
       } catch (error) {
         console.error("Error loading cart:", error)
@@ -191,13 +200,18 @@ export default function CartPage() {
       restaurant: "Counter A - CIT-U Canteen",
       total: total,
       paymentMethod: paymentMethod,
-      pickupTime: pickupTime,
-    }
+      pickupTime: pickupTime === 'now' ? 'Pick up within 5-10 minutes' : 'Pick up later',
+      restaurant: 'Counter A - CIT-U Canteen'
+    };
 
-    const existingOrders = localStorage.getItem("orders")
-    const allOrders = existingOrders ? JSON.parse(existingOrders) : []
-    allOrders.push(newOrder)
-    localStorage.setItem("orders", JSON.stringify(allOrders))
+    // Create order in backend
+    const response = await fetch(`http://localhost:8080/api/orders/create?userId=${user.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData)
+    });
 
     // Clear cart from backend
     for (const item of items) {
@@ -212,11 +226,16 @@ export default function CartPage() {
     showToast("Order placed successfully! Your order is pending.", 'success')
     setTimeout(() => navigate("/order"), 1000) // Delay navigation to allow toast to show
   }
+};
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100">
-        <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='cart' onSelectCategory={(category) => navigate('/home?category=' + category)} />
+        <Sidebar 
+          categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} 
+          selectedItem='cart' 
+          onSelectCategory={(category) => navigate('/home?category=' + category)} 
+        />
         <div className="ml-[250px]">
           <div className="bg-gradient-to-r from-[#FFD700] to-[#FFC107] px-8 py-6 shadow-lg flex justify-between items-center relative">
             <div className="text-left">

@@ -1,12 +1,14 @@
 package com.teknoeats.backend.service;
 
 import com.teknoeats.backend.dto.DashboardStatsDTO;
-import com.teknoeats.backend.dto.ProductDTO;
 import com.teknoeats.backend.dto.SignupRequest;
 import com.teknoeats.backend.dto.UserDTO;
+import com.teknoeats.backend.dto.OrderDTO;
+import com.teknoeats.backend.dto.OrderItemDTO;
 import com.teknoeats.backend.model.Order;
 import com.teknoeats.backend.model.Product;
 import com.teknoeats.backend.model.User;
+import com.teknoeats.backend.model.OrderItem;
 import com.teknoeats.backend.repository.OrderRepository;
 import com.teknoeats.backend.repository.ProductRepository;
 import com.teknoeats.backend.repository.UserRepository;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,28 +34,19 @@ public class AdminService {
 
     // ========== PRODUCT MANAGEMENT ==========
 
-    public Product addProduct(ProductDTO dto) {
-        Product product = new Product();
-        product.setName(dto.getName());
-        product.setPrice(dto.getPrice());
-        product.setCategory(dto.getCategory());
-        product.setImage(dto.getImage());
-        product.setStock(dto.getStock() != null ? dto.getStock() : 0);
-
+    public Product addProduct(Product product) {
         return productRepository.save(product);
     }
 
-    public Product updateProduct(Long id, ProductDTO dto) {
+    public Product updateProduct(Long id, Product updatedProduct) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        product.setName(dto.getName());
-        product.setPrice(dto.getPrice());
-        product.setCategory(dto.getCategory());
-        product.setImage(dto.getImage());
-        if (dto.getStock() != null) {
-            product.setStock(dto.getStock());
-        }
+        product.setName(updatedProduct.getName());
+        product.setPrice(updatedProduct.getPrice());
+        product.setCategory(updatedProduct.getCategory());
+        product.setImage(updatedProduct.getImage());
+        product.setStock(updatedProduct.getStock());
 
         return productRepository.save(product);
     }
@@ -139,10 +133,14 @@ public class AdminService {
     public DashboardStatsDTO getDashboardStats() {
         List<Order> allOrders = orderRepository.findAll();
 
+        // Calculate total revenue from ALL delivered orders
         BigDecimal totalRevenue = allOrders.stream()
+                .filter(o -> o.getStatus() == Order.OrderStatus.delivered)
                 .map(Order::getTotal)
+                .filter(total -> total != null) // Filter out null values
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        // Count orders by status
         long pendingCount = allOrders.stream()
                 .filter(o -> o.getStatus() == Order.OrderStatus.pending)
                 .count();
@@ -161,7 +159,7 @@ public class AdminService {
 
         DashboardStatsDTO stats = new DashboardStatsDTO();
         stats.setTotalOrders(allOrders.size());
-        stats.setTotalRevenue(totalRevenue);
+        stats.setTotalRevenue(totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
         stats.setTotalUsers((int) userRepository.count());
         stats.setTotalProducts((int) productRepository.count());
         stats.setPendingOrders((int) pendingCount);
@@ -181,6 +179,43 @@ public class AdminService {
         dto.setEmail(user.getEmail());
         dto.setPhoneNumber(user.getPhoneNumber());
         dto.setRole(user.getRole().toString().replace("_", " "));
+        return dto;
+    }
+
+    // Helper method to convert Order to OrderDTO
+    public OrderDTO convertOrderToDTO(Order order) {
+        OrderDTO dto = new OrderDTO();
+        dto.setId(order.getId());
+        dto.setUserId(order.getUser() != null ? order.getUser().getId() : null);
+        dto.setStatus(order.getStatus().toString());
+        dto.setTotal(order.getTotal());
+        dto.setPaymentMethod(order.getPaymentMethod());
+        dto.setPickupTime(order.getPickupTime());
+        dto.setRestaurant(order.getRestaurant());
+        
+        // Format createdAt
+        if (order.getCreatedAt() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            dto.setCreatedAt(order.getCreatedAt().format(formatter));
+        }
+        
+        // Convert items
+        if (order.getItems() != null && !order.getItems().isEmpty()) {
+            List<OrderItemDTO> itemDTOs = order.getItems().stream()
+                .map(item -> {
+                    OrderItemDTO itemDTO = new OrderItemDTO();
+                    itemDTO.setProductId(item.getProduct() != null ? item.getProduct().getId() : null);
+                    itemDTO.setName(item.getProduct() != null ? item.getProduct().getName() : "Unknown");
+                    itemDTO.setQuantity(item.getQuantity());
+                    itemDTO.setPrice(item.getPrice());
+                    itemDTO.setCategory(item.getProduct() != null ? item.getProduct().getCategory() : null);
+                    itemDTO.setImage(item.getProduct() != null ? item.getProduct().getImage() : "/placeholder.svg");
+                    return itemDTO;
+                })
+                .collect(Collectors.toList());
+            dto.setItems(itemDTOs);
+        }
+        
         return dto;
     }
 }

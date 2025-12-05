@@ -82,14 +82,14 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory, sh
         <div className="flex flex-col gap-4">
           {categories.map((category) => (
             <button
-              key={category}
-              onClick={() => onSelectCategory(category)}
-              className={`relative flex items-center gap-2 text-left font-semibold text-lg py-2 transition-colors ${
-                selectedItem === category
-                  ? "text-[#8B3A3A] pl-4"
-                  : "text-gray-600 hover:text-[#8B3A3A] pl-2"
-              }`}
-            >
+            key={category}
+            onClick={() => onSelectCategory(category)}
+            className={`relative flex items-center gap-2 text-left font-semibold text-lg py-2 transition-colors ${
+              selectedItem === category
+                ? "text-[#8B3A3A] pl-4"
+                : "text-gray-600 hover:text-[#8B3A3A] pl-2"
+            }`}
+          >
               {selectedItem === category && (
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#8B3A3A] to-[#FFD700] animate-pulse"></div>
               )}

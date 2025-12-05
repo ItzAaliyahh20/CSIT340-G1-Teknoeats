@@ -64,4 +64,6 @@ export const removeFromFavorites = (userId, productId) =>
 
 export const getFavorites = (userId) => api.get(`/favorites/${userId}`).then((res) => res.data)
 
+
+//
 export default api

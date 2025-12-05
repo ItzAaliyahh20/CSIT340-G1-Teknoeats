@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser, getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart } from '../services/api'
 
 const API_BASE_URL = "http://localhost:8080/api";
+const BACKEND_URL = "http://localhost:8080"; // Add this constant
 const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages"]
 
 export default function HomePage() {
@@ -38,7 +39,7 @@ export default function HomePage() {
      setSearchParams(newSearchParams)
    }
 
-  // ⭐ FETCH PRODUCTS FROM BACKEND
+  // FETCH PRODUCTS FROM BACKEND
   useEffect(() => {
     const loadProducts = async () => {
       setLoading(true);
@@ -46,14 +47,24 @@ export default function HomePage() {
         const response = await fetch(`${API_BASE_URL}/products`);
         if (response.ok) {
           const data = await response.json();
-          console.log("✅ Products fetched:", data.length);
-          setProducts(data);
+          console.log("✓ Products fetched:", data.length);
+          
+          // Fix image URLs for each product
+          const productsWithFixedImages = data.map(product => ({
+            ...product,
+            // If image starts with /uploads, prepend backend URL
+            image: product.image?.startsWith('/uploads') 
+              ? `${BACKEND_URL}${product.image}` 
+              : product.image
+          }));
+          
+          setProducts(productsWithFixedImages);
         } else {
-          console.error("❌ Failed to fetch products");
+          console.error("✖ Failed to fetch products");
           alert("Failed to load products from server");
         }
       } catch (error) {
-        console.error("❌ Error fetching products:", error);
+        console.error("✖ Error fetching products:", error);
         alert("Error connecting to server");
       } finally {
         setLoading(false);
@@ -62,7 +73,7 @@ export default function HomePage() {
     loadProducts();
   }, [])
 
-  // ⭐ FETCH USER, FAVORITES AND CART
+  // FETCH USER, FAVORITES AND CART
   useEffect(() => {
     const loadUserData = async () => {
       try {
@@ -71,13 +82,11 @@ export default function HomePage() {
         if (currentUser) {
           const favs = await getFavorites(currentUser.id);
           setFavorites(favs.map(f => f.product.id));
-
           const cartItems = await getCart(currentUser.id);
           setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })));
         }
       } catch (error) {
-        console.error("❌ Error fetching user data:", error);
-        // No alert for user data, as it's optional
+        console.error("✖ Error fetching user data:", error);
       }
     };
     loadUserData();
@@ -115,7 +124,6 @@ export default function HomePage() {
     }
     try {
       await apiAddToCart(user.id, product.id, quantity)
-      // Refresh cart
       const cartItems = await getCart(user.id)
       setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
     } catch (error) {
@@ -233,8 +241,11 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar categories={CATEGORIES} selectedItem={selectedCategory} onSelectCategory={setSelectedCategory} />
-
+      <Sidebar 
+        categories={CATEGORIES} 
+        selectedItem={selectedCategory} 
+        onSelectCategory={setSelectedCategory} 
+      />
       <div className="ml-[250px]">
           <div className="bg-gradient-to-r from-[#FFD700] to-[#FFC107] px-8 py-6 shadow-lg flex justify-between items-center relative">
             <div className="text-left">
@@ -289,7 +300,7 @@ export default function HomePage() {
 
         <main className="max-w-7xl mx-auto px-4 py-8">
           {selectedCategory === "Dashboard" && <HeroBanner />}
-
+          
           <div className="mb-6">
             <h2 className="text-4xl font-bold text-white text-center py-3 mb-6 rounded" style={{
               background: 'linear-gradient(to bottom right, #f3f4f6, #FFC107, #f3f4f6)',
