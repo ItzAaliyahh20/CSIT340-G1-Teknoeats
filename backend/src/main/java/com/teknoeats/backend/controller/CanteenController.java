@@ -1,6 +1,7 @@
 package com.teknoeats.backend.controller;
 
 import com.teknoeats.backend.dto.DashboardStatsDTO;
+import com.teknoeats.backend.dto.OrderDTO;
 import com.teknoeats.backend.model.Order;
 import com.teknoeats.backend.service.CanteenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,13 @@ public class CanteenController {
     private CanteenService canteenService;
 
     @GetMapping("/orders/active")
-    public ResponseEntity<List<Order>> getActiveOrders() {
+    public ResponseEntity<List<OrderDTO>> getActiveOrders() {
         return ResponseEntity.ok(canteenService.getActiveOrders());
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+        return ResponseEntity.ok(canteenService.getAllOrders());
     }
 
     @GetMapping("/orders/{id}")
@@ -37,7 +43,7 @@ public class CanteenController {
     @PutMapping("/orders/{id}/status")
     public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestParam String status) {
         try {
-            Order order = canteenService.updateOrderStatus(id, status);
+            OrderDTO order = canteenService.updateOrderStatus(id, status);
             return ResponseEntity.ok(order);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

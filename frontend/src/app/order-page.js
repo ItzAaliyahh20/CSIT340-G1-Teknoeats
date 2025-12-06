@@ -33,11 +33,15 @@ export default function OrdersPage() {
   useEffect(() => {
     const loadOrders = async () => {
       try {
+        console.log('CUSTOMER DEBUG: Loading orders from API');
         const currentUser = await getCurrentUser();
+        console.log('CUSTOMER DEBUG: Current user:', currentUser);
         if (currentUser && currentUser.id) {
           const userOrders = await getOrders(currentUser.id);
+          console.log('CUSTOMER DEBUG: Orders from API:', userOrders);
           const sortedOrders = userOrders.sort((a, b) => parseInt(b.id) - parseInt(a.id)); // newest first
           setOrders(sortedOrders);
+          console.log('CUSTOMER DEBUG: Set orders state:', sortedOrders);
         }
       } catch (error) {
         console.error("Error loading orders:", error);
@@ -361,7 +365,7 @@ export default function OrdersPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Order ID</p>
-                  <p className="font-mono font-bold">#{selectedOrder.id.slice(-8)}</p>
+                  <p className="font-mono font-bold">#{String(selectedOrder.id).slice(-8)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Date & Time</p>
