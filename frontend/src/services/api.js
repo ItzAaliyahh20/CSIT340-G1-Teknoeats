@@ -64,6 +64,19 @@ export const removeFromFavorites = (userId, productId) =>
 
 export const getFavorites = (userId) => api.get(`/favorites/${userId}`).then((res) => res.data)
 
+// Admin Orders
+export const getAllOrders = () => api.get('/admin/orders').then((res) => res.data)
+
+export const updateOrderStatus = (orderId, status) => api.put(`/admin/orders/${orderId}/status?status=${status}`).then((res) => res.data)
+
+// Canteen Orders
+export const getActiveOrders = () => api.get('/canteen/orders/active').then((res) => res.data)
+
+export const getAllCanteenOrders = () => api.get('/canteen/orders').then((res) => res.data)
+
+export const updateCanteenOrderStatus = (orderId, status) => api.put(`/canteen/orders/${orderId}/status?status=${status}`).then((res) => res.data)
+
+export const getCanteenStats = () => api.get('/canteen/dashboard/stats').then((res) => res.data)
 
 //
 export default api

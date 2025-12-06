@@ -10,7 +10,6 @@ public class OrderDTO {
     private BigDecimal total;
     private String paymentMethod;
     private String pickupTime;
-    private String restaurant;
     private List<OrderItemDTO> items;
     private String date;
     private String createdAt;
@@ -65,14 +64,6 @@ public class OrderDTO {
 
     public void setPickupTime(String pickupTime) {
         this.pickupTime = pickupTime;
-    }
-
-    public String getRestaurant() {
-        return restaurant;
-    }
-
-    public void setRestaurant(String restaurant) {
-        this.restaurant = restaurant;
     }
 
     public List<OrderItemDTO> getItems() {

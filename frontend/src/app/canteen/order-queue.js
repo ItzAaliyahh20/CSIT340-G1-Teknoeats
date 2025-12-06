@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Eye, X, RefreshCw } from 'lucide-react';
+import { getAllCanteenOrders, updateCanteenOrderStatus } from '../../services/api';
 
 export default function OrderQueue() {
   const navigate = useNavigate();
@@ -20,28 +21,59 @@ export default function OrderQueue() {
     return () => clearInterval(interval);
   }, []);
 
-  const loadOrders = () => {
-    const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    // Sort by date (newest first)
-    const sortedOrders = savedOrders.sort((a, b) => 
-      new Date(b.date) - new Date(a.date)
-    );
-    setOrders(sortedOrders);
+  const loadOrders = async () => {
+    try {
+      console.log('CANTEEN DEBUG: Loading all orders from API');
+      const allOrders = await getAllCanteenOrders();
+      console.log('CANTEEN DEBUG: Orders from API:', allOrders);
+      console.log('CANTEEN DEBUG: Total orders loaded:', allOrders.length);
+
+      // Count orders by status
+      const statusCounts = allOrders.reduce((acc, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      }, {});
+      console.log('CANTEEN DEBUG: Orders by status:', statusCounts);
+
+      // Sort by date (newest first) - assuming orders have createdAt or date field
+      const sortedOrders = allOrders.sort((a, b) =>
+        new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
+      );
+      setOrders(sortedOrders);
+      console.log('CANTEEN DEBUG: Set orders state:', sortedOrders.length + ' orders');
+    } catch (error) {
+      console.error('CANTEEN DEBUG: Error loading orders from API:', error);
+      // Fallback to empty array on error
+      setOrders([]);
+    }
   };
 
   const filteredOrders = statusFilter === 'All'
     ? orders
     : orders.filter(order => order.status === statusFilter);
 
-  const updateOrderStatus = (orderId, newStatus) => {
-    const updatedOrders = orders.map(order =>
-      order.id === orderId ? { ...order, status: newStatus } : order
-    );
-    setOrders(updatedOrders);
-    localStorage.setItem('orders', JSON.stringify(updatedOrders));
-    
-    if (selectedOrder && selectedOrder.id === orderId) {
-      setSelectedOrder({ ...selectedOrder, status: newStatus });
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      console.log('CANTEEN DEBUG: Updating order status via API', { orderId, newStatus });
+      const updatedOrder = await updateCanteenOrderStatus(orderId, newStatus);
+      console.log('CANTEEN DEBUG: Order updated via API:', updatedOrder);
+
+      // Update the orders state with the updated order
+      const updatedOrders = orders.map(order =>
+        order.id === orderId ? updatedOrder : order
+      );
+      setOrders(updatedOrders);
+      console.log('CANTEEN DEBUG: Updated orders state:', updatedOrders);
+
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder(updatedOrder);
+      }
+
+      // Show success message
+      alert(`Order status updated to ${newStatus}`);
+    } catch (error) {
+      console.error('CANTEEN DEBUG: Error updating order status:', error);
+      alert('Failed to update order status. Please try again.');
     }
   };
 
@@ -179,7 +211,7 @@ export default function OrderQueue() {
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <p className="font-mono text-lg font-bold text-gray-900">
-                          #{order.id.slice(-8)}
+                          #{String(order.id).slice(-8)}
                         </p>
                         <p className="text-sm text-gray-600">{order.date}</p>
                       </div>
@@ -261,7 +293,7 @@ export default function OrderQueue() {
             <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">Order Details</h2>
-                <p className="text-sm text-gray-600 mt-1">#{selectedOrder.id}</p>
+                <p className="text-sm text-gray-600 mt-1">#{String(selectedOrder.id)}</p>
               </div>
               <button
                 onClick={() => setShowDetailsModal(false)}

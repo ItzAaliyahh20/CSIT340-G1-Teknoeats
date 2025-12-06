@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Eye, Filter } from 'lucide-react';
 import AdminSidebar from '../../components/admin-sidebar';
-
-const API_BASE_URL = "http://localhost:8080/api";
+import { getAllOrders, updateOrderStatus } from '../../services/api';
 export default function OrderManagement() {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -34,20 +33,19 @@ export default function OrderManagement() {
 
   // ------------------------------------
 
-  const loadOrders = () => {
+  const loadOrders = async () => {
     setLoading(true);
     setError(null);
-    fetch(`${API_BASE_URL}/admin/orders`)
-      .then(res => res.json())
-      .then(data => {
-        console.log('Orders from API:', data);
-        setOrders(data);
-      })
-      .catch(err => {
-        console.error('Error fetching orders:', err);
-        setError('Failed to load orders from server');
-      })
-      .finally(() => setLoading(false));
+    try {
+      const data = await getAllOrders();
+      console.log('Orders from API:', data);
+      setOrders(data);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      setError('Failed to load orders from server');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -59,27 +57,23 @@ export default function OrderManagement() {
     filterOrders();
   }, [filterOrders]);
 
-  const updateOrderStatus = (orderId, newStatus) => {
-    fetch(`${API_BASE_URL}/admin/orders/${orderId}/status?status=${newStatus}`, {
-      method: 'PUT'
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log('Order status updated:', data);
-        // Update the order in the list
-        const updatedOrders = orders.map(o => 
-          o.id === orderId ? data : o
-        );
-        setOrders(updatedOrders);
-        if (selectedOrder && selectedOrder.id === orderId) {
-          setSelectedOrder(data);
-        }
-        alert(`Order status updated to ${newStatus}`);
-      })
-      .catch(err => {
-        console.error('Error updating order status:', err);
-        alert('Failed to update order status');
-      });
+  const updateOrderStatusAdmin = async (orderId, newStatus) => {
+    try {
+      const data = await updateOrderStatus(orderId, newStatus);
+      console.log('Order status updated:', data);
+      // Update the order in the list
+      const updatedOrders = orders.map(o =>
+        o.id === orderId ? data : o
+      );
+      setOrders(updatedOrders);
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder(data);
+      }
+      alert(`Order status updated to ${newStatus}`);
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      alert('Failed to update order status');
+    }
   };
 
   const getStatusColor = (status) => {
@@ -223,7 +217,7 @@ export default function OrderManagement() {
                       <td className="px-6 py-4 text-center">
                         <select
                           value={order.status}
-                          onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                          onChange={(e) => updateOrderStatusAdmin(order.id, e.target.value)}
                           className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer ${getStatusColor(order.status)}`}
                         >
                           <option value="pending">Pending</option>
@@ -364,7 +358,7 @@ export default function OrderManagement() {
                 <p className="text-sm text-gray-600 mb-2 font-semibold">Update Status</p>
                 <select
                   value={selectedOrder.status}
-                  onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value)}
+                  onChange={(e) => updateOrderStatusAdmin(selectedOrder.id, e.target.value)}
                   className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none font-semibold"
                 >
                   <option value="pending">Pending</option>

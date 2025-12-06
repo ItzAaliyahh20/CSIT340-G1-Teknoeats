@@ -41,7 +41,6 @@ public class OrderService {
         order.setTotal(orderDTO.getTotal());
         order.setPaymentMethod(orderDTO.getPaymentMethod());
         order.setPickupTime(orderDTO.getPickupTime());
-        order.setRestaurant(orderDTO.getRestaurant());
 
         // Add order items
         for (OrderItemDTO itemDTO : orderDTO.getItems()) {
@@ -87,7 +86,6 @@ public class OrderService {
         dto.setTotal(order.getTotal());
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setPickupTime(order.getPickupTime());
-        dto.setRestaurant(order.getRestaurant());
 
         // Format date - handle both createdAt formats
         if (order.getCreatedAt() != null) {
