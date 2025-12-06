@@ -1,5 +1,6 @@
 package com.teknoeats.backend.controller;
 
+import com.teknoeats.backend.dto.AdminUserRequest;
 import com.teknoeats.backend.dto.DashboardStatsDTO;
 import com.teknoeats.backend.dto.SignupRequest;
 import com.teknoeats.backend.dto.UserDTO;
@@ -36,7 +37,7 @@ public class AdminController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<?> createUser(@RequestBody SignupRequest request) {
+    public ResponseEntity<?> createUser(@RequestBody AdminUserRequest request) {
         try {
             UserDTO user = adminService.createUser(request);
             return ResponseEntity.ok(user);

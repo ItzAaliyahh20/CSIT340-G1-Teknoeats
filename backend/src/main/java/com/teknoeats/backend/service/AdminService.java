@@ -1,5 +1,6 @@
 package com.teknoeats.backend.service;
 
+import com.teknoeats.backend.dto.AdminUserRequest;
 import com.teknoeats.backend.dto.DashboardStatsDTO;
 import com.teknoeats.backend.dto.SignupRequest;
 import com.teknoeats.backend.dto.UserDTO;
@@ -13,6 +14,7 @@ import com.teknoeats.backend.repository.OrderRepository;
 import com.teknoeats.backend.repository.ProductRepository;
 import com.teknoeats.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -31,6 +33,8 @@ public class AdminService {
 
     @Autowired
     private UserRepository userRepository;
+
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // ========== PRODUCT MANAGEMENT ==========
 
@@ -91,9 +95,15 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    public UserDTO createUser(SignupRequest request) {
+    public UserDTO createUser(AdminUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
+        }
+
+        // Validate role - only Admin and Canteen Personnel can be created by admin
+        String role = request.getRole();
+        if (!"Admin".equals(role) && !"Canteen Personnel".equals(role)) {
+            throw new RuntimeException("Invalid role. Only Admin and Canteen Personnel roles can be created by administrators.");
         }
 
         User user = new User();
@@ -101,7 +111,7 @@ public class AdminService {
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setPassword(request.getPassword()); // In production, hash this!
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(User.Role.valueOf(request.getRole().replace(" ", "_")));
 
         User savedUser = userRepository.save(user);
@@ -125,6 +135,15 @@ public class AdminService {
     }
 
     public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if user has any orders
+        List<Order> userOrders = orderRepository.findByUserId(id);
+        if (!userOrders.isEmpty()) {
+            throw new RuntimeException("Cannot delete user: User has " + userOrders.size() + " associated order(s). Please delete the orders first or contact system administrator.");
+        }
+
         userRepository.deleteById(id);
     }
 
