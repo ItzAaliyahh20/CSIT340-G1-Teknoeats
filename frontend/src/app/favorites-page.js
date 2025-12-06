@@ -47,8 +47,8 @@ export default function FavoritesPage() {
            const prods = await getProducts()
            console.log("FavoritesPage: getProducts result length:", prods.length)
            setProducts(prods)
-           console.log("FavoritesPage: Calling getFavorites for user:", currentUser.id)
-           const favs = await getFavorites(currentUser.id)
+           console.log("FavoritesPage: Calling getFavorites for user:", currentUser.userId)
+           const favs = await getFavorites(currentUser.userId)
            console.log("FavoritesPage: getFavorites result:", favs)
            setFavorites(favs.map(f => f.product.id))
            console.log("FavoritesPage: Favorites set to:", favs.map(f => f.product.id))
@@ -87,9 +87,9 @@ export default function FavoritesPage() {
        return
      }
      try {
-       await apiAddToCart(user.id, product.id, quantity)
+       await apiAddToCart(user.userId, product.id, quantity)
        // Refresh cart
-       const cartItems = await getCart(user.id)
+       const cartItems = await getCart(user.userId)
        setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
        showToast(`Successfully added ${quantity} ${quantity === 1 ? 'item' : 'items'} of ${product.name} to your cart.`, 'success')
      } catch (error) {
@@ -123,16 +123,26 @@ export default function FavoritesPage() {
 
        if (wasFavorite) {
          console.log("FavoritesPage: Removing from favorites")
-         await removeFromFavorites(user.id, productId)
-         setFavorites(favorites.filter(id => id !== productId))
-         console.log("FavoritesPage: Favorites updated after removal")
-         showToast(`Removed ${product?.name || 'item'} from your favorites.`, 'success')
+         const response = await removeFromFavorites(user.userId, productId)
+         if (response.success) {
+           setFavorites(favorites.filter(id => id !== productId))
+           console.log("FavoritesPage: Favorites updated after removal")
+           showToast(`Removed ${product?.name || 'item'} from your favorites.`, 'success')
+         } else {
+           console.error("FavoritesPage: Failed to remove from favorites")
+           alert("Failed to remove from favorites")
+         }
        } else {
          console.log("FavoritesPage: Adding to favorites")
-         await addToFavorites(user.id, productId)
-         setFavorites([...favorites, productId])
-         console.log("FavoritesPage: Favorites updated after addition")
-         showToast(`Added ${product?.name || 'item'} to your favorites!`, 'success')
+         const response = await addToFavorites(user.userId, productId)
+         if (response.success) {
+           setFavorites([...favorites, productId])
+           console.log("FavoritesPage: Favorites updated after addition")
+           showToast(`Added ${product?.name || 'item'} to your favorites!`, 'success')
+         } else {
+           console.error("FavoritesPage: Failed to add to favorites")
+           alert("Failed to add to favorites")
+         }
        }
      } catch (error) {
        console.error("FavoritesPage: Error toggling favorite:", error)

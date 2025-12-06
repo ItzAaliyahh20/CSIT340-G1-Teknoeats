@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLogout } from '../contexts/LogoutContext';
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -12,18 +13,13 @@ import {
 export default function AdminSidebar({ currentPage }) {
   const [isCollapsed] = useState(false);
   const [adminData, setAdminData] = useState(null);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { openLogoutModal } = useLogout();
   const navigate = useNavigate();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     setAdminData(user);
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
 
   const menuItems = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -111,7 +107,7 @@ export default function AdminSidebar({ currentPage }) {
         {/* Logout Button */}
         <div className="p-3 border-t border-gray-200 flex-shrink-0">
           <button
-            onClick={() => setShowLogoutModal(true)}
+            onClick={openLogoutModal}
             className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all font-semibold ${
               isCollapsed ? 'justify-center' : ''
             }`}
@@ -123,36 +119,6 @@ export default function AdminSidebar({ currentPage }) {
         </div>
       </div>
 
-      {/* Logout Modal */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-            <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
-              <LogOut size={32} className="text-red-600" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
-              Confirm Logout
-            </h3>
-            <p className="text-gray-600 text-center mb-6">
-              Are you sure you want to log out of your admin account?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="flex-1 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition shadow-md"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

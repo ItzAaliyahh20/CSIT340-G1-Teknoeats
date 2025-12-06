@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/sidebar'
 import { Search, Clock, Trash2, X, Banknote, ShoppingBasket, Calendar, ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart, getCurrentUser, getOrderById } from '../services/api'
+import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart, getCurrentUser, getOrderById, createOrder } from '../services/api'
 
 const BACKEND_URL = "http://localhost:8080"; // Add this constant
 
@@ -80,14 +80,14 @@ export default function CartPage() {
           if (order && currentUser) {
             // Add items to cart
             for (const item of order.items) {
-              await apiAddToCart(currentUser.id, item.id, item.quantity)
+              await apiAddToCart(currentUser.userId, item.id, item.quantity)
             }
             setItems(order.items.map(i => ({ ...i, quantity: i.quantity })))
             setPaymentMethod(null)
             setPickupTime(null)
           }
         } else if (currentUser) {
-          const cartItems = await getCart(currentUser.id)
+          const cartItems = await getCart(currentUser.userId)
           console.log("Raw cart items from API:", cartItems)
           // FIX: Add full URL to image paths
           const cartItemsWithFixedImages = cartItems.map(c => ({
@@ -150,8 +150,8 @@ export default function CartPage() {
 
         console.log("Updating backend")
         // Then update backend
-        await apiRemoveFromCart(user.id, id)
-        await apiAddToCart(user.id, id, quantity)
+        await apiRemoveFromCart(user.userId, id)
+        await apiAddToCart(user.userId, id, quantity)
         console.log("Backend updated successfully")
       } catch (error) {
         console.error("Error updating quantity:", error)
@@ -179,7 +179,7 @@ export default function CartPage() {
 
       console.log("Removing from backend")
       // Then update backend
-      await apiRemoveFromCart(user.id, id)
+      await apiRemoveFromCart(user.userId, id)
 
       // Show toast message
       if (itemToRemove) {
@@ -236,18 +236,12 @@ export default function CartPage() {
     console.log("New order object:", newOrder)
 
     // Create order in backend
-    const response = await fetch(`http://localhost:8080/api/orders/create?userId=${user.id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newOrder)
-    });
+    const response = await createOrder(user.userId, newOrder);
     console.log("Order creation response:", response)
 
     // Clear cart from backend
     for (const item of items) {
-      await apiRemoveFromCart(user.id, item.id)
+      await apiRemoveFromCart(user.userId, item.id)
     }
 
     // Clear local state and storage
@@ -256,7 +250,7 @@ export default function CartPage() {
 
     // Show success and redirect
     showToast("Order placed successfully! Your order is pending.", 'success')
-    setTimeout(() => navigate("/order"), 1000) // Delay navigation to allow toast to show
+    setTimeout(() => navigate("/orders"), 1000) // Delay navigation to allow toast to show
   }
 
   if (isLoading) {

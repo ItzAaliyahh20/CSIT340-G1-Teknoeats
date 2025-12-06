@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.teknoeats.backend.dto.ApiResponse;
 import com.teknoeats.backend.model.Cart;
 import com.teknoeats.backend.service.CartService;
 
@@ -30,13 +31,15 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public Cart addToCart(@RequestBody CartRequest request) {
-        return cartService.addToCart(request.getUserId(), request.getProductId(), request.getQuantity());
+    public ApiResponse<Cart> addToCart(@RequestBody CartRequest request) {
+        Cart cart = cartService.addToCart(request.getUserId(), request.getProductId(), request.getQuantity());
+        return new ApiResponse<>(true, "Item added to cart successfully", cart);
     }
 
     @PostMapping("/remove")
-    public void removeFromCart(@RequestBody CartRequest request) {
+    public ApiResponse<Void> removeFromCart(@RequestBody CartRequest request) {
         cartService.removeFromCart(request.getUserId(), request.getProductId());
+        return new ApiResponse<>(true, "Item removed from cart successfully", null);
     }
 
     // DTO for requests

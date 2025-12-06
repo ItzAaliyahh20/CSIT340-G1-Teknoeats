@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
-import { Eye, EyeOff, User, Lock, Mail, Phone } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, Mail, Phone, Home } from 'lucide-react';
 import { authAPI } from './services/api';
 
 export default function SignUp() {
@@ -14,7 +14,7 @@ export default function SignUp() {
     phoneNumber: '',
     password: '',
     confirmPassword: '',
-    role: '',
+    role: 'Customer',
     agreeTerms: false,
   });
   const [errors, setErrors] = useState({});
@@ -90,7 +90,6 @@ export default function SignUp() {
     else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (!formData.role) newErrors.role = 'Please select a role';
     if (!formData.agreeTerms) newErrors.agreeTerms = 'You must agree to the terms and conditions';
     return newErrors;
   };
@@ -109,7 +108,7 @@ export default function SignUp() {
         });
 
         console.log('Signup success:', response.data);
-        
+
         // Create user object to save
         const userData = {
           firstName: formData.firstName,
@@ -117,7 +116,8 @@ export default function SignUp() {
           email: formData.email,
           phoneNumber: formData.phoneNumber,
           role: formData.role,
-          id: response.data?.id || Date.now().toString()
+          id: response.data?.userId || Date.now().toString(),
+          token: response.data?.token
         };
 
         // Save to localStorage immediately after signup
@@ -158,9 +158,29 @@ export default function SignUp() {
         <div className="header-content">
           <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
           <div className="header-buttons">
+            <div className="nav-links">
+              <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#features'); }}>Features</a>
+              <a href="#footer" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#footer'); }}>Contact</a>
+            </div>
             <div className="switch-container">
-              <a href="/signup" className="switch-option" onClick={() => setIsLoginActive(false)}>Sign Up</a>
-              <a href="/login" className="switch-option" onClick={() => setIsLoginActive(true)}>Log In</a>
+              <button
+                className={`switch-option ${!isLoginActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsLoginActive(false);
+                  navigate('/signup');
+                }}
+              >
+                Sign Up
+              </button>
+              <button
+                className={`switch-option ${isLoginActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsLoginActive(true);
+                  navigate('/login');
+                }}
+              >
+                Log In
+              </button>
               <div className={`switch-slider ${isLoginActive ? 'login-active' : 'signup-active'}`}></div>
             </div>
           </div>
@@ -168,6 +188,11 @@ export default function SignUp() {
       </header>
 
       <main className="main-content">
+        <div className="hero-bg-elements">
+          <div className="bg-shape shape-1"></div>
+          <div className="bg-shape shape-2"></div>
+          <div className="bg-shape shape-3"></div>
+        </div>
         <div className="card-container">
           <div className="card">
             <h2 className="card-title">[ CREATE ACCOUNT ]</h2>
@@ -315,25 +340,6 @@ export default function SignUp() {
                 </div>
               </div>
 
-              {/* Role - Full Width */}
-              <div className="input-group">
-                <div className="input-wrapper">
-                  <User className="input-icon" />
-                  <select
-                    name="role"
-                    value={formData.role}
-                    onChange={handleInputChange}
-                    className={`input-field select-role ${errors.role ? 'input-error' : ''}`}
-                    style={{ color: formData.role ? '#1a202c' : '#9ca3af' }}
-                  >
-                    <option value="" style={{ color: '#9ca3af' }}>Select your role</option>
-                    <option value="Customer" style={{ color: '#1a202c' }}>Customer</option>
-                    <option value="Canteen Personnel" style={{ color: '#1a202c' }}>Canteen Personnel</option>
-                    <option value="Admin" style={{ color: '#1a202c' }}>Admin</option>
-                  </select>
-                </div>
-                {errors.role && <p className="error-message">{errors.role}</p>}
-              </div>
 
               {/* Terms and Conditions */}
               <div className="checkbox-group">
@@ -433,9 +439,30 @@ export default function SignUp() {
       <style>{`
         .app-container {
           min-height: 100vh;
-          background: linear-gradient(-45deg, #f9fafb, #ffffff, #f3f4f6, #f9fafb);
-          background-size: 400% 400%;
-          animation: gradientShift 15s ease infinite;
+          background:
+            radial-gradient(circle at 20% 80%, rgba(250, 204, 21, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
+            linear-gradient(-45deg, #f9fafb, #ffffff, #f3f4f6, #f9fafb);
+          background-size: 400% 400%, 400% 400%, 400% 400%, 400% 400%;
+          animation: gradientShift 15s ease infinite, floatingParticles 20s ease-in-out infinite;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .app-container::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image:
+            radial-gradient(circle at 25% 25%, rgba(250, 204, 21, 0.03) 0%, transparent 25%),
+            radial-gradient(circle at 75% 75%, rgba(234, 179, 8, 0.03) 0%, transparent 25%),
+            radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.02) 0%, transparent 25%);
+          animation: particleFloat 25s ease-in-out infinite;
+          pointer-events: none;
         }
 
         .header {
@@ -452,6 +479,30 @@ export default function SignUp() {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          position: relative;
+        }
+
+        .home-button {
+          background: rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: #7f1d1d;
+          transition: all 0.3s ease;
+          position: absolute;
+          left: 0;
+          z-index: 10;
+        }
+
+        .home-button:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: scale(1.1);
+          color: #450a0a;
         }
 
         .logo {
@@ -462,7 +513,25 @@ export default function SignUp() {
 
         .header-buttons {
           display: flex;
-          gap: 1rem;
+          align-items: center;
+          gap: 2rem;
+        }
+
+        .nav-links {
+          display: flex;
+          gap: 2rem;
+        }
+
+        .nav-link {
+          color: #7f1d1d;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.95rem;
+          transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+          color: #450a0a;
         }
 
         .switch-container {
@@ -526,6 +595,49 @@ export default function SignUp() {
           display: flex;
           justify-content: center;
           align-items: center;
+          min-height: calc(100vh - 80px);
+          position: relative;
+        }
+
+        .hero-bg-elements {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          overflow: hidden;
+          pointer-events: none;
+        }
+
+        .bg-shape {
+          position: absolute;
+          border-radius: 50%;
+          background: rgba(250, 204, 21, 0.1);
+          backdrop-filter: blur(40px);
+        }
+
+        .shape-1 {
+          width: 300px;
+          height: 300px;
+          top: 10%;
+          right: 10%;
+          animation: floatShape1 8s ease-in-out infinite;
+        }
+
+        .shape-2 {
+          width: 200px;
+          height: 200px;
+          bottom: 20%;
+          left: 10%;
+          animation: floatShape2 10s ease-in-out infinite;
+        }
+
+        .shape-3 {
+          width: 150px;
+          height: 150px;
+          top: 50%;
+          right: 20%;
+          animation: floatShape3 12s ease-in-out infinite;
         }
 
         .card-container {
@@ -534,11 +646,29 @@ export default function SignUp() {
         }
 
         .card {
-          background: white;
+          background: linear-gradient(135deg, rgba(250, 204, 21, 0.1), rgba(234, 179, 8, 0.05), rgba(255, 255, 255, 0.95));
           border-radius: 1rem;
-          padding: 2rem;
+          padding: 2.5rem;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
           transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(45deg, transparent, rgba(250, 204, 21, 0.1), transparent);
+          animation: cardShimmer 3s ease-in-out infinite;
+          pointer-events: none;
+        }
+
+        .card:hover {
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
         
         .card:hover {
@@ -673,7 +803,7 @@ export default function SignUp() {
 
         .submit-button {
           width: 100%;
-          padding: 0.75rem 1rem;
+          padding: 0.875rem 1rem;
           background: linear-gradient(to right, #991b1b, #7f1d1d);
           color: white;
           border: none;
@@ -682,18 +812,34 @@ export default function SignUp() {
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
-          margin-top: 0.5rem;
+          margin-top: 1rem;
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          position: relative;
+          overflow: hidden;
         }
 
         .submit-button:hover {
           background: linear-gradient(to right, #7f1d1d, #450a0a);
-          transform: scale(1.02);
+          transform: translateY(-2px);
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        
+
         .submit-button:active {
-          transform: scale(0.98);
+          transform: translateY(0);
+        }
+
+        .button-glow {
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+        }
+
+        .submit-button:hover .button-glow {
+          left: 100%;
         }
 
         .footer-text {
@@ -805,6 +951,12 @@ export default function SignUp() {
 
           .card-title {
             font-size: 1.5rem;
+          }
+
+          .login-options {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
           }
         }
 
@@ -933,7 +1085,252 @@ export default function SignUp() {
           }
         }
 
+        @keyframes floatingParticles {
+          0%, 100% {
+            background-position: 0% 0%, 0% 0%, 0% 0%, 0% 50%;
+          }
+          25% {
+            background-position: 100% 100%, 100% 100%, 100% 100%, 100% 50%;
+          }
+          50% {
+            background-position: 0% 100%, 0% 100%, 0% 100%, 0% 50%;
+          }
+          75% {
+            background-position: 100% 0%, 100% 0%, 100% 0%, 100% 50%;
+          }
+        }
+
+        @keyframes particleFloat {
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+            opacity: 0.3;
+          }
+          25% {
+            transform: translateY(-20px) rotate(90deg);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translateY(-40px) rotate(180deg);
+            opacity: 0.4;
+          }
+          75% {
+            transform: translateY(-20px) rotate(270deg);
+            opacity: 0.5;
+          }
+        }
+
+        @keyframes floatShape1 {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+          }
+          33% {
+            transform: translateY(-30px) translateX(20px) scale(1.1);
+          }
+          66% {
+            transform: translateY(-15px) translateX(-10px) scale(0.9);
+          }
+        }
+
+        @keyframes floatShape2 {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+          }
+          50% {
+            transform: translateY(-25px) translateX(-15px) scale(1.2);
+          }
+        }
+
+        @keyframes floatShape3 {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+          }
+          25% {
+            transform: translateY(-20px) translateX(25px) scale(0.8);
+          }
+          75% {
+            transform: translateY(-35px) translateX(-5px) scale(1.1);
+          }
+        }
+
+        @keyframes cardShimmer {
+          0% {
+            transform: translateX(-100%) rotate(45deg);
+            opacity: 0;
+          }
+          50% {
+            opacity: 0.3;
+          }
+          100% {
+            transform: translateX(100%) rotate(45deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes cardShimmer {
+          0% {
+            transform: translateX(-100%) rotate(45deg);
+            opacity: 0;
+          }
+          50% {
+            opacity: 0.3;
+          }
+          100% {
+            transform: translateX(100%) rotate(45deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes floatingParticles {
+          0%, 100% {
+            background-position: 0% 0%, 0% 0%, 0% 0%, 0% 50%;
+          }
+          25% {
+            background-position: 100% 100%, 100% 100%, 100% 100%, 100% 50%;
+          }
+          50% {
+            background-position: 0% 100%, 0% 100%, 0% 100%, 0% 50%;
+          }
+          75% {
+            background-position: 100% 0%, 100% 0%, 100% 0%, 100% 50%;
+          }
+        }
+
+        @keyframes particleFloat {
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+            opacity: 0.3;
+          }
+          25% {
+            transform: translateY(-20px) rotate(90deg);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translateY(-40px) rotate(180deg);
+            opacity: 0.4;
+          }
+          75% {
+            transform: translateY(-20px) rotate(270deg);
+            opacity: 0.5;
+          }
+        }
+
+        @keyframes floatShape1 {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+          }
+          33% {
+            transform: translateY(-30px) translateX(20px) scale(1.1);
+          }
+          66% {
+            transform: translateY(-15px) translateX(-10px) scale(0.9);
+          }
+        }
+
+        @keyframes floatShape2 {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+          }
+          50% {
+            transform: translateY(-25px) translateX(-15px) scale(1.2);
+          }
+        }
+
+        @keyframes floatShape3 {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+          }
+          25% {
+            transform: translateY(-20px) translateX(25px) scale(0.8);
+          }
+          75% {
+            transform: translateY(-35px) translateX(-5px) scale(1.1);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .header-buttons {
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .nav-links {
+            display: none;
+          }
+        }
+
+        @media (max-width: 1024px) {
+          .content-wrapper {
+            flex-direction: column;
+            border-radius: 0;
+          }
+
+          .welcome-section {
+            flex: none;
+            min-height: 300px;
+            padding: 2rem 1rem;
+          }
+
+          .welcome-title {
+            font-size: 2.5rem;
+          }
+
+          .welcome-subtitle {
+            font-size: 1rem;
+            max-width: 400px;
+          }
+
+          .welcome-features {
+            flex-direction: row;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+          }
+
+          .feature-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+          }
+
+          .form-section {
+            flex: 1;
+            padding: 2rem 1rem;
+          }
+        }
+
         @media (max-width: 640px) {
+          .welcome-section {
+            padding: 1.5rem 1rem;
+            min-height: 250px;
+          }
+
+          .welcome-title {
+            font-size: 2rem;
+          }
+
+          .welcome-subtitle {
+            font-size: 0.9rem;
+          }
+
+          .welcome-features {
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+          }
+
+          .feature-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+          }
+
+          .card {
+            padding: 1.5rem;
+            max-width: none;
+          }
+
+          .card-title {
+            font-size: 1.8rem;
+          }
+
           .modal-content {
             width: 95%;
             max-height: 90vh;

@@ -23,6 +23,12 @@ public class UserService {
             throw new RuntimeException("Email already registered");
         }
 
+        // Validate role - only Customer allowed for self-registration
+        String role = request.getRole();
+        if (!"Customer".equals(role)) {
+            throw new RuntimeException("Invalid role. Only Customer role is allowed for self-registration.");
+        }
+
         // Create new user
         User user = new User();
         user.setFirstName(request.getFirstName());
@@ -30,7 +36,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(request.getPassword())); // In production, hash this!
-        user.setRole(User.Role.valueOf(request.getRole().replace(" ", "_")));
+        user.setRole(User.Role.Customer);
 
         User savedUser = userRepository.save(user);
 
@@ -40,7 +46,8 @@ public class UserService {
                 savedUser.getFirstName(),
                 savedUser.getLastName(),
                 savedUser.getEmail(),
-                savedUser.getRole().toString()
+                savedUser.getRole().toString(),
+                "" // No token
         );
     }
 
@@ -54,22 +61,48 @@ public class UserService {
         System.out.println("Input password: " + request.getPassword());
         System.out.println("Stored password hash: " + user.getPassword());
 
-        // Verify password using BCrypt
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            System.out.println("Password mismatch");
+        // Verify password - handle both hashed and plain text for backward compatibility
+        boolean passwordValid = false;
+        String storedPassword = user.getPassword();
+
+        System.out.println("Login attempt for email: " + user.getEmail());
+        System.out.println("Input password: " + request.getPassword());
+        System.out.println("Stored password: " + storedPassword);
+
+        if (storedPassword.startsWith("$")) {
+            // Password is hashed with BCrypt
+            passwordValid = passwordEncoder.matches(request.getPassword(), storedPassword);
+            System.out.println("Using BCrypt check, result: " + passwordValid);
+        } else {
+            // Password is plain text (legacy) - compare directly and re-hash
+            passwordValid = request.getPassword().equals(storedPassword);
+            System.out.println("Using plain text check, result: " + passwordValid);
+            if (passwordValid) {
+                // Re-hash the password for security
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
+                userRepository.save(user);
+                System.out.println("Password re-hashed for user: " + user.getEmail());
+            }
+        }
+
+        if (!passwordValid) {
+            System.out.println("Password validation failed");
             throw new RuntimeException("Invalid credentials");
         }
+
+        System.out.println("Password validation successful");
 
         System.out.println("Login successful");
 
         return new AuthResponse(
-                 "Login successful",
-                 user.getId(),
-                 user.getFirstName(),
-                 user.getLastName(),
-                 user.getEmail(),
-                 user.getRole().toString()
-         );
+                  "Login successful",
+                  user.getId(),
+                  user.getFirstName(),
+                  user.getLastName(),
+                  user.getEmail(),
+                  user.getRole().toString(),
+                  "" // No token
+          );
      }
 
      public User getUserById(Long id) {

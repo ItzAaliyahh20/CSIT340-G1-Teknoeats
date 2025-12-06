@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from "./layout";
+import { LogoutProvider } from './contexts/LogoutContext';
+import LandingPage from './LandingPage';
 import SignUp from './Signup';
 import Login from './Login';
 
@@ -52,11 +54,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 function App() {
   return (
-    <Router>
-      <Layout>
-        <Routes>
+    <LogoutProvider>
+      <Router>
+        <Layout>
+          <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
 
@@ -145,6 +148,7 @@ function App() {
         </Routes>
       </Layout>
     </Router>
+    </LogoutProvider>
   );
 }
 

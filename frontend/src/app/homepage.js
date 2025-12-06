@@ -78,15 +78,30 @@ export default function HomePage() {
     const loadUserData = async () => {
       try {
         const currentUser = await getCurrentUser();
-        setUser(currentUser);
+        // Allow access even without token since cart operations don't require auth
         if (currentUser) {
-          const favs = await getFavorites(currentUser.id);
-          setFavorites(favs.map(f => f.product.id));
-          const cartItems = await getCart(currentUser.id);
-          setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })));
+          setUser(currentUser);
+          try {
+            const favs = await getFavorites(currentUser.userId);
+            setFavorites(favs.map(f => f.product.id));
+          } catch (error) {
+            console.log("Could not load favorites:", error.message);
+          }
+          try {
+            const cartItems = await getCart(currentUser.userId);
+            setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })));
+          } catch (error) {
+            console.log("Could not load cart:", error.message);
+          }
+        } else {
+          // No user data - redirect to login
+          console.log("No user data found, redirecting to login");
+          navigate('/login');
         }
       } catch (error) {
         console.error("✖ Error fetching user data:", error);
+        // No user data - redirect to login
+        navigate('/login');
       }
     };
     loadUserData();
@@ -123,8 +138,9 @@ export default function HomePage() {
       return
     }
     try {
-      await apiAddToCart(user.id, product.id, quantity)
-      const cartItems = await getCart(user.id)
+      await apiAddToCart(user.userId, product.id, quantity)
+      // Refresh cart after adding
+      const cartItems = await getCart(user.userId)
       setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
     } catch (error) {
       console.error("Error adding to cart:", error)
@@ -140,13 +156,13 @@ export default function HomePage() {
     try {
       const product = products.find(p => p.id === productId)
       const wasFavorite = favorites.includes(productId)
-      
+
       if (wasFavorite) {
-        await removeFromFavorites(user.id, productId)
+        await removeFromFavorites(user.userId, productId)
         setFavorites(favorites.filter(id => id !== productId))
         showToast(`Removed ${product?.name || 'item'} from your favorites.`, 'success')
       } else {
-        await addToFavorites(user.id, productId)
+        await addToFavorites(user.userId, productId)
         setFavorites([...favorites, productId])
         showToast(`Added ${product?.name || 'item'} to your favorites!`, 'success')
       }

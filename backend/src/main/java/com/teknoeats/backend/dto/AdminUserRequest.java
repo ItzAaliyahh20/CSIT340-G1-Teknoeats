@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class SignupRequest {
+public class AdminUserRequest {
     @NotBlank(message = "First name is required")
     private String firstName;
 
@@ -21,10 +21,20 @@ public class SignupRequest {
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
+    @NotBlank(message = "Role is required")
     private String role;
 
     // Constructors
-    public SignupRequest() {
+    public AdminUserRequest() {
+    }
+
+    public AdminUserRequest(String firstName, String lastName, String email, String phoneNumber, String password, String role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.role = role;
     }
 
     // Getters and Setters

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import Sidebar from '../components/sidebar'
-import { getUserProfile, updateUserProfile } from '../services/api'
+import { getUserProfile, updateUserProfile, getCurrentUser } from '../services/api'
 import { User, Mail, Phone, Home, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -31,10 +31,16 @@ export default function ProfilePage() {
      const fetchUserProfile = async () => {
        try {
          console.log('Starting to fetch user profile...')
-         console.log('API base URL should be:', "http://localhost:8080/api")
 
-         // Try to fetch user ID 1 directly for testing
-         const userId = 1
+         // Get current user
+         const currentUser = await getCurrentUser()
+         console.log('Current user:', currentUser)
+
+         if (!currentUser || !currentUser.userId) {
+           throw new Error('No user logged in')
+         }
+
+         const userId = currentUser.userId
          console.log('Fetching profile for user ID:', userId)
 
          const response = await getUserProfile(userId)
@@ -296,18 +302,23 @@ export default function ProfilePage() {
 
                         if (hasErrors) return
                         try {
-                          // For debugging: use user ID 1
-                          const userId = 1
-                          console.log('Updating profile for user ID:', userId)
-                          console.log('Profile data to update:', profileData)
+                           // Get current user for the update
+                           const currentUser = await getCurrentUser()
+                           if (!currentUser || !currentUser.userId) {
+                             throw new Error('No user logged in')
+                           }
 
-                          await updateUserProfile(userId, profileData)
-                          showToast("Profile updated successfully!", 'success')
-                          setIsEditing(false)
-                        } catch (err) {
-                          alert("Failed to update profile")
-                          console.error('Update error:', err)
-                        }
+                           const userId = currentUser.userId
+                           console.log('Updating profile for user ID:', userId)
+                           console.log('Profile data to update:', profileData)
+
+                           await updateUserProfile(userId, profileData)
+                           showToast("Profile updated successfully!", 'success')
+                           setIsEditing(false)
+                         } catch (err) {
+                           alert("Failed to update profile")
+                           console.error('Update error:', err)
+                         }
                       }}
                       className="flex-1 bg-[#8B3A3A] text-white py-3 px-6 text-lg rounded-lg font-bold hover:bg-[#6B2A2A] transition-all duration-200 relative overflow-hidden"
                       disabled={loading}

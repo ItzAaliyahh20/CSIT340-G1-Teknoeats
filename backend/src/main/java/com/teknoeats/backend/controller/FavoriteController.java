@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.teknoeats.backend.dto.ApiResponse;
 import com.teknoeats.backend.model.Favorite;
 import com.teknoeats.backend.service.FavoriteService;
 
@@ -31,14 +32,16 @@ public class FavoriteController {
     }
 
     @PostMapping("/add")
-    public Favorite addFavorite(@RequestBody FavoriteRequest request) {
-        return favoriteService.addFavorite(request.getUserId(), request.getProductId());
+    public ApiResponse<Favorite> addFavorite(@RequestBody FavoriteRequest request) {
+        Favorite favorite = favoriteService.addFavorite(request.getUserId(), request.getProductId());
+        return new ApiResponse<>(true, "Item added to favorites successfully", favorite);
     }
 
     @PostMapping("/remove")
     @Transactional
-    public void removeFavorite(@RequestBody FavoriteRequest request) {
+    public ApiResponse<Void> removeFavorite(@RequestBody FavoriteRequest request) {
         favoriteService.removeFavorite(request.getUserId(), request.getProductId());
+        return new ApiResponse<>(true, "Item removed from favorites successfully", null);
     }
 
     // DTO for requests

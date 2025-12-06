@@ -15,6 +15,7 @@ export default function UserManagement() {
     lastName: '',
     email: '',
     phoneNumber: '',
+    password: '',
     role: 'Customer'
   });
 
@@ -54,6 +55,7 @@ export default function UserManagement() {
       lastName: '',
       email: '',
       phoneNumber: '',
+      password: '',
       role: 'Customer'
     });
     setShowModal(true);
@@ -99,7 +101,7 @@ export default function UserManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.role) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.role) {
       alert('Please fill in all required fields');
       return;
     }
@@ -140,7 +142,7 @@ export default function UserManagement() {
             lastName: formData.lastName,
             email: formData.email,
             phoneNumber: formData.phoneNumber,
-            password: 'Password123!', // Default password
+            password: formData.password,
             role: formData.role
           }),
         });
@@ -387,6 +389,21 @@ export default function UserManagement() {
                   className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none"
                 />
               </div>
+              {!editingUser && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Password *
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none"
+                    required={!editingUser}
+                    placeholder="Enter password for new user"
+                  />
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Role *

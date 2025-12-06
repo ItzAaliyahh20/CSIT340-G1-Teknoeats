@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, User, Lock } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, Home } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { authAPI } from './services/api';
 
@@ -7,8 +7,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
-    password: '',
-    rememberMe: false
+    password: ''
   });
   const [errors, setErrors] = useState({});
   const [isLoginActive, setIsLoginActive] = useState(true);
@@ -141,7 +140,7 @@ export default function Login() {
           navigate('/home');
         }
 
-        setFormData({ username: '', password: '', rememberMe: false });
+        setFormData({ username: '', password: '' });
       } catch (error) {
         console.error('Login error:', error);
         const errorMsg = error.response?.data?.message || error.response?.data || 'Invalid credentials. Please try again.';
@@ -159,21 +158,29 @@ export default function Login() {
         <div className="header-content">
           <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
           <div className="header-buttons">
+            <div className="nav-links">
+              <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#features'); }}>Features</a>
+              <a href="#footer" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#footer'); }}>Contact</a>
+            </div>
             <div className="switch-container">
-              <NavLink
-                to="/signup"
-                className="switch-option"
-                onClick={() => setIsLoginActive(false)}
+              <button
+                className={`switch-option ${!isLoginActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsLoginActive(false);
+                  navigate('/signup');
+                }}
               >
                 Sign Up
-              </NavLink>
-              <NavLink
-                to="/login"
-                className="switch-option"
-                onClick={() => setIsLoginActive(true)}
+              </button>
+              <button
+                className={`switch-option ${isLoginActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsLoginActive(true);
+                  navigate('/login');
+                }}
               >
                 Log In
-              </NavLink>
+              </button>
               <div className={`switch-slider ${isLoginActive ? 'login-active' : 'signup-active'}`}></div>
             </div>
           </div>
@@ -182,6 +189,11 @@ export default function Login() {
 
       {/* Main Content */}
       <main className="main-content">
+        <div className="hero-bg-elements">
+          <div className="bg-shape shape-1"></div>
+          <div className="bg-shape shape-2"></div>
+          <div className="bg-shape shape-3"></div>
+        </div>
         <div className="card-container">
           <div className="card">
             <h2 className="card-title">[ WELCOME BACK ]</h2>
@@ -231,20 +243,6 @@ export default function Login() {
                 )}
               </div>
 
-              {/* Remember Me & Forgot Password */}
-              <div className="login-options">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="rememberMe"
-                    checked={formData.rememberMe}
-                    onChange={handleInputChange}
-                    className="checkbox-input"
-                  />
-                  <span className="checkbox-text">Remember me</span>
-                </label>
-                <a href="/forgot-password" className="forgot-link">Forgot Password?</a>
-              </div>
 
               {/* Submit Button */}
               <button onClick={handleSubmit} className="submit-button">
@@ -264,9 +262,30 @@ export default function Login() {
       <style>{`
         .app-container {
           min-height: 100vh;
-          background: linear-gradient(-45deg, #f9fafb, #ffffff, #f3f4f6, #f9fafb);
-          background-size: 400% 400%;
-          animation: gradientShift 15s ease infinite;
+          background:
+            radial-gradient(circle at 20% 80%, rgba(250, 204, 21, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
+            linear-gradient(-45deg, #f9fafb, #ffffff, #f3f4f6, #f9fafb);
+          background-size: 400% 400%, 400% 400%, 400% 400%, 400% 400%;
+          animation: gradientShift 15s ease infinite, floatingParticles 20s ease-in-out infinite;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .app-container::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image:
+            radial-gradient(circle at 25% 25%, rgba(250, 204, 21, 0.03) 0%, transparent 25%),
+            radial-gradient(circle at 75% 75%, rgba(234, 179, 8, 0.03) 0%, transparent 25%),
+            radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.02) 0%, transparent 25%);
+          animation: particleFloat 25s ease-in-out infinite;
+          pointer-events: none;
         }
 
         .header {
@@ -283,6 +302,30 @@ export default function Login() {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          position: relative;
+        }
+
+        .home-button {
+          background: rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: #7f1d1d;
+          transition: all 0.3s ease;
+          position: absolute;
+          left: 0;
+          z-index: 10;
+        }
+
+        .home-button:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: scale(1.1);
+          color: #450a0a;
         }
 
         .logo {
@@ -293,7 +336,25 @@ export default function Login() {
 
         .header-buttons {
           display: flex;
-          gap: 1rem;
+          align-items: center;
+          gap: 2rem;
+        }
+
+        .nav-links {
+          display: flex;
+          gap: 2rem;
+        }
+
+        .nav-link {
+          color: #7f1d1d;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.95rem;
+          transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+          color: #450a0a;
         }
 
         .switch-container {
@@ -360,6 +421,48 @@ export default function Login() {
           justify-content: center;
           align-items: center;
           min-height: calc(100vh - 80px);
+          position: relative;
+        }
+
+        .hero-bg-elements {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          overflow: hidden;
+          pointer-events: none;
+        }
+
+        .bg-shape {
+          position: absolute;
+          border-radius: 50%;
+          background: rgba(250, 204, 21, 0.1);
+          backdrop-filter: blur(40px);
+        }
+
+        .shape-1 {
+          width: 300px;
+          height: 300px;
+          top: 10%;
+          right: 10%;
+          animation: floatShape1 8s ease-in-out infinite;
+        }
+
+        .shape-2 {
+          width: 200px;
+          height: 200px;
+          bottom: 20%;
+          left: 10%;
+          animation: floatShape2 10s ease-in-out infinite;
+        }
+
+        .shape-3 {
+          width: 150px;
+          height: 150px;
+          top: 50%;
+          right: 20%;
+          animation: floatShape3 12s ease-in-out infinite;
         }
 
         .card-container {
@@ -368,11 +471,25 @@ export default function Login() {
         }
 
         .card {
-          background: white;
+          background: linear-gradient(135deg, rgba(250, 204, 21, 0.1), rgba(234, 179, 8, 0.05), rgba(255, 255, 255, 0.95));
           border-radius: 1rem;
           padding: 2.5rem;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
           transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(45deg, transparent, rgba(250, 204, 21, 0.1), transparent);
+          animation: cardShimmer 3s ease-in-out infinite;
+          pointer-events: none;
         }
         
         .card:hover {
@@ -471,44 +588,6 @@ export default function Login() {
           color: #9ca3af;
         }
 
-        .login-options {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-top: -0.5rem;
-        }
-
-        .checkbox-label {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          cursor: pointer;
-        }
-
-        .checkbox-input {
-          width: 18px;
-          height: 18px;
-          cursor: pointer;
-          accent-color: #ca8a04;
-        }
-
-        .checkbox-text {
-          font-size: 0.875rem;
-          color: #4b5563;
-        }
-
-        .forgot-link {
-          font-size: 0.875rem;
-          color: #ca8a04;
-          font-weight: 600;
-          text-decoration: none;
-          transition: color 0.3s ease;
-        }
-
-        .forgot-link:hover {
-          color: #a16207;
-          text-decoration: underline;
-        }
 
         .submit-button {
           width: 100%;
@@ -566,6 +645,98 @@ export default function Login() {
           }
         }
 
+        @keyframes cardShimmer {
+          0% {
+            transform: translateX(-100%) rotate(45deg);
+            opacity: 0;
+          }
+          50% {
+            opacity: 0.3;
+          }
+          100% {
+            transform: translateX(100%) rotate(45deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes floatingParticles {
+          0%, 100% {
+            background-position: 0% 0%, 0% 0%, 0% 0%, 0% 50%;
+          }
+          25% {
+            background-position: 100% 100%, 100% 100%, 100% 100%, 100% 50%;
+          }
+          50% {
+            background-position: 0% 100%, 0% 100%, 0% 100%, 0% 50%;
+          }
+          75% {
+            background-position: 100% 0%, 100% 0%, 100% 0%, 100% 50%;
+          }
+        }
+
+        @keyframes particleFloat {
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+            opacity: 0.3;
+          }
+          25% {
+            transform: translateY(-20px) rotate(90deg);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translateY(-40px) rotate(180deg);
+            opacity: 0.4;
+          }
+          75% {
+            transform: translateY(-20px) rotate(270deg);
+            opacity: 0.5;
+          }
+        }
+
+        @keyframes floatShape1 {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+          }
+          33% {
+            transform: translateY(-30px) translateX(20px) scale(1.1);
+          }
+          66% {
+            transform: translateY(-15px) translateX(-10px) scale(0.9);
+          }
+        }
+
+        @keyframes floatShape2 {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+          }
+          50% {
+            transform: translateY(-25px) translateX(-15px) scale(1.2);
+          }
+        }
+
+        @keyframes floatShape3 {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+          }
+          25% {
+            transform: translateY(-20px) translateX(25px) scale(0.8);
+          }
+          75% {
+            transform: translateY(-35px) translateX(-5px) scale(1.1);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .header-buttons {
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .nav-links {
+            display: none;
+          }
+        }
+
         @media (max-width: 640px) {
           .card {
             padding: 1.5rem;
@@ -573,12 +744,6 @@ export default function Login() {
 
           .card-title {
             font-size: 1.5rem;
-          }
-
-          .login-options {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
           }
         }
       `}</style>
