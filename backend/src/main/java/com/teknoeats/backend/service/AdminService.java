@@ -191,8 +191,7 @@ public class AdminService {
         dto.setTotal(order.getTotal());
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setPickupTime(order.getPickupTime());
-        dto.setRestaurant(order.getRestaurant());
-        
+
         // Format createdAt
         if (order.getCreatedAt() != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

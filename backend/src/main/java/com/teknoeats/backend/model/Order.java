@@ -32,9 +32,6 @@ public class Order {
     @Column(name = "pickup_time", length = 50)
     private String pickupTime;
 
-    @Column(length = 100)
-    private String restaurant;
-
     @JsonManagedReference
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItem> items = new ArrayList<>();
@@ -111,14 +108,6 @@ public class Order {
 
     public void setPickupTime(String pickupTime) {
         this.pickupTime = pickupTime;
-    }
-
-    public String getRestaurant() {
-        return restaurant;
-    }
-
-    public void setRestaurant(String restaurant) {
-        this.restaurant = restaurant;
     }
 
     public List<OrderItem> getItems() {
