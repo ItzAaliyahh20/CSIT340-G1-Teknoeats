@@ -36,8 +36,8 @@ export default function OrdersPage() {
         console.log('CUSTOMER DEBUG: Loading orders from API');
         const currentUser = await getCurrentUser();
         console.log('CUSTOMER DEBUG: Current user:', currentUser);
-        if (currentUser && currentUser.id) {
-          const userOrders = await getOrders(currentUser.id);
+        if (currentUser && currentUser.userId) {
+          const userOrders = await getOrders(currentUser.userId);
           console.log('CUSTOMER DEBUG: Orders from API:', userOrders);
           const sortedOrders = userOrders.sort((a, b) => parseInt(b.id) - parseInt(a.id)); // newest first
           setOrders(sortedOrders);

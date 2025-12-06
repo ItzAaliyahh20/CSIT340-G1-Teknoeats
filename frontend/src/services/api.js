@@ -9,6 +9,24 @@ const api = axios.create({
   },
 })
 
+// Add request interceptor to include JWT token (disabled for now)
+api.interceptors.request.use(
+  (config) => {
+    // JWT authentication disabled - no token header needed
+    // const userData = localStorage.getItem('user')
+    // if (userData) {
+    //   const user = JSON.parse(userData)
+    //   if (user && user.token) {
+    //     config.headers.Authorization = `Bearer ${user.token}`
+    //   }
+    // }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
 // Auth APIs using axios
 export const authAPI = {
   signup: (userData) => api.post("/auth/signup", userData),
@@ -31,8 +49,8 @@ export const removeFromCart = (userId, productId) =>
   api.post("/cart/remove", { userId, productId }).then((res) => res.data)
 
 // Orders
-export const createOrder = (userId, cartItems, paymentMethod, pickupTime) =>
-  api.post("/orders/create", { userId, cartItems, paymentMethod, pickupTime }).then((res) => res.data)
+export const createOrder = (userId, orderData) =>
+  api.post(`/orders/create?userId=${userId}`, orderData).then((res) => res.data)
 
 export const getOrders = (userId) => api.get(`/orders/user/${userId}`).then((res) => res.data)
 
@@ -46,7 +64,9 @@ export const getCurrentUser = () => {
   if (userData) {
     const user = JSON.parse(userData)
     if (user && user.userId) {
-      return api.get(`/users/${user.userId}`).then((res) => res.data)
+      // Return the user data from localStorage instead of making API call
+      // This avoids authentication issues and provides immediate user data
+      return Promise.resolve(user)
     }
   }
   return Promise.reject(new Error('No user logged in'))

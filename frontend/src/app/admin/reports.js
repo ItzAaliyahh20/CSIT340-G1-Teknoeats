@@ -201,16 +201,12 @@ export default function AdminReports() {
       <div className="w-64 fixed left-0 top-0 h-screen">
         <AdminSidebar currentPage="/admin/reports" />
       </div>
-      
       <div className="flex-1 ml-64">
        <header className="bg-[#8B3A3A] text-white shadow-lg sticky top-0 z-40">
           <div className="px-6 py-4 flex justify-between items-center">
-            <div className="flex items-center gap-4"></div>
-              <div>
-                <h1 className="text-2xl font-bold">Sales Reports</h1>
-                
-              </div>
-          
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-bold">Sales Reports</h1>
+            </div>
             <button
               onClick={exportToCSV}
               className="flex items-center gap-2 bg-[#FFD700] text-[#8B3A3A] px-4 py-1 rounded-lg hover:bg-yellow-400 transition font-semibold"
