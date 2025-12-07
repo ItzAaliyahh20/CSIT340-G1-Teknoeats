@@ -210,6 +210,7 @@ public class AdminService {
         dto.setTotal(order.getTotal());
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setPickupTime(order.getPickupTime());
+        dto.setNotes(order.getNotes());
 
         // Format createdAt
         if (order.getCreatedAt() != null) {

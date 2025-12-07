@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, User, Lock, Home } from 'lucide-react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, User, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { authAPI } from './services/api';
 
 export default function Login() {

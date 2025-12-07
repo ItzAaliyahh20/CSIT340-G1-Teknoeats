@@ -9,6 +9,7 @@ export default function OrderQueue() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [expandedNotes, setExpandedNotes] = useState({});
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   useEffect(() => {
@@ -304,6 +305,7 @@ export default function OrderQueue() {
             </div>
 
             <div className="p-6 space-y-6">
+              {console.log('CANTEEN MODAL: selectedOrder', selectedOrder)}
               {/* Status and Basic Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -326,11 +328,7 @@ export default function OrderQueue() {
                 </div>
               </div>
 
-              {/* Location */}
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Pickup Location</p>
-                <p className="font-semibold text-lg">{selectedOrder.restaurant}</p>
-              </div>
+              
 
               {/* Order Items */}
               <div>
@@ -368,6 +366,27 @@ export default function OrderQueue() {
                     ₱{selectedOrder.total?.toFixed(2) || '0.00'}
                   </p>
                 </div>
+              </div>
+
+              {/* Order Notes */}
+              <div className="border-t pt-4">
+                <p className="text-sm text-gray-600 mb-2 font-semibold">Order Notes</p>
+                {selectedOrder.notes && selectedOrder.notes.trim() !== '' ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded p-3 cursor-pointer" onClick={() => setExpandedNotes(prev => ({ ...prev, [selectedOrder.id]: !prev[selectedOrder.id] }))}>
+                    <p className="text-sm text-gray-700">
+                      {expandedNotes[selectedOrder.id] || selectedOrder.notes.length <= 100
+                        ? selectedOrder.notes
+                        : `${selectedOrder.notes.substring(0, 100)}...`}
+                      {selectedOrder.notes.length > 100 && (
+                        <span className="ml-2 text-[#8B3A3A] hover:text-[#6B2A2A] font-semibold text-xs">
+                          {expandedNotes[selectedOrder.id] ? 'Show less' : 'Show more'}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">None</p>
+                )}
               </div>
 
               {/* Update Status */}

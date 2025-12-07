@@ -105,7 +105,7 @@ export default function HomePage() {
       }
     };
     loadUserData();
-  }, [])
+  }, [navigate])
 
   // Trigger animation on category change or mount
   useEffect(() => {

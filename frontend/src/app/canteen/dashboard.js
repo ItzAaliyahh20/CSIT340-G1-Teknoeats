@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLogout } from '../../contexts/LogoutContext';
 import {
   Clock,
   CheckCircle,
@@ -36,6 +37,7 @@ if (typeof document !== 'undefined') {
 }
 export default function CanteenDashboard() {
   const navigate = useNavigate();
+  const { openLogoutModal } = useLogout();
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState({
     pendingOrders: 0,
@@ -45,14 +47,7 @@ export default function CanteenDashboard() {
     revenueToday: 0
   });
 
-  useEffect(() => {
-    loadOrders();
-    // Refresh every 30 seconds
-    const interval = setInterval(loadOrders, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     try {
       console.log('CANTEEN DASHBOARD: Loading orders and stats from API');
 
@@ -89,12 +84,15 @@ export default function CanteenDashboard() {
         revenueToday: 0
       });
     }
-  };
+  }, [stats]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
+  useEffect(() => {
+    loadOrders();
+    // Refresh every 30 seconds
+    const interval = setInterval(loadOrders, 30000);
+    return () => clearInterval(interval);
+  }, [loadOrders]);
+
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
@@ -117,30 +115,6 @@ export default function CanteenDashboard() {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'border-yellow-400 bg-yellow-50';
-      case 'preparing':
-        return 'border-blue-400 bg-blue-50';
-      case 'ready':
-        return 'border-green-400 bg-green-50';
-      default:
-        return 'border-gray-400 bg-gray-50';
-    }
-  };
-
-  const StatCard = ({ icon: Icon, label, value, color, bgColor }) => (
-    <div className={`${bgColor} rounded-lg p-6 shadow-md`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-700 text-sm font-medium mb-1">{label}</p>
-          <p className={`text-3xl font-bold ${color}`}>{value}</p>
-        </div>
-        <Icon className={color} size={40} />
-      </div>
-    </div>
-  );
 
   // Get active orders (not delivered)
   const activeOrders = orders.filter(o => o.status !== 'delivered');
@@ -166,7 +140,7 @@ export default function CanteenDashboard() {
               <p className="text-lg font-semibold">{new Date().toLocaleTimeString()}</p>
             </div>
             <button
-              onClick={handleLogout}
+              onClick={openLogoutModal}
               className="flex items-center gap-2 bg-white text-[#8B3A3A] px-5 py-2.5 rounded-lg hover:bg-gray-50 hover:scale-105 transition-all duration-200 font-semibold shadow-lg"
             >
               <LogOut size={18} />
@@ -409,6 +383,16 @@ export default function CanteenDashboard() {
                       )}
                     </div>
                   </div>
+
+                  {/* Order Notes */}
+                  {order.notes && (
+                    <div className="mb-3">
+                      <p className="text-sm text-gray-700 font-semibold mb-1">Notes:</p>
+                      <div className="bg-yellow-50 border border-yellow-200 rounded p-2">
+                        <p className="text-xs text-gray-700">{order.notes}</p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex justify-between items-center pt-3 border-t border-gray-300">
                     <p className="font-bold text-[#8B3A3A]">

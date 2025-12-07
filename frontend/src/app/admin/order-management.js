@@ -9,6 +9,7 @@ export default function OrderManagement() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [expandedNotes, setExpandedNotes] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // ------------------------------------
@@ -23,8 +24,7 @@ export default function OrderManagement() {
 
     if (searchQuery) {
       filtered = filtered.filter(order =>
-        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.restaurant.toLowerCase().includes(searchQuery.toLowerCase())
+        order.id.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -155,7 +155,7 @@ export default function OrderManagement() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
-                placeholder="Search by Order ID or Restaurant..."
+                placeholder="Search by Order ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#8B3A3A] focus:outline-none"
@@ -192,7 +192,6 @@ export default function OrderManagement() {
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold">Order ID</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold">Date & Time</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Location</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold">Payment</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold">Status</th>
                     <th className="px-6 py-4 text-right text-sm font-semibold">Total</th>
@@ -208,7 +207,6 @@ export default function OrderManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">{order.createdAt || order.date}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{order.restaurant}</td>
                       <td className="px-6 py-4 text-sm">
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">
                           {order.paymentMethod}
@@ -288,6 +286,7 @@ export default function OrderManagement() {
                 ×
               </button>
             </div>
+            {console.log('ADMIN MODAL: selectedOrder', selectedOrder)}
 
             <div className="p-6 space-y-6">
               {/* Order Info */}
@@ -351,6 +350,28 @@ export default function OrderManagement() {
                     ₱{selectedOrder.total?.toFixed(2) || '0.00'}
                   </p>
                 </div>
+              </div>
+
+              {/* Order Notes */}
+              <div className="border-t pt-4">
+                <p className="text-sm text-gray-600 mb-2 font-semibold">Order Notes</p>
+                {console.log('DEBUG: selectedOrder.notes =', selectedOrder.notes, 'trimmed =', selectedOrder.notes?.trim(), 'condition =', selectedOrder.notes && selectedOrder.notes.trim() !== '')}
+                {selectedOrder.notes && selectedOrder.notes.trim() !== '' ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded p-3 cursor-pointer" onClick={() => setExpandedNotes(prev => ({ ...prev, [selectedOrder.id]: !prev[selectedOrder.id] }))}>
+                    <p className="text-sm text-gray-700">
+                      {expandedNotes[selectedOrder.id] || selectedOrder.notes.length <= 100
+                        ? selectedOrder.notes
+                        : `${selectedOrder.notes.substring(0, 100)}...`}
+                      {selectedOrder.notes.length > 100 && (
+                        <span className="ml-2 text-[#8B3A3A] hover:text-[#6B2A2A] font-semibold text-xs">
+                          {expandedNotes[selectedOrder.id] ? 'Show less' : 'Show more'}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">None</p>
+                )}
               </div>
 
               {/* Update Status */}

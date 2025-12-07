@@ -277,7 +277,6 @@ export default function AdminDashboard() {
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Order ID</th>
                       <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Restaurant</th>
                       <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
                       <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Total</th>
                       <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Items</th>
@@ -294,7 +293,6 @@ export default function AdminDashboard() {
                         <td className="px-6 py-4 text-sm text-gray-600">
                           {formatDate(order.createdAt)}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{order.restaurant}</td>
                         <td className="px-6 py-4 text-center">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold border-2 ${getStatusColor(order.status)}`}>
                             {order.status.toUpperCase()}
