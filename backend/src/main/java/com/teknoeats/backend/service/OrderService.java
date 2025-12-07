@@ -89,12 +89,21 @@ public class OrderService {
 
         // Format date - handle both createdAt formats
         if (order.getCreatedAt() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a");
-            dto.setDate(order.getCreatedAt().format(formatter));
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a");
+                dto.setDate(order.getCreatedAt().format(formatter));
+            } catch (Exception e) {
+                // Fallback if formatting fails
+                dto.setDate(order.getCreatedAt().toString());
+            }
+        } else {
+            // Fallback for null createdAt
+            dto.setDate("Unknown date");
         }
 
         // Convert items with complete product information
         List<OrderItemDTO> itemDTOs = order.getItems().stream()
+                .filter(item -> item.getProduct() != null) // Filter out items with null products
                 .map(item -> {
                     OrderItemDTO itemDTO = new OrderItemDTO();
                     itemDTO.setProductId(item.getProduct().getId());

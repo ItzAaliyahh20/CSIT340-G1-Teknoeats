@@ -36,7 +36,7 @@ export default function LandingPage() {
     {
       icon: <Users className="w-8 h-8" />,
       title: "CIT-U Exclusive",
-      description: "Designed specifically for the Cebu Institute of Technology - University community"
+      description: "Designed specifically for the Cebu Institute of Technology - University Wildcats"
     },
     {
       icon: <Star className="w-8 h-8" />,
@@ -198,7 +198,7 @@ export default function LandingPage() {
               Ready to Start <span className="cta-title2">ORDERING?</span>
             </h2>
             <p className="cta-subtitle">
-              Join thousands of Technologians who are already enjoying convenient campus dining
+              Join thousands of Wildcats who are already enjoying convenient campus dining
             </p>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <button
@@ -455,18 +455,6 @@ export default function LandingPage() {
         .cta-button.primary:hover {
           transform: translateY(-3px);
           box-shadow: 0 20px 40px rgba(127, 29, 29, 0.4);
-        }
-
-        .cta-button.secondary {
-          background: white;
-          color: #7f1d1d;
-          border: 2px solid #facc15;
-        }
-
-        .cta-button.secondary:hover {
-          background: #facc15;
-          transform: translateY(-3px);
-          box-shadow: 0 10px 25px rgba(250, 204, 21, 0.3);
         }
 
         .hero-visual {

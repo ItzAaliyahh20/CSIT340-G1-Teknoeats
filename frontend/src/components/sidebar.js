@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
-import { Heart, ShoppingCart, Clock, User, ChefHat, Apple, Cookie, Coffee, LayoutDashboard, LogOut, UserCheck } from "lucide-react"
+import { Heart, ShoppingCart, Clock, User, ChefHat, Apple, Cookie, Coffee, LayoutDashboard, LogOut, UserCheck, IceCream } from "lucide-react"
 import { getCurrentUser } from '../services/api'
 import { useLogout } from '../contexts/LogoutContext'
 
@@ -61,6 +61,7 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory, sh
       case 'Food': return <Apple size={24} className="ml-2" />;
       case 'Snacks': return <Cookie size={24} className="ml-2" />;
       case 'Beverages': return <Coffee size={24} className="ml-2" />;
+      case 'Others': return <IceCream size={24} className="ml-2" />;
       default: return null;
     }
   };

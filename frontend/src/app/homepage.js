@@ -9,7 +9,7 @@ import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser, getC
 
 const API_BASE_URL = "http://localhost:8080/api";
 const BACKEND_URL = "http://localhost:8080"; // Add this constant
-const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages"]
+const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages", "Others"]
 
 export default function HomePage() {
    const [searchParams, setSearchParams] = useSearchParams()
@@ -126,7 +126,16 @@ export default function HomePage() {
   // ⭐ Filtering now uses products fetched from backend
   const filteredProducts = (
     selectedCategory === "Dashboard"
-      ? products.filter((p) => p.category === "Meals")
+      ? products.filter((p) => [
+          "Canteen Special",
+          "Tapa",
+          "Spaghetti",
+          "Fried Chicken",
+          "Hotcake",
+          "Popcorn",
+          "Bottled Water",
+          "Ice Cream"
+        ].includes(p.name))
       : products.filter((p) => p.category === selectedCategory)
   ).filter((p) =>
     searchQuery === "" || p.name.toLowerCase().includes(searchQuery.toLowerCase())

@@ -86,6 +86,12 @@ export default function SignUp() {
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required';
+    else if (formData.phoneNumber.replace(/\D/g, '').length !== 10) newErrors.phoneNumber = 'Phone number is invalid';
+    else {
+      const digits = formData.phoneNumber.replace(/\D/g, '');
+      if (digits.length !== 10) newErrors.phoneNumber = 'Phone number is invalid';
+    }
     if (!formData.password) newErrors.password = 'Password is required';
     else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
@@ -147,7 +153,6 @@ export default function SignUp() {
         alert(errorMsg);
       }
     } else {
-      alert('Please fix the errors in the form.');
       setErrors(newErrors);
     }
   };
@@ -258,9 +263,10 @@ export default function SignUp() {
                       value={formData.phoneNumber}
                       onChange={handleInputChange}
                       placeholder="Phone number"
-                      className="input-field"
+                      className={`input-field ${errors.phoneNumber ? 'input-error' : ''}`}
                     />
                   </div>
+                  {errors.phoneNumber && <p className="error-message">{errors.phoneNumber}</p>}
                 </div>
               </div>
 
@@ -381,7 +387,7 @@ export default function SignUp() {
             </div>
             <div className="modal-body">
               <div className="terms-content">
-                <p>Welcome to TeknoEats, the official canteen ordering application for Cebu Institute of Technology - University (CIT-U). These Terms and Conditions ("Terms") govern your access to and use of the TeknoEats mobile application and related services (collectively, the "Service").</p>
+                <p>Welcome to TeknoEats, the official canteen ordering application for Cebu Institute of Technology - University (CIT-U). These Terms and Conditions ("Terms") govern your access to and use of the TeknoEats website and related services (collectively, the "Service").</p>
                 <p>By accessing or using the Service, you agree to be bound by these Terms and the policies referenced herein. If you do not agree to these Terms, you may not use the Service.</p>
 
                 <h4>1. User Eligibility and Scope</h4>
@@ -391,45 +397,42 @@ export default function SignUp() {
 
                 <h4>2. Ordering, Pricing, and Payment</h4>
                 <p><strong>2.1. Order Placement:</strong> You agree that any order placed through TeknoEats constitutes a final commitment to purchase the selected items from the respective Vendor.</p>
-                <p><strong>2.2. Pricing and Availability:</strong> Prices are set by the individual Vendors and are subject to change without prior notice. All orders are subject to the items' availability at the time the Vendor confirms the order. If an item is unavailable, the Vendor will notify you through the Service.</p>
-                <p><strong>2.3. Payment Methods:</strong> TeknoEats supports various payment methods as indicated in the app, which may include cash on pickup (COP) or digital payment options (e.g., integrated e-wallet, credit/debit card, or CIT-U ID-based payment systems, if applicable).</p>
-                <p><strong>2.4. Payment Responsibility:</strong> You are solely responsible for ensuring that all payments are processed correctly. If a digital payment fails, your order may be cancelled automatically by the system or the Vendor.</p>
+                <p><strong>2.2. Pricing and Availability:</strong> Prices are set by the individual Vendors and are subject to change without prior notice. All orders are subject to the items' availability at the time the Vendor confirms the order.</p>
+                <p><strong>2.3. Payment Methods:</strong> TeknoEats supports various payment methods as indicated in the app, which may include cash or digital payment options (e.g., integrated e-wallet, credit/debit card, etc.).</p>
+                <p><strong>2.4. Payment Responsibility:</strong> You are solely responsible for ensuring that all payments are processed correctly.</p>
 
                 <h4>3. Order Fulfilment and Responsibility</h4>
                 <p><strong>3.1. Vendor Responsibility:</strong> The Vendors, not TeknoEats or CIT-U, are solely responsible for the quality, preparation, safety, and hygiene of the food and beverage items ordered. TeknoEats acts only as an intermediary platform.</p>
-                <p><strong>3.2. Pickup:</strong> You are responsible for picking up your order from the designated Vendor location within the time frame specified by the app or the Vendor. Failure to pick up orders (especially for COP payments) may lead to account suspension.</p>
+                <p><strong>3.2. Pickup:</strong> You are responsible for picking up your order from the designated Vendor location within the time frame specified by the app or the Vendor. Failure to pick up orders may lead to account suspension.</p>
                 <p><strong>3.3. Accuracy:</strong> You must verify that the order received matches your placement details before leaving the pickup counter. Any discrepancies must be reported immediately to the Vendor staff.</p>
 
-                <h4>4. Cancellation and Refunds</h4>
-                <p><strong>4.1. User Cancellation:</strong> You may only cancel an order if the Vendor has not yet started preparing the food. The app will indicate the status of your order. Once preparation has begun, the order cannot be cancelled, and you will be charged the full amount.</p>
-                <p><strong>4.2. Vendor Cancellation:</strong> A Vendor may cancel an order due to circumstances such as item unavailability, technical issues, or canteen closures. If a pre-paid order is cancelled by the Vendor, a full refund will be processed promptly according to the chosen payment method's policy.</p>
-                <p><strong>4.3. Refund Process:</strong> Refunds for pre-paid orders will be processed by the payment provider (e.g., bank, e-wallet) and may take several business days to reflect in your account. TeknoEats is not responsible for refund processing times of third-party payment providers.</p>
-
-                <h4>5. User Conduct and Account Security</h4>
-                <p><strong>5.1. Account Credentials:</strong> You are responsible for maintaining the confidentiality of your TeknoEats account and CIT-U login credentials. You are responsible for all activities that occur under your account.</p>
-                <p><strong>5.2. Prohibited Conduct:</strong> You agree not to use the Service to:</p>
+                <h4>4. User Conduct and Account Security</h4>
+                <p><strong>4.1. Account Credentials:</strong> You are responsible for maintaining the confidentiality of your TeknoEats account and CIT-U login credentials. You are responsible for all activities that occur under your account.</p>
+                <p><strong>4.2. Prohibited Conduct:</strong> You agree not to use the Service to:</p>
                 <ul>
                   <li>Place fraudulent, false, or malicious orders.</li>
                   <li>Engage in any activity that harasses, abuses, or harms any other user, Vendor staff, or CIT-U personnel.</li>
                   <li>Attempt to disrupt, modify, or interfere with the functionality of the app or the ordering system.</li>
                 </ul>
-                <p><strong>5.3. Account Suspension:</strong> TeknoEats reserves the right, in consultation with the CIT-U Administration, to suspend or terminate your account immediately and without prior notice if you breach these Terms, particularly in cases involving fraud, misuse, or disrespect toward campus staff.</p>
+                <p><strong>4.3. Account Suspension:</strong> TeknoEats reserves the right, in consultation with the CIT-U Administration, to suspend or terminate your account immediately and without prior notice if you breach these Terms, particularly in cases involving fraud, misuse, or disrespect toward campus staff.</p>
 
-                <h4>6. Intellectual Property</h4>
-                <p><strong>6.1.</strong> All trademarks, logos, service marks, and copyrighted materials displayed on the TeknoEats app, including the "TeknoEats" name and CIT-U marks, are the property of CIT-U or its licensors and may not be used without prior written permission.</p>
+                <h4>5. Intellectual Property</h4>
+                <p><strong>5.1.</strong> All trademarks, logos, service marks, and copyrighted materials displayed on the TeknoEats app, including the "TeknoEats" name and CIT-U marks, are the property of CIT-U or its licensors and may not be used without prior written permission.</p>
 
-                <h4>7. Disclaimers and Limitation of Liability</h4>
-                <p><strong>7.1. "AS IS" Basis:</strong> The Service is provided on an "AS IS" and "AS AVAILABLE" basis. TeknoEats and CIT-U make no warranties, express or implied, regarding the service's continuous operation, accuracy, reliability, or freedom from errors.</p>
-                <p><strong>7.2. Limitation of Liability:</strong> To the maximum extent permitted by law, TeknoEats and CIT-U shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, arising from your use of the Service.</p>
-                <p><strong>7.3. Food Quality:</strong> TeknoEats and CIT-U are not responsible for allergic reactions, food poisoning, or any adverse health effects resulting from food purchased from Vendors through the Service. All food-related concerns must be directed to the responsible Vendor.</p>
+                <h4>6. Disclaimers and Limitation of Liability</h4>
+                <p><strong>6.1. "AS IS" Basis:</strong> The Service is provided on an "AS IS" and "AS AVAILABLE" basis. TeknoEats and CIT-U make no warranties, express or implied, regarding the service's continuous operation, accuracy, reliability, or freedom from errors.</p>
+                <p><strong>6.2. Limitation of Liability:</strong> To the maximum extent permitted by law, TeknoEats and CIT-U shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, arising from your use of the Service.</p>
+                <p><strong>6.3. Food Quality:</strong> TeknoEats and CIT-U are not responsible for allergic reactions, food poisoning, or any adverse health effects resulting from food purchased from Vendors through the Service. All food-related concerns must be directed to the responsible Vendor.</p>
 
-                <h4>8. Governing Law and Amendments</h4>
-                <p><strong>8.1. Governing Law:</strong> These Terms shall be governed by and construed in accordance with the laws of the Republic of the Philippines and the rules and regulations of the Cebu Institute of Technology - University.</p>
-                <p><strong>8.2. Amendments:</strong> TeknoEats and CIT-U reserve the right to modify or replace these Terms at any time. We will notify users of material changes via the app or through official CIT-U channels. Your continued use of the Service after any such changes constitutes your acceptance of the new Terms.</p>
+                <h4>7. Governing Law and Amendments</h4>
+                <p><strong>7.1. Governing Law:</strong> These Terms shall be governed by and construed in accordance with the laws of the Republic of the Philippines and the rules and regulations of the Cebu Institute of Technology - University.</p>
+                <p><strong>7.2. Amendments:</strong> TeknoEats and CIT-U reserve the right to modify or replace these Terms at any time. We will notify users of material changes via the app or through official CIT-U channels. Your continued use of the Service after any such changes constitutes your acceptance of the new Terms.</p>
 
-                <h4>9. Contact Information</h4>
+                <h4>8. Contact Information</h4>
                 <p>For technical support or questions regarding these Terms, please contact:</p>
                 <p><strong>Email:</strong> francesaaliyah.maturan@cit.edu | trixieann.rentuma@cit.edu | andre.salonga@cit.edu</p>
+                <p><strong>Phone:</strong> +63 917 123 4567</p>
+                <p><strong>Address:</strong> Cebu Institute of Technology - University</p>
               </div>
             </div>
           </div>
@@ -440,9 +443,6 @@ export default function SignUp() {
         .app-container {
           min-height: 100vh;
           background:
-            radial-gradient(circle at 20% 80%, rgba(250, 204, 21, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
             linear-gradient(-45deg, #f9fafb, #ffffff, #f3f4f6, #f9fafb);
           background-size: 400% 400%, 400% 400%, 400% 400%, 400% 400%;
           animation: gradientShift 15s ease infinite, floatingParticles 20s ease-in-out infinite;
@@ -646,13 +646,14 @@ export default function SignUp() {
         }
 
         .card {
-          background: linear-gradient(135deg, rgba(250, 204, 21, 0.1), rgba(234, 179, 8, 0.05), rgba(255, 255, 255, 0.95));
+          background: #ffffff;
           border-radius: 1rem;
           padding: 2.5rem;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
           transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
+          border: 1px solid rgba(250, 204, 21, 0.1);
         }
 
         .card::before {
@@ -681,7 +682,7 @@ export default function SignUp() {
           text-align: center;
           font-family: 'Marykate', sans-serif;
           -webkit-text-stroke: 1px #8b3a3a;
-          color: #ffd700; /* Text fill color */
+          color: #ffd700;
         }
 
         .card-subtitle {
@@ -721,12 +722,12 @@ export default function SignUp() {
           width: 100%;
           padding: 0.875rem 1rem 0.875rem 3rem;
           border: 2px solid #e5e7eb;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           font-size: 1rem;
           transition: all 0.2s;
           outline: none;
           box-sizing: border-box;
-          background-color: white;
+          background-color: #ffffff;
         }
 
         .input-field[type="text"], .input-field[type="email"], .input-field[type="tel"], .input-field[type="password"] {
@@ -804,7 +805,7 @@ export default function SignUp() {
         .submit-button {
           width: 100%;
           padding: 0.875rem 1rem;
-          background: linear-gradient(to right, #991b1b, #7f1d1d);
+          background: linear-gradient(to bottom right, #7f1d1d, #7a3232);
           color: white;
           border: none;
           border-radius: 0.5rem;
@@ -812,15 +813,15 @@ export default function SignUp() {
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
-          margin-top: 1rem;
+          margin-top: 0.5rem;
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
           position: relative;
           overflow: hidden;
         }
 
         .submit-button:hover {
-          background: linear-gradient(to right, #7f1d1d, #450a0a);
-          transform: translateY(-2px);
+          background: linear-gradient(to bottom right, #7f1d1d, #5c1616eb);
+          transform: scale(1.02);
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
@@ -858,10 +859,7 @@ export default function SignUp() {
 
         .login-link:hover {
           color: #ffc107;
-        }
-
-        .checkbox-group {
-          margin-top: 0.5rem;
+          text-decoration: underline;
         }
 
         .checkbox-label {
@@ -992,7 +990,7 @@ export default function SignUp() {
           align-items: center;
           padding: 1.5rem;
           border-bottom: 1px solid #e5e7eb;
-          background: linear-gradient(to right, #8b3a3a, #7a3232);
+          background: linear-gradient(to bottom right, #7f1d1d, #5c1616eb);
         }
 
         .modal-header h3 {
@@ -1017,11 +1015,6 @@ export default function SignUp() {
           justify-content: center;
           border-radius: 50%;
           transition: background-color 0.2s;
-        }
-
-        .modal-close:hover {
-          background-color: rgba(255, 255, 255, 0.2);
-          color: white;
         }
 
         .modal-body {
