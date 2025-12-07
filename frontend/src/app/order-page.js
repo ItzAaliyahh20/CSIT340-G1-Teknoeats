@@ -16,7 +16,8 @@ export default function OrdersPage() {
    const [currentTime, setCurrentTime] = useState(new Date());
    const [ripples, setRipples] = useState({});
    const [showDetailsModal, setShowDetailsModal] = useState(false);
-   const [selectedOrder] = useState(null);
+   const [selectedOrder, setSelectedOrder] = useState(null);
+   const [expandedNotes, setExpandedNotes] = useState({});
 
    // Use URL search parameter for search query to persist across pages
    const searchQuery = searchParams.get('search') || ""
@@ -436,6 +437,27 @@ export default function OrdersPage() {
                     ₱{selectedOrder.total?.toFixed(2) || '0.00'}
                   </p>
                 </div>
+              </div>
+
+              {/* Order Notes */}
+              <div className="border-t pt-4">
+                <p className="text-sm text-gray-600 mb-2 font-semibold">Order Notes</p>
+                {selectedOrder.notes && selectedOrder.notes.trim() !== '' ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded p-3 cursor-pointer" onClick={() => setExpandedNotes(prev => ({ ...prev, [selectedOrder.id]: !prev[selectedOrder.id] }))}>
+                    <p className="text-sm text-gray-700">
+                      {expandedNotes[selectedOrder.id] || selectedOrder.notes.length <= 100
+                        ? selectedOrder.notes
+                        : `${selectedOrder.notes.substring(0, 100)}...`}
+                      {selectedOrder.notes.length > 100 && (
+                        <span className="ml-2 text-[#8B3A3A] hover:text-[#6B2A2A] font-semibold text-xs">
+                          {expandedNotes[selectedOrder.id] ? 'Show less' : 'Show more'}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">None</p>
+                )}
               </div>
             </div>
           </div>

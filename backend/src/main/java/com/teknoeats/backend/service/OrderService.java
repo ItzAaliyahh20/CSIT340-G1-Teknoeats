@@ -31,6 +31,9 @@ public class OrderService {
 
     @Transactional
     public Order createOrder(Long userId, OrderDTO orderDTO) {
+        System.out.println("DEBUG: Creating order for userId: " + userId);
+        System.out.println("DEBUG: OrderDTO - total: " + orderDTO.getTotal() + ", paymentMethod: " + orderDTO.getPaymentMethod() + ", pickupTime: " + orderDTO.getPickupTime() + ", notes: " + orderDTO.getNotes());
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -41,6 +44,9 @@ public class OrderService {
         order.setTotal(orderDTO.getTotal());
         order.setPaymentMethod(orderDTO.getPaymentMethod());
         order.setPickupTime(orderDTO.getPickupTime());
+        order.setNotes(orderDTO.getNotes());
+
+        System.out.println("DEBUG: Order object created, about to save");
 
         // Add order items
         for (OrderItemDTO itemDTO : orderDTO.getItems()) {
@@ -61,7 +67,9 @@ public class OrderService {
             order.addItem(orderItem);
         }
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        System.out.println("DEBUG: Order saved successfully with ID: " + savedOrder.getId());
+        return savedOrder;
     }
 
     public List<OrderDTO> getUserOrders(Long userId) {
@@ -86,6 +94,7 @@ public class OrderService {
         dto.setTotal(order.getTotal());
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setPickupTime(order.getPickupTime());
+        dto.setNotes(order.getNotes());
 
         // Format date - handle both createdAt formats
         if (order.getCreatedAt() != null) {

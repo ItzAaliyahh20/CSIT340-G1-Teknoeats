@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
+import { NavLink, useSearchParams } from 'react-router-dom';
 import { Heart, ShoppingCart, Clock, User, ChefHat, Apple, Cookie, Coffee, LayoutDashboard, LogOut, UserCheck, IceCream } from "lucide-react"
 import { getCurrentUser } from '../services/api'
 import { useLogout } from '../contexts/LogoutContext'
@@ -8,7 +8,6 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory, sh
     const [userName, setUserName] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const { openLogoutModal } = useLogout();
-    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
     // Get current search parameter to preserve it in navigation

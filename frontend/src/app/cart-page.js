@@ -9,7 +9,7 @@ const BACKEND_URL = "http://localhost:8080"; // Add this constant
 
 export default function CartPage() {
    const navigate = useNavigate();
-   const [searchParams, setSearchParams] = useSearchParams();
+   const [searchParams] = useSearchParams();
    const viewOrderId = searchParams.get('viewOrder');
    const reorderId = searchParams.get('reorder');
    const [items, setItems] = useState([])
@@ -28,6 +28,8 @@ export default function CartPage() {
    const [bottomText, setBottomText] = useState(<span>Please select a payment method and pick-up time.</span>)
    const [checkoutRipples, setCheckoutRipples] = useState([])
    const [viewOrder, setViewOrder] = useState(null)
+   const [showNotesModal, setShowNotesModal] = useState(false)
+   const [orderNotes, setOrderNotes] = useState('')
 
 
   // Generate time options from 7:30 AM to 5:30 PM in 15-minute intervals
@@ -58,7 +60,7 @@ export default function CartPage() {
     }
 
     return options
-  }, [selectedDate, currentTime])
+  }, [selectedDate])
   useEffect(() => {
     const loadCart = async () => {
       console.log("loadCart started, viewOrderId:", viewOrderId, "reorderId:", reorderId)
@@ -232,6 +234,11 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     console.log("handleCheckout started")
+    setShowNotesModal(true)
+  }
+
+  const proceedWithCheckout = async () => {
+    setShowNotesModal(false)
     const newOrder = {
       id: Date.now().toString(),
       date: new Date().toLocaleDateString("en-US", {
@@ -253,13 +260,20 @@ export default function CartPage() {
       restaurant: "Counter A - CIT-U Canteen",
       total: total,
       paymentMethod: paymentMethod,
-      pickupTime: pickupTime === 'now' ? 'Pick up within 5-10 minutes' : 'Pick up later'
+      pickupTime: pickupTime === 'now' ? 'Pick up within 5-10 minutes' : pickupTime, // Fix: use actual pickupTime
+      notes: orderNotes.trim() || null
     };
-    console.log("New order object:", newOrder)
+    console.log("DEBUG: New order object:", newOrder)
+    console.log("DEBUG: orderNotes:", orderNotes, "trimmed:", orderNotes.trim(), "final notes:", newOrder.notes)
 
     // Create order in backend
-    const response = await createOrder(user.userId, newOrder);
-    console.log("Order creation response:", response)
+    try {
+      const response = await createOrder(user.userId, newOrder);
+      console.log("Order creation response:", response)
+    } catch (error) {
+      console.error("Create order error:", error.response?.data || error.message)
+      throw error
+    }
 
     // Clear cart from backend
     for (const item of items) {
@@ -269,6 +283,7 @@ export default function CartPage() {
     // Clear local state and storage
     localStorage.setItem("cart", JSON.stringify([]))
     setItems([])
+    setOrderNotes('')
 
     // Show success and redirect
     showToast("Order placed successfully! Your order is pending.", 'success')
@@ -530,6 +545,16 @@ export default function CartPage() {
                   <span className="text-xl font-bold text-[#8B3A3A]" style={{ fontFamily: 'Marykate' }}>TOTAL PRICE</span>
                   <span className="text-xl font-bold text-[#8B3A3A]">PHP {total.toFixed(2)}</span>
                 </div>
+
+                {/* Order Notes */}
+                {viewOrder && viewOrder.notes && (
+                  <div className="border-t pt-4">
+                    <p className="text-sm text-gray-600 mb-2 font-semibold">Order Notes</p>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                      <p className="text-sm text-gray-700">{viewOrder.notes}</p>
+                    </div>
+                  </div>
+                )}
               </motion.div>
 
               {!viewOrder && (
@@ -775,6 +800,46 @@ export default function CartPage() {
                   className="flex-1 bg-[#8B3A3A] text-white py-2 rounded font-bold hover:bg-[#6B2A2A] transition relative overflow-hidden"
                 >
                   Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Order Notes Modal */}
+        {showNotesModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-96 max-w-md">
+              <h3 className="text-xl font-bold mb-4 text-center text-[#8B3A3A]" style={{fontFamily: 'Marykate'}}>Add Order Notes</h3>
+              <p className="text-sm text-gray-600 mb-4 text-center">
+                Let us know about any special requests, allergies, or instructions for your order.
+              </p>
+              <textarea
+                value={orderNotes}
+                onChange={(e) => setOrderNotes(e.target.value)}
+                placeholder="e.g., No onions, extra spicy, allergy to nuts..."
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] focus:border-transparent resize-none"
+                rows={4}
+                maxLength={500}
+              />
+              <div className="text-xs text-gray-500 mt-1 text-right">
+                {orderNotes.length}/500
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button
+                  onClick={() => {
+                    setOrderNotes('')
+                    proceedWithCheckout()
+                  }}
+                  className="flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold hover:bg-gray-300 transition"
+                >
+                  Skip
+                </button>
+                <button
+                  onClick={proceedWithCheckout}
+                  className="flex-1 bg-[#8B3A3A] text-white py-2 rounded font-bold hover:bg-[#6B2A2A] transition"
+                >
+                  Add Notes
                 </button>
               </div>
             </div>
