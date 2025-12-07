@@ -76,7 +76,7 @@ export default function OrdersPage() {
     if (activeTab === "All Orders") return true;
     if (activeTab === "Pending") return order.status === "pending";
     if (activeTab === "Ready") return order.status === "ready";
-    if (activeTab === "Delivered") return order.status === "delivered";
+    if (activeTab === "Picked Up") return order.status === "delivered";
     return true;
   }).filter((order) =>
     searchQuery === "" ||
@@ -98,6 +98,13 @@ export default function OrdersPage() {
     }
   };
 
+  const getStatusDisplay = (status) => {
+    switch (status) {
+      case 'delivered': return 'Picked Up';
+      default: return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
   const handleContinueShopping = (e) => {
     navigate('/home?category=Dashboard')
   }
@@ -106,7 +113,7 @@ export default function OrdersPage() {
     return (
       <div className="min-h-screen bg-gray-100">
         <Sidebar
-          categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]}
+          categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages", "Others"]}
           selectedItem='orders'
           onSelectCategory={(category) => navigate('/home?category=' + category)}
         />
@@ -163,7 +170,7 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='orders' onSelectCategory={(category) => {
+      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages", "Others"]} selectedItem='orders' onSelectCategory={(category) => {
         const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
         navigate(`/home?category=${category}${searchParam}`);
       }} />
@@ -229,7 +236,7 @@ export default function OrdersPage() {
 
         {/* Tabs */}
         <div className="flex gap-4 mb-6 justify-center flex-wrap">
-          {["All Orders", "Pending", "Ready", "Delivered"].map((tab) => (
+          {["All Orders", "Pending", "Ready", "Picked Up"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -281,11 +288,11 @@ export default function OrdersPage() {
                       'bg-gradient-to-br from-[#8b3a3a33] to-[#8B3A3A]'
                     }`}>
                       <div className="w-2 h-2 bg-white rounded-full"></div>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      {getStatusDisplay(order.status)}
                     </span>
                     <span className="text-base text-gray-600 ml-1">|</span>
                     <p className="text-base text-gray-600" style={{ fontFamily: 'Marykate' }}>
-                      {order.status === 'delivered' ? `DELIVERED ON ${order.date.toUpperCase()}` : `ORDERED ON ${order.date.toUpperCase()}`}
+                      {order.status === 'delivered' ? `PICKED UP ON ${order.date.toUpperCase()}` : order.status === 'ready' ? `READY FOR PICK-UP ON ${order.date.toUpperCase()}` : `ORDERED ON ${order.date.toUpperCase()}`}
                     </p>
                   </div>
 
@@ -389,7 +396,7 @@ export default function OrdersPage() {
                     selectedOrder.status
                   )}`}
                 >
-                  {selectedOrder.status.toUpperCase()}
+                  {getStatusDisplay(selectedOrder.status).toUpperCase()}
                 </span>
               </div>
 

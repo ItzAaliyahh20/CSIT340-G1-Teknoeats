@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/sidebar'
-import { Search, Clock, Trash2, X, Banknote, ShoppingBasket, Calendar, ChevronDown } from "lucide-react"
+import { Clock, Trash2, X, Banknote, ShoppingBasket, Calendar, ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart, getCurrentUser, getOrderById, createOrder } from '../services/api'
 
@@ -29,32 +29,36 @@ export default function CartPage() {
    const [checkoutRipples, setCheckoutRipples] = useState([])
    const [viewOrder, setViewOrder] = useState(null)
 
-   // Use URL search parameter for search query to persist across pages
-   const searchQuery = searchParams.get('search') || ""
-   const setSearchQuery = (query) => {
-     const newSearchParams = new URLSearchParams(searchParams)
-     if (query) {
-       newSearchParams.set('search', query)
-     } else {
-       newSearchParams.delete('search')
-     }
-     setSearchParams(newSearchParams)
-   }
 
   // Generate time options from 7:30 AM to 5:30 PM in 15-minute intervals
-  const timeOptions = []
-  let current = new Date()
-  current.setHours(7, 30, 0, 0)
-  const end = new Date()
-  end.setHours(17, 30, 0, 0)
-  while (current < end) {
-    const next = new Date(current)
-    next.setMinutes(next.getMinutes() + 15)
-    const startTime = current.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-    const endTime = next.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-    timeOptions.push({ value: startTime, label: `${startTime} - ${endTime}` })
-    current = next
-  }
+  // Filter out past times if selected date is today
+  const timeOptions = useMemo(() => {
+    const options = []
+    let current = new Date()
+    current.setHours(7, 30, 0, 0)
+    const end = new Date()
+    end.setHours(17, 30, 0, 0)
+
+    // Check if selected date is today
+    const today = new Date().toDateString()
+    const isToday = selectedDate && new Date(selectedDate).toDateString() === today
+
+    while (current < end) {
+      const next = new Date(current)
+      next.setMinutes(next.getMinutes() + 15)
+      const startTime = current.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+      const endTime = next.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+
+      // If today, only include times that are in the future
+      if (!isToday || current > new Date()) {
+        options.push({ value: startTime, label: `${startTime} - ${endTime}` })
+      }
+
+      current = next
+    }
+
+    return options
+  }, [selectedDate, currentTime])
   useEffect(() => {
     const loadCart = async () => {
       console.log("loadCart started, viewOrderId:", viewOrderId, "reorderId:", reorderId)
@@ -74,17 +78,28 @@ export default function CartPage() {
             console.error("Error fetching order:", error)
           }
         } else if (reorderId) {
-          const orders = JSON.parse(localStorage.getItem('orders') || '[]')
-          const order = orders.find(o => o.id === reorderId)
+          try {
+            const order = await getOrderById(reorderId)
           console.log("Reorder order:", order)
           if (order && currentUser) {
             // Add items to cart
             for (const item of order.items) {
-              await apiAddToCart(currentUser.userId, item.id, item.quantity)
+              await apiAddToCart(currentUser.userId, item.productId, item.quantity)
             }
-            setItems(order.items.map(i => ({ ...i, quantity: i.quantity })))
+            // Fix image URLs and set items
+            const cartItemsWithFixedImages = order.items.map(c => ({
+              ...c,
+              id: c.productId, // Map productId to id for cart display
+              image: c.image?.startsWith('/uploads')
+                ? `${BACKEND_URL}${c.image}`
+                : c.image
+            }))
+            setItems(cartItemsWithFixedImages)
             setPaymentMethod(null)
             setPickupTime(null)
+          }
+          } catch (error) {
+            console.error("Error fetching order for reorder:", error)
           }
         } else if (currentUser) {
           const cartItems = await getCart(currentUser.userId)
@@ -117,11 +132,18 @@ export default function CartPage() {
     return () => clearInterval(timer);
   }, [])
 
+  // Reset selected time when date changes to ensure validity
+  useEffect(() => {
+    if (selectedDate && timeOptions.length > 0) {
+      // If the current selectedTime is not in the available options, reset to first available
+      if (!timeOptions.some(option => option.value === selectedTime)) {
+        setSelectedTime(timeOptions[0]?.value || '7:30 AM')
+      }
+    }
+  }, [selectedDate, timeOptions, selectedTime])
+
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-  const filteredItems = items.filter((item) =>
-    searchQuery === "" || item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
 
   const updateQuantity = async (id, quantity) => {
     console.log("updateQuantity called for id:", id, "quantity:", quantity)
@@ -250,16 +272,16 @@ export default function CartPage() {
 
     // Show success and redirect
     showToast("Order placed successfully! Your order is pending.", 'success')
-    setTimeout(() => navigate("/orders"), 1000) // Delay navigation to allow toast to show
+    setTimeout(() => navigate("/order"), 1000) // Delay navigation to allow toast to show
   }
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100">
-        <Sidebar 
-          categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} 
-          selectedItem='cart' 
-          onSelectCategory={(category) => navigate('/home?category=' + category)} 
+        <Sidebar
+          categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages", "Others"]}
+          selectedItem='cart'
+          onSelectCategory={(category) => navigate('/home?category=' + category)}
         />
         <div className="ml-[250px]">
           <div className="bg-gradient-to-r from-[#FFD700] to-[#FFC107] px-8 py-6 shadow-lg flex justify-between items-center relative">
@@ -284,18 +306,6 @@ export default function CartPage() {
               </p>
             </div>
 
-            <div className="absolute left-1/2 transform -translate-x-1/2 max-w-xl">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Looking for something?"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-6 py-3 pl-12 rounded-full bg-white text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] shadow-md"
-                />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} strokeWidth={2} />
-              </div>
-            </div>
           </div>
           <main className="max-w-7xl mx-auto px-4 py-8">
             <div className="flex flex-col items-center justify-center space-y-4">
@@ -314,10 +324,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='cart' onSelectCategory={(category) => {
-        const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
-        navigate(`/home?category=${category}${searchParam}`);
-      }} />
+      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages", "Others"]} selectedItem='cart' onSelectCategory={(category) => navigate('/home?category=' + category)} />
       <div className="ml-[250px]">
         <div className="bg-gradient-to-r from-[#FFD700] to-[#FFC107] px-8 py-6 shadow-lg flex justify-between items-center relative">
           <div className="text-left">
@@ -341,18 +348,6 @@ export default function CartPage() {
             </p>
           </div>
 
-          <div className="absolute left-1/2 transform -translate-x-1/2 max-w-xl">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Looking for something?"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-6 py-3 pl-12 rounded-full bg-white text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8B3A3A] shadow-md"
-              />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} strokeWidth={2} />
-            </div>
-          </div>
 
           {user && (
             <div className="text-right flex items-center justify-end">
@@ -377,7 +372,7 @@ export default function CartPage() {
         }}>
           {viewOrder ? 'ORDER DETAILS' : 'CART'}
         </h2>
-        {filteredItems.length === 0 ? (
+        {items.length === 0 ? (
           <div className="text-center space-y-4 py-12">
             <ShoppingBasket size={64} strokeWidth={1.1} className="text-gray-400 mb-4 mx-auto animate-pulse" />
             <p className="text-gray-600 text-lg">Your cart is empty. Fill it with your cravings!</p>
@@ -405,7 +400,7 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {filteredItems.map((item, index) => (
+                {items.map((item, index) => (
                    <motion.div
                      key={item.id}
                      initial={{ opacity: 0, y: 30 }}
@@ -589,9 +584,24 @@ export default function CartPage() {
                         Pick-up now
                       </button>
                       <button
-                        onClick={() => setShowModal(true)}
+                        onClick={() => {
+                          // Set default date to today if not set
+                          if (!selectedDate) {
+                            setSelectedDate(new Date().toISOString().split('T')[0])
+                          }
+                          // Set default time to first available option
+                          if (timeOptions.length > 0 && !timeOptions.some(opt => opt.value === selectedTime)) {
+                            setSelectedTime(timeOptions[0].value)
+                          }
+                          setShowModal(true)
+                        }}
+                        disabled={timeOptions.length === 0 && selectedDate === new Date().toISOString().split('T')[0]}
                         className={`px-6 py-2 rounded-full font-bold transition ${
-                          pickupTime && pickupTime !== "now" ? "bg-[#FFD700] text-[#8B3A3A]" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          pickupTime && pickupTime !== "now"
+                            ? "bg-[#FFD700] text-[#8B3A3A]"
+                            : timeOptions.length === 0 && selectedDate === new Date().toISOString().split('T')[0]
+                            ? "bg-gray-400 text-gray-500 cursor-not-allowed"
+                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                         }`}
                       >
                         Pick-up later
@@ -692,7 +702,11 @@ export default function CartPage() {
                     <input
                       type="date"
                       value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedDate(e.target.value)
+                        // Reset selected time when date changes
+                        setSelectedTime('')
+                      }}
                       className="w-full px-3 py-2 pr-10 appearance-none border border-gray-300 rounded focus:outline-none"
                       min={new Date().toISOString().split('T')[0]}
                     />
@@ -702,16 +716,24 @@ export default function CartPage() {
                 <div>
                   <label className="block text-[#8B3A3A] text-lg font-medium mb-1" style={{fontFamily: 'Marykate'}}>TIME</label>
                   <div className="relative">
-                    <select
-                      value={selectedTime}
-                      onChange={(e) => setSelectedTime(e.target.value)}
-                      className="w-full px-3 py-2 pr-10 appearance-none border border-gray-300 rounded focus:outline-none"
-                    >
-                      {timeOptions.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                    <ChevronDown size={16} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    {timeOptions.length === 0 ? (
+                      <div className="w-full px-3 py-2 border border-gray-300 rounded bg-gray-100 text-gray-500 text-center">
+                        No available time slots for today
+                      </div>
+                    ) : (
+                      <select
+                        value={selectedTime}
+                        onChange={(e) => setSelectedTime(e.target.value)}
+                        className="w-full px-3 py-2 pr-10 appearance-none border border-gray-300 rounded focus:outline-none"
+                      >
+                        {timeOptions.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    )}
+                    {timeOptions.length > 0 && (
+                      <ChevronDown size={16} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    )}
                   </div>
                 </div>
               </div>
@@ -724,13 +746,15 @@ export default function CartPage() {
                 </button>
                 <button
                   onClick={() => {
-                    if (!selectedDate && !selectedTime) {
-                      showToast("Please select date and time for pick-up.", 'error')
-                      return
-                    } else if (!selectedDate) {
+                    if (!selectedDate) {
                       showToast("Please select date for pick-up.", 'error')
                       return
-                    } else if (!selectedTime) {
+                    }
+                    if (timeOptions.length === 0) {
+                      showToast("No available time slots for the selected date.", 'error')
+                      return
+                    }
+                    if (!selectedTime) {
                       showToast("Please select time for pick-up.", 'error')
                       return
                     }

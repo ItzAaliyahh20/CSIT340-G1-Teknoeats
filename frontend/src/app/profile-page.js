@@ -89,7 +89,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='profile' onSelectCategory={(category) => window.location.href = '/home?category=' + category} />
+      <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages", "Others"]} selectedItem='profile' onSelectCategory={(category) => window.location.href = '/home?category=' + category} />
       <div className="ml-[250px]">
         <main className="px-4 py-8">
         {loading && (

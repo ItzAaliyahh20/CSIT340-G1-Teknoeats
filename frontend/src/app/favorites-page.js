@@ -7,7 +7,7 @@ import { Search, Clock, X, Heart } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { getProducts, getFavorites, addToFavorites, removeFromFavorites, getCurrentUser, getCart, addToCart as apiAddToCart } from '../services/api'
 
-const CATEGORIES = ["Meals", "Food", "Snacks", "Beverages"]
+const CATEGORIES = ["Meals", "Food", "Snacks", "Beverages", "Others"]
 
 export default function FavoritesPage() {
    const navigate = useNavigate();
@@ -50,7 +50,7 @@ export default function FavoritesPage() {
            console.log("FavoritesPage: Calling getFavorites for user:", currentUser.userId)
            const favs = await getFavorites(currentUser.userId)
            console.log("FavoritesPage: getFavorites result:", favs)
-           setFavorites(favs.map(f => f.product.id))
+           setFavorites(favs.filter(f => f.product).map(f => f.product.id))
            console.log("FavoritesPage: Favorites set to:", favs.map(f => f.product.id))
          } else {
            console.log("FavoritesPage: No current user, skipping product/favorite load")
@@ -91,7 +91,7 @@ export default function FavoritesPage() {
        // Refresh cart
        const cartItems = await getCart(user.userId)
        setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
-       showToast(`Successfully added ${quantity} ${quantity === 1 ? 'item' : 'items'} of ${product.name} to your cart.`, 'success')
+       // Toast is handled by ProductCard component
      } catch (error) {
        console.error("Error adding to cart:", error)
        alert("Failed to add item to cart")
@@ -152,7 +152,7 @@ export default function FavoritesPage() {
 
    return (
      <div className="min-h-screen bg-gray-100">
-       <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages"]} selectedItem='favorites' onSelectCategory={(category) => {
+       <Sidebar categories={["Dashboard", "Meals", "Food", "Snacks", "Beverages", "Others"]} selectedItem='favorites' onSelectCategory={(category) => {
          const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
          navigate(`/home?category=${category}${searchParam}`);
        }} />

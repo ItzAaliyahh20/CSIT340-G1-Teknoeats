@@ -1,24 +1,31 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Star, Clock, Users, ChevronRight } from 'lucide-react';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoginActive, setIsLoginActive] = React.useState(false);
 
-  // Handle scrolling to sections when URL has hash
+  // Handle scrolling to sections based on navigation state or hash
   React.useEffect(() => {
     const hash = window.location.hash;
-    if (hash === '#footer') {
+    const scrollTo = location.state?.scrollTo;
+
+    let targetElement = null;
+
+    if (scrollTo === 'footer' || hash === '#footer') {
+      targetElement = document.getElementById('footer');
+    } else if (scrollTo === 'features' || hash === '#features') {
+      targetElement = document.getElementById('features');
+    }
+
+    if (targetElement) {
       setTimeout(() => {
-        document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else if (hash === '#features') {
-      setTimeout(() => {
-        document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+        targetElement.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
-  }, []);
+  }, [location]);
 
   const features = [
     {
@@ -29,7 +36,7 @@ export default function LandingPage() {
     {
       icon: <Users className="w-8 h-8" />,
       title: "CIT-U Exclusive",
-      description: "Designed specifically for Cebu Institute of Technology - University community"
+      description: "Designed specifically for the Cebu Institute of Technology - University Wildcats"
     },
     {
       icon: <Star className="w-8 h-8" />,
@@ -43,7 +50,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
+          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{cursor: 'pointer'}} />
           <div className="header-buttons">
             <div className="nav-links">
               <a href="#features" className="nav-link" onClick={(e) => {
@@ -85,11 +92,11 @@ export default function LandingPage() {
         <div className="hero-content">
           <div className="hero-text">
             <h1 className="hero-title">
-              Welcome to <span className="brand-highlight">TeknoEats</span>
+              Welcome to <span className="brand-highlight">TEKNOEATS!</span>
             </h1>
             <p className="hero-subtitle">
-              Your digital canteen companion. Order delicious food from campus canteens
-              without leaving your seat. Fast, fresh, and convenient!
+              Tired of fighting your way through the lunch rush?
+              Stop waiting in long lines just to see what’s on the menu.
             </p>
             <div className="hero-buttons">
               <button
@@ -105,27 +112,27 @@ export default function LandingPage() {
             <div className="floating-cards">
               <div className="card-1">
                 <div className="card-icon">🍕</div>
-                <div className="card-text">Pizza</div>
+                <div className="card-text">[ <span style={{fontWeight: 600}}> PIZZA </span> ]</div>
               </div>
               <div className="card-2">
                 <div className="card-icon">🍔</div>
-                <div className="card-text">Burger</div>
+                <div className="card-text">[ <span style={{fontWeight: 600}}> BURGER </span> ]</div>
               </div>
               <div className="card-3">
                 <div className="card-icon">🥤</div>
-                <div className="card-text">Smoothie</div>
+                <div className="card-text">[ <span style={{fontWeight: 600}}> SMOOTHIE </span> ]</div>
               </div>
               <div className="card-4">
                 <div className="card-icon">🍜</div>
-                <div className="card-text">Noodles</div>
+                <div className="card-text">[ <span style={{fontWeight: 600}}> NOODLES </span> ]</div>
               </div>
               <div className="card-5">
                 <div className="card-icon">🥗</div>
-                <div className="card-text">Salad</div>
+                <div className="card-text">[ <span style={{fontWeight: 600}}> SALAD </span> ]</div>
               </div>
               <div className="card-6">
                 <div className="card-icon">☕</div>
-                <div className="card-text">Coffee</div>
+                <div className="card-text">[ <span style={{fontWeight: 600}}> COFFEE </span> ]</div>
               </div>
             </div>
           </div>
@@ -141,9 +148,12 @@ export default function LandingPage() {
       <section id="features" className="features-section">
         <div className="container">
           <div className="section-header">
-            <h2 className="section-title">Why Choose TeknoEats?</h2>
+            <h2 className="section-title">
+              Why Choose <span className="section-title2">TEKNOEATS?</span>
+            </h2>
             <p className="section-subtitle">
-              Experience the future of campus dining with our innovative platform
+              Experience the future of campus dining with our innovative platform,
+              designed to make your life easier and tastier
             </p>
           </div>
           <div className="features-grid">
@@ -166,15 +176,15 @@ export default function LandingPage() {
           <div className="stats-grid">
             <div className="stat-item">
               <div className="stat-number">500+</div>
-              <div className="stat-label">Happy Students</div>
+              <div className="stat-label">HAPPY STUDENTS</div>
             </div>
             <div className="stat-item">
               <div className="stat-number">30+</div>
-              <div className="stat-label">Menu Items</div>
+              <div className="stat-label">MENU ITEMS</div>
             </div>
             <div className="stat-item">
-              <div className="stat-number">5★</div>
-              <div className="stat-label">Rating</div>
+              <div className="stat-number">5.0 ★</div>
+              <div className="stat-label">RATING</div>
             </div>
           </div>
         </div>
@@ -184,9 +194,11 @@ export default function LandingPage() {
       <section className="cta-section">
         <div className="container">
           <div className="cta-content">
-            <h2 className="cta-title">Ready to Start Ordering?</h2>
+            <h2 className="cta-title">
+              Ready to Start <span className="cta-title2">ORDERING?</span>
+            </h2>
             <p className="cta-subtitle">
-              Join thousands of CIT-U students who are already enjoying convenient campus dining
+              Join thousands of Wildcats who are already enjoying convenient campus dining
             </p>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <button
@@ -210,34 +222,28 @@ export default function LandingPage() {
               <p className="footer-tagline">Your Digital Canteen Companion</p>
             </div>
             <div className="footer-links">
+              <div className="footer-section"></div>
               <div className="footer-section">
                 <h4>Product</h4>
-                <a href="#features">Features</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
-              </div>
-              <div className="footer-section">
-                <h4>Support</h4>
-                <a href="#help">Help Center</a>
-                <a href="#privacy">Privacy Policy</a>
-                <a href="#terms">Terms of Service</a>
+                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'features' } }); }}>Features</a>
+                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'footer' } }); }}>Contact</a>
               </div>
               <div className="footer-section">
                 <h4>Contact Us</h4>
                 <p style={{ color: '#a0aec0', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                  📧 Email: info@teknoeats.edu.ph
+                  Email: francesaaliyah.maturan@cit.edu | trixieann.rentuma@cit.edu | andre.salonga@cit.edu
                 </p>
                 <p style={{ color: '#a0aec0', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                  📱 Phone: +63 917 123 4567
+                  Phone: +63 917 123 4567
                 </p>
                 <p style={{ color: '#a0aec0', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                  📍 Address: Cebu Institute of Technology - University
+                  Address: Cebu Institute of Technology - University
                 </p>
               </div>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2024 TeknoEats. Made for CIT-U Community.</p>
+            <p>&copy; 2025 TeknoEats. Made for the CIT-U Community.</p>
           </div>
         </div>
       </footer>
@@ -246,9 +252,6 @@ export default function LandingPage() {
         .landing-page {
           min-height: 100vh;
           background:
-            radial-gradient(circle at 20% 80%, rgba(250, 204, 21, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
             linear-gradient(-45deg, #f9fafb, #ffffff, #f3f4f6, #f9fafb);
           background-size: 400% 400%, 400% 400%, 400% 400%, 400% 400%;
           animation: gradientShift 15s ease infinite, floatingParticles 20s ease-in-out infinite;
@@ -273,7 +276,7 @@ export default function LandingPage() {
 
         /* Header Styles */
         .header {
-          background: linear-gradient(to right, #facc15, #eab308);
+          background: linear-gradient(to right, #ffd700, #ffc107);
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
           padding: 1rem 0;
           height: 80px;
@@ -311,7 +314,7 @@ export default function LandingPage() {
         }
 
         .nav-link {
-          color: #7f1d1d;
+          color: #8b3a3a;
           text-decoration: none;
           font-weight: 600;
           font-size: 0.95rem;
@@ -319,7 +322,7 @@ export default function LandingPage() {
         }
 
         .nav-link:hover {
-          color: #450a0a;
+          color: #7a3232;
         }
 
         .switch-container {
@@ -340,7 +343,7 @@ export default function LandingPage() {
           font-size: 15px;
           transition: all 0.3s ease;
           cursor: pointer;
-          color: #7f1d1d;
+          color: #8b3a3a;
           position: relative;
           z-index: 2;
           display: flex;
@@ -350,11 +353,11 @@ export default function LandingPage() {
         }
 
         .switch-option.active {
-          color: #7f1d1d;
+          color: #8b3a3a;
         }
 
         .switch-option:hover {
-          color: #450a0a;
+          color: #7a3232;
         }
 
         .switch-slider {
@@ -401,7 +404,7 @@ export default function LandingPage() {
         }
 
         .hero-title {
-          font-size: 4rem;
+          font-size: 3.5rem;
           font-weight: bold;
           margin-bottom: 1.5rem;
           line-height: 1.1;
@@ -409,13 +412,15 @@ export default function LandingPage() {
         }
 
         .brand-highlight {
+          font-size: 6rem;
+          font-family: 'Marykate', sans-serif;
           color: #facc15;
-          -webkit-text-stroke: 1px #7f1d1d;
+          -webkit-text-stroke: 1px #8b3a3a;
         }
 
         .hero-subtitle {
           font-size: 1.25rem;
-          color: #6b7280;
+          color: #1a202c;
           margin-bottom: 2.5rem;
           line-height: 1.6;
           max-width: 500px;
@@ -441,7 +446,7 @@ export default function LandingPage() {
         }
 
         .cta-button.primary {
-          background: linear-gradient(to right, #991b1b, #7f1d1d);
+          background: linear-gradient(to bottom right, #7f1d1d, #7a3232);
           color: white;
           border: none;
           box-shadow: 0 10px 25px rgba(127, 29, 29, 0.3);
@@ -450,18 +455,6 @@ export default function LandingPage() {
         .cta-button.primary:hover {
           transform: translateY(-3px);
           box-shadow: 0 20px 40px rgba(127, 29, 29, 0.4);
-        }
-
-        .cta-button.secondary {
-          background: white;
-          color: #7f1d1d;
-          border: 2px solid #facc15;
-        }
-
-        .cta-button.secondary:hover {
-          background: #facc15;
-          transform: translateY(-3px);
-          box-shadow: 0 10px 25px rgba(250, 204, 21, 0.3);
         }
 
         .hero-visual {
@@ -476,10 +469,10 @@ export default function LandingPage() {
 
         .card-1, .card-2, .card-3, .card-4, .card-5, .card-6 {
           position: absolute;
-          background: white;
+          background: linear-gradient(to bottom right, #7f1d1d, #7a3232);
           border-radius: 20px;
           padding: 2rem;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.14);
           text-align: center;
           animation: floatCard 6s ease-in-out infinite;
         }
@@ -527,8 +520,8 @@ export default function LandingPage() {
         }
 
         .card-text {
-          font-weight: 600;
-          color: #374151;
+          font-family: 'Marykate', sans-serif;
+          color: #ffffff;
         }
 
         .hero-bg-elements {
@@ -597,6 +590,15 @@ export default function LandingPage() {
           color: #1a202c;
         }
 
+        .section-title2 {
+          font-size: 3.4rem;
+          font-weight: normal;
+          font-family: 'Marykate', sans-serif;
+          color: #8b3a3a;
+          text-decoration: underline;
+          text-decoration-color: #ffd700;
+        }
+
         .section-subtitle {
           font-size: 1.25rem;
           color: #6b7280;
@@ -626,14 +628,14 @@ export default function LandingPage() {
         }
 
         .feature-icon {
-          color: #facc15;
+          color: #8b3a3a;
           margin-bottom: 1.5rem;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           width: 80px;
           height: 80px;
-          background: rgba(250, 204, 21, 0.1);
+          background: #9b5c5c1d;
           border-radius: 50%;
         }
 
@@ -652,7 +654,7 @@ export default function LandingPage() {
         /* Stats Section */
         .stats-section {
           padding: 60px 0;
-          background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+          background: linear-gradient(135deg, #ffd700 0%, #ffc107 100%);
         }
 
         .stats-grid {
@@ -663,19 +665,19 @@ export default function LandingPage() {
         }
 
         .stat-item {
-          color: white;
+          color: #8b3a3a;
         }
 
         .stat-number {
-          font-size: 3rem;
+          font-family: 'Marykate', sans-serif;
+          font-size: 4rem;
           font-weight: bold;
-          margin-bottom: 0.5rem;
-          -webkit-text-stroke: 1px #7f1d1d;
         }
 
         .stat-label {
-          font-size: 1.1rem;
+          font-size: 1.2rem;
           font-weight: 600;
+          color: #ffffff;
           opacity: 0.9;
         }
 
@@ -692,14 +694,23 @@ export default function LandingPage() {
         }
 
         .cta-title {
-          font-size: 2.5rem;
+          font-size: 3rem;
           font-weight: bold;
           margin-bottom: 1rem;
           color: #1a202c;
         }
 
+        .cta-title2 {
+          font-size: 3.4rem;
+          font-weight: normal;
+          font-family: 'Marykate', sans-serif;
+          color: #8b3a3a;
+          text-decoration: underline;
+          text-decoration-color: #ffd700;
+        }
+          
         .cta-subtitle {
-          font-size: 1.1rem;
+          font-size: 1.25rem;
           color: #6b7280;
           margin-bottom: 2rem;
           line-height: 1.6;
@@ -749,7 +760,7 @@ export default function LandingPage() {
           font-size: 1.1rem;
           font-weight: bold;
           margin-bottom: 1rem;
-          color: #facc15;
+          color: #ffd700;
         }
 
         .footer-section a {
@@ -761,7 +772,7 @@ export default function LandingPage() {
         }
 
         .footer-section a:hover {
-          color: #facc15;
+          color: #ffd700;
         }
 
         .social-links {

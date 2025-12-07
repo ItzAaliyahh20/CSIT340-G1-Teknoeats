@@ -10,6 +10,7 @@ export default function Login() {
     password: ''
   });
   const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState('');
   const [isLoginActive, setIsLoginActive] = useState(true);
 
   const navigate = useNavigate(); // ✅ Initialize navigation hook
@@ -27,6 +28,9 @@ export default function Login() {
     }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    if (loginError) {
+      setLoginError('');
     }
   };
 
@@ -144,7 +148,7 @@ export default function Login() {
       } catch (error) {
         console.error('Login error:', error);
         const errorMsg = error.response?.data?.message || error.response?.data || 'Invalid credentials. Please try again.';
-        alert(errorMsg);
+        setLoginError(errorMsg);
       }
     } else {
       setErrors(newErrors);
@@ -156,11 +160,11 @@ export default function Login() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
+          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" onClick={() => navigate('/')} style={{cursor: 'pointer'}} />
           <div className="header-buttons">
             <div className="nav-links">
-              <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#features'); }}>Features</a>
-              <a href="#footer" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#footer'); }}>Contact</a>
+              <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'features' } }); }}>Features</a>
+              <a href="#footer" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'footer' } }); }}>Contact</a>
             </div>
             <div className="switch-container">
               <button
@@ -200,6 +204,11 @@ export default function Login() {
             <p className="card-subtitle">Hey Wildcat, hungry again?</p>
             
             <div className="form-fields">
+              {loginError && (
+                <div className="login-error-message">
+                  {loginError}
+                </div>
+              )}
               {/* Username Input */}
               <div className="input-group">
                 <div className="input-wrapper">
@@ -263,9 +272,6 @@ export default function Login() {
         .app-container {
           min-height: 100vh;
           background:
-            radial-gradient(circle at 20% 80%, rgba(250, 204, 21, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
             linear-gradient(-45deg, #f9fafb, #ffffff, #f3f4f6, #f9fafb);
           background-size: 400% 400%, 400% 400%, 400% 400%, 400% 400%;
           animation: gradientShift 15s ease infinite, floatingParticles 20s ease-in-out infinite;
@@ -289,7 +295,7 @@ export default function Login() {
         }
 
         .header {
-          background: linear-gradient(to right, #facc15, #eab308);
+          background: linear-gradient(to right, #ffd700, #ffc107);
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
           padding: 1rem 0;
           height: 80px;
@@ -346,7 +352,7 @@ export default function Login() {
         }
 
         .nav-link {
-          color: #7f1d1d;
+          color: #8b3a3a;
           text-decoration: none;
           font-weight: 600;
           font-size: 0.95rem;
@@ -354,7 +360,7 @@ export default function Login() {
         }
 
         .nav-link:hover {
-          color: #450a0a;
+          color: #7a3232;
         }
 
         .switch-container {
@@ -375,7 +381,7 @@ export default function Login() {
           font-size: 15px;
           transition: all 0.3s ease;
           cursor: pointer;
-          color: #7f1d1d;
+          color: #8b3a3a;
           position: relative;
           z-index: 2;
           display: flex;
@@ -385,11 +391,11 @@ export default function Login() {
         }
 
         .switch-option.active {
-          color: #7f1d1d;
+          color: #8b3a3a;
         }
 
         .switch-option:hover {
-          color: #450a0a;
+          color: #7a3232;
         }
 
         .switch-slider {
@@ -471,13 +477,14 @@ export default function Login() {
         }
 
         .card {
-          background: linear-gradient(135deg, rgba(250, 204, 21, 0.1), rgba(234, 179, 8, 0.05), rgba(255, 255, 255, 0.95));
+          background: #ffffff;
           border-radius: 1rem;
           padding: 2.5rem;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
           transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
+          border: 1px solid rgba(250, 204, 21, 0.1);
         }
 
         .card::before {
@@ -501,8 +508,8 @@ export default function Login() {
           font-weight: bold;
           text-align: center;
           font-family: 'Marykate', sans-serif;
-          -webkit-text-stroke: 1px #7f1d1d; /* Outline color and width */
-          color: #facc15; /* Text fill color */
+          -webkit-text-stroke: 1px #8b3a3a;
+          color: #ffd700;
         }
 
         .card-subtitle {
@@ -547,10 +554,11 @@ export default function Login() {
           transition: all 0.2s;
           outline: none;
           box-sizing: border-box;
+          background-color: #ffffff;
         }
 
         .input-field:focus {
-          border-color: #facc15;
+          border-color: #ffd700;
           box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1);
         }
 
@@ -563,6 +571,16 @@ export default function Login() {
           font-size: 0.875rem;
           margin-top: 0.25rem;
           margin-bottom: 0;
+        }
+
+        .login-error-message {
+          background-color: #fef2f2;
+          border: 1px solid #ef4444;
+          color: #ef4444;
+          padding: 0.75rem;
+          border-radius: 0.375rem;
+          font-size: 0.875rem;
+          text-align: center;
         }
 
         .toggle-password {
@@ -588,11 +606,10 @@ export default function Login() {
           color: #9ca3af;
         }
 
-
         .submit-button {
           width: 100%;
           padding: 0.875rem 1rem;
-          background: linear-gradient(to right, #991b1b, #7f1d1d);
+          background: linear-gradient(to bottom right, #7f1d1d, #7a3232);
           color: white;
           border: none;
           border-radius: 0.5rem;
@@ -602,10 +619,12 @@ export default function Login() {
           transition: all 0.3s ease;
           margin-top: 0.5rem;
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          position: relative;
+          overflow: hidden;
         }
 
         .submit-button:hover {
-          background: linear-gradient(to right, #7f1d1d, #450a0a);
+          background: linear-gradient(to bottom right, #7f1d1d, #5c1616eb);
           transform: scale(1.02);
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
@@ -614,22 +633,36 @@ export default function Login() {
           transform: scale(0.98);
         }
 
+        .button-glow {
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+        }
+
+        .submit-button:hover .button-glow {
+          left: 100%;
+        }
+
         .footer-text {
           text-align: center;
           margin-top: 1.5rem;
-          color: #4b5563;
+          color: #6b7280;
           font-size: 0.875rem;
         }
 
         .login-link {
-          color: #ca8a04;
+          color: #e0a800df;
           font-weight: 600;
           text-decoration: none;
           transition: color 0.3s ease;
         }
 
         .login-link:hover {
-          color: #a16207;
+          color: #ffc107;
           text-decoration: underline;
         }
 
