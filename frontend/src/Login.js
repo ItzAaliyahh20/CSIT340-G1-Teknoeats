@@ -156,11 +156,11 @@ export default function Login() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
+          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" onClick={() => navigate('/')} style={{cursor: 'pointer'}} />
           <div className="header-buttons">
             <div className="nav-links">
-              <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#features'); }}>Features</a>
-              <a href="#footer" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#footer'); }}>Contact</a>
+              <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'features' } }); }}>Features</a>
+              <a href="#footer" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'footer' } }); }}>Contact</a>
             </div>
             <div className="switch-container">
               <button

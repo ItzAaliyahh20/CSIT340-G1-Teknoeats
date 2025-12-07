@@ -156,11 +156,11 @@ export default function SignUp() {
     <div className="app-container">
       <header className="header">
         <div className="header-content">
-          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" />
+          <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" onClick={() => navigate('/')} style={{cursor: 'pointer'}} />
           <div className="header-buttons">
             <div className="nav-links">
-              <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#features'); }}>Features</a>
-              <a href="#footer" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/#footer'); }}>Contact</a>
+              <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'features' } }); }}>Features</a>
+              <a href="#footer" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'footer' } }); }}>Contact</a>
             </div>
             <div className="switch-container">
               <button
@@ -492,7 +492,7 @@ export default function SignUp() {
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          color: #7f1d1d;
+          color: #8b3a3a;
           transition: all 0.3s ease;
           position: absolute;
           left: 0;
@@ -502,7 +502,7 @@ export default function SignUp() {
         .home-button:hover {
           background: rgba(255, 255, 255, 0.3);
           transform: scale(1.1);
-          color: #450a0a;
+          color: #7a3232;
         }
 
         .logo {
@@ -523,7 +523,7 @@ export default function SignUp() {
         }
 
         .nav-link {
-          color: #7f1d1d;
+          color: #8b3a3a;
           text-decoration: none;
           font-weight: 600;
           font-size: 0.95rem;
@@ -531,7 +531,7 @@ export default function SignUp() {
         }
 
         .nav-link:hover {
-          color: #450a0a;
+          color: #7a3232;
         }
 
         .switch-container {
@@ -803,13 +803,8 @@ export default function SignUp() {
 
         .submit-button {
           width: 100%;
-<<<<<<< HEAD
           padding: 0.875rem 1rem;
           background: linear-gradient(to right, #991b1b, #7f1d1d);
-=======
-          padding: 0.75rem 1rem;
-          background: linear-gradient(to right, #8b3a3a, #7a3232);
->>>>>>> 031c01e (fix(signup): minor_design_changes_to_sign_up_page)
           color: white;
           border: none;
           border-radius: 0.5rem;
@@ -824,13 +819,8 @@ export default function SignUp() {
         }
 
         .submit-button:hover {
-<<<<<<< HEAD
           background: linear-gradient(to right, #7f1d1d, #450a0a);
           transform: translateY(-2px);
-=======
-          background: linear-gradient(to right, #7a3232, #7a3232, #7f1d1d);
-          transform: scale(1.02);
->>>>>>> 031c01e (fix(signup): minor_design_changes_to_sign_up_page)
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
