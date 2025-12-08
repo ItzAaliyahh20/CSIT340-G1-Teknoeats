@@ -116,8 +116,8 @@ export default function CanteenDashboard() {
   };
 
 
-  // Get active orders (not delivered)
-  const activeOrders = orders.filter(o => o.status !== 'delivered');
+  // Get active orders (not picked_up)
+  const activeOrders = orders.filter(o => o.status !== 'picked_up');
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -342,7 +342,7 @@ export default function CanteenDashboard() {
                     order.status === 'pending' ? 'border-l-yellow-500' :
                     order.status === 'preparing' ? 'border-l-blue-500' :
                     'border-l-green-500'
-                  } overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-fade-in`}
+                  } p-6 space-y-4 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-fade-in`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="flex justify-between items-start mb-3">
@@ -417,10 +417,10 @@ export default function CanteenDashboard() {
                       )}
                       {order.status === 'ready' && (
                         <button
-                          onClick={() => updateOrderStatus(order.id, 'delivered')}
-                          className="px-3 py-1 bg-gray-600 text-white rounded text-sm font-semibold hover:bg-gray-700 transition"
+                          onClick={() => updateOrderStatus(order.id, 'picked_up')}
+                          className="px-3 py-1 bg-purple-600 text-white rounded text-sm font-semibold hover:bg-purple-700 transition"
                         >
-                          Complete
+                          Mark as Picked Up
                         </button>
                       )}
                     </div>

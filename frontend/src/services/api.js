@@ -89,6 +89,8 @@ export const getAllOrders = () => api.get('/admin/orders').then((res) => res.dat
 
 export const updateOrderStatus = (orderId, status) => api.put(`/admin/orders/${orderId}/status?status=${status}`).then((res) => res.data)
 
+export const updateDeliveredOrdersToPickedUp = () => api.post('/admin/orders/update-delivered-to-picked-up').then((res) => res.data)
+
 // Canteen Orders
 export const getActiveOrders = () => api.get('/canteen/orders/active').then((res) => res.data)
 
