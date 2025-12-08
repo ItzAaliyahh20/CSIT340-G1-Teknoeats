@@ -31,6 +31,7 @@ api.interceptors.request.use(
 export const authAPI = {
   signup: (userData) => api.post("/auth/signup", userData),
   login: (credentials) => api.post("/auth/login", credentials),
+  adminLogin: (credentials) => api.post("/auth/admin/login", credentials),
 }
 
 // Products
@@ -39,14 +40,7 @@ export const getProducts = (category) =>
 
 export const getProductById = (id) => api.get(`/products/${id}`).then((res) => res.data)
 
-// Cart
-export const addToCart = (userId, productId, quantity) =>
-  api.post("/cart/add", { userId, productId, quantity }).then((res) => res.data)
-
-export const getCart = (userId) => api.get(`/cart/${userId}`).then((res) => res.data)
-
-export const removeFromCart = (userId, productId) =>
-  api.post("/cart/remove", { userId, productId }).then((res) => res.data)
+// Cart functionality removed - now handled locally in frontend
 
 // Orders
 export const createOrder = (userId, orderData) =>

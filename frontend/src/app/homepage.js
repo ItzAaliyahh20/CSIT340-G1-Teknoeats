@@ -5,27 +5,28 @@ import ProductCard from '../components/product-card'
 import { Search, Clock, X } from "lucide-react"
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from "framer-motion"
-import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser, getCart, addToCart as apiAddToCart } from '../services/api'
+import { getFavorites, addToFavorites, removeFromFavorites, getCurrentUser } from '../services/api'
+import { useCart } from '../contexts/CartContext'
 
 const API_BASE_URL = "http://localhost:8080/api";
 const BACKEND_URL = "http://localhost:8080"; // Add this constant
 const CATEGORIES = ["Dashboard", "Meals", "Food", "Snacks", "Beverages", "Others"]
 
 export default function HomePage() {
-   const [searchParams, setSearchParams] = useSearchParams()
-   const navigate = useNavigate()
-   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || "Dashboard")
-   const [animationKey, setAnimationKey] = useState(0)
+    const [searchParams, setSearchParams] = useSearchParams()
+    const navigate = useNavigate()
+    const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || "Dashboard")
+    const [animationKey, setAnimationKey] = useState(0)
 
-   // ⭐ New states from old homepage
-   const [products, setProducts] = useState([])
-   const [loading, setLoading] = useState(true)
+    // ⭐ New states from old homepage
+    const [products, setProducts] = useState([])
+    const [loading, setLoading] = useState(true)
 
-   const [cart, setCart] = useState([])
-   const [favorites, setFavorites] = useState([])
-   const [user, setUser] = useState(null)
-   const [currentTime, setCurrentTime] = useState(new Date())
-   const [toasts, setToasts] = useState([])
+    const { cart, addToCart } = useCart()
+    const [favorites, setFavorites] = useState([])
+    const [user, setUser] = useState(null)
+    const [currentTime, setCurrentTime] = useState(new Date())
+    const [toasts, setToasts] = useState([])
 
    // Use URL search parameter for search query to persist across pages
    const searchQuery = searchParams.get('search') || ""
@@ -97,12 +98,7 @@ export default function HomePage() {
           } catch (error) {
             console.log("Could not load favorites:", error.message);
           }
-          try {
-            const cartItems = await getCart(currentUser.userId);
-            setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })));
-          } catch (error) {
-            console.log("Could not load cart:", error.message);
-          }
+          // Cart is now handled locally via useCart hook
         } else {
           // No user data - redirect to login
           console.log("No user data found, redirecting to login");
@@ -151,21 +147,6 @@ export default function HomePage() {
     searchQuery === "" || p.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const addToCart = async (product, quantity) => {
-    if (!user) {
-      alert("Please log in to add to cart")
-      return
-    }
-    try {
-      await apiAddToCart(user.userId, product.id, quantity)
-      // Refresh cart after adding
-      const cartItems = await getCart(user.userId)
-      setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
-    } catch (error) {
-      console.error("Error adding to cart:", error)
-      alert("Failed to add to cart")
-    }
-  }
 
   const toggleFavorite = async (productId) => {
     if (!user) {

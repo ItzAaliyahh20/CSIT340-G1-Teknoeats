@@ -1,14 +1,15 @@
 package com.teknoeats.backend.repository;
 
-import com.teknoeats.backend.model.Order;
-import com.teknoeats.backend.model.Order.OrderStatus;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.teknoeats.backend.model.Order;
+import com.teknoeats.backend.model.Order.OrderStatus;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -35,4 +36,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Count orders by status
     Long countByStatus(OrderStatus status);
+
+    // Find orders by status and pickup deadline before a certain time
+    List<Order> findByStatusAndPickupDeadlineBefore(OrderStatus status, LocalDateTime deadline);
 }

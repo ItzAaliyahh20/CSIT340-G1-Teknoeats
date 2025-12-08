@@ -3,33 +3,34 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/sidebar'
 import { Clock, Trash2, X, Banknote, ShoppingBasket, Calendar, ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemoveFromCart, getCurrentUser, getOrderById, createOrder } from '../services/api'
+import { getCurrentUser, getOrderById, createOrder } from '../services/api'
+import { useCart } from '../contexts/CartContext'
 
 const BACKEND_URL = "http://localhost:8080"; // Add this constant
 
 export default function CartPage() {
-   const navigate = useNavigate();
-   const [searchParams] = useSearchParams();
-   const viewOrderId = searchParams.get('viewOrder');
-   const reorderId = searchParams.get('reorder');
-   const [items, setItems] = useState([])
-   const [paymentMethod, setPaymentMethod] = useState(null)
-   const [pickupTime, setPickupTime] = useState(null)
-   const [isLoading, setIsLoading] = useState(true)
-   const [user, setUser] = useState(null)
-   const [currentTime, setCurrentTime] = useState(new Date())
-   const [toasts, setToasts] = useState([])
-   const [minusClicked, setMinusClicked] = useState({})
-   const [plusClicked, setPlusClicked] = useState({})
-   const [quantityScaled, setQuantityScaled] = useState({})
-   const [showModal, setShowModal] = useState(false)
-   const [selectedDate, setSelectedDate] = useState('')
-   const [selectedTime, setSelectedTime] = useState('7:30 AM')
-   const [bottomText, setBottomText] = useState(<span>Please select a payment method and pick-up time.</span>)
-   const [checkoutRipples, setCheckoutRipples] = useState([])
-   const [viewOrder, setViewOrder] = useState(null)
-   const [showNotesModal, setShowNotesModal] = useState(false)
-   const [orderNotes, setOrderNotes] = useState('')
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const viewOrderId = searchParams.get('viewOrder');
+    const reorderId = searchParams.get('reorder');
+    const { cart: items, addToCart, removeFromCart, updateQuantity, clearCart } = useCart()
+    const [paymentMethod, setPaymentMethod] = useState(null)
+    const [pickupTime, setPickupTime] = useState(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [user, setUser] = useState(null)
+    const [currentTime, setCurrentTime] = useState(new Date())
+    const [toasts, setToasts] = useState([])
+    const [minusClicked, setMinusClicked] = useState({})
+    const [plusClicked, setPlusClicked] = useState({})
+    const [quantityScaled, setQuantityScaled] = useState({})
+    const [showModal, setShowModal] = useState(false)
+    const [selectedDate, setSelectedDate] = useState('')
+    const [selectedTime, setSelectedTime] = useState('7:30 AM')
+    const [bottomText, setBottomText] = useState(<span>Please select a payment method and pick-up time.</span>)
+    const [checkoutRipples, setCheckoutRipples] = useState([])
+    const [viewOrder, setViewOrder] = useState(null)
+    const [showNotesModal, setShowNotesModal] = useState(false)
+    const [orderNotes, setOrderNotes] = useState('')
 
 
   // Generate time options from 7:30 AM to 5:30 PM in 15-minute intervals
@@ -62,8 +63,8 @@ export default function CartPage() {
     return options
   }, [selectedDate])
   useEffect(() => {
-    const loadCart = async () => {
-      console.log("loadCart started, viewOrderId:", viewOrderId, "reorderId:", reorderId)
+    const loadData = async () => {
+      console.log("loadData started, viewOrderId:", viewOrderId, "reorderId:", reorderId)
       try {
         const currentUser = await getCurrentUser()
         console.log("Current user:", currentUser)
@@ -74,7 +75,7 @@ export default function CartPage() {
             console.log("View order:", order)
             if (order) {
               setViewOrder(order)
-              setItems(order.items.map(i => ({ ...i, quantity: i.quantity })))
+              // Items are already loaded from local cart
             }
           } catch (error) {
             console.error("Error fetching order:", error)
@@ -82,49 +83,35 @@ export default function CartPage() {
         } else if (reorderId) {
           try {
             const order = await getOrderById(reorderId)
-          console.log("Reorder order:", order)
-          if (order && currentUser) {
-            // Add items to cart
-            for (const item of order.items) {
-              await apiAddToCart(currentUser.userId, item.productId, item.quantity)
+            console.log("Reorder order:", order)
+            if (order && currentUser) {
+              // Clear existing cart and add order items for reordering
+              clearCart()
+              for (const item of order.items) {
+                addToCart({
+                  ...item,
+                  id: item.productId, // Map productId to id for cart display
+                  image: item.image?.startsWith('/uploads')
+                    ? `${BACKEND_URL}${item.image}`
+                    : item.image
+                }, item.quantity)
+              }
+              setPaymentMethod(null)
+              setPickupTime(null)
             }
-            // Fix image URLs and set items
-            const cartItemsWithFixedImages = order.items.map(c => ({
-              ...c,
-              id: c.productId, // Map productId to id for cart display
-              image: c.image?.startsWith('/uploads')
-                ? `${BACKEND_URL}${c.image}`
-                : c.image
-            }))
-            setItems(cartItemsWithFixedImages)
-            setPaymentMethod(null)
-            setPickupTime(null)
-          }
           } catch (error) {
             console.error("Error fetching order for reorder:", error)
           }
-        } else if (currentUser) {
-          const cartItems = await getCart(currentUser.userId)
-          console.log("Raw cart items from API:", cartItems)
-          // FIX: Add full URL to image paths
-          const cartItemsWithFixedImages = cartItems.map(c => ({
-            ...c.product,
-            quantity: c.quantity,
-            image: c.product.image?.startsWith('/uploads')
-              ? `${BACKEND_URL}${c.product.image}`
-              : c.product.image
-          }))
-          console.log("Cart items with fixed images:", cartItemsWithFixedImages)
-          setItems(cartItemsWithFixedImages)
         }
+        // Cart items are automatically loaded from localStorage via useCart hook
       } catch (error) {
-        console.error("Error loading cart:", error)
+        console.error("Error loading data:", error)
       } finally {
         setIsLoading(false)
       }
     }
-    loadCart()
-  }, [viewOrderId, reorderId])
+    loadData()
+  }, [viewOrderId, reorderId, addToCart, clearCart])
 
   // Update current time every second
   useEffect(() => {
@@ -144,66 +131,20 @@ export default function CartPage() {
     }
   }, [selectedDate, timeOptions, selectedTime])
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const displayItems = viewOrder ? viewOrder.items : items
+  const total = displayItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
 
-  const updateQuantity = async (id, quantity) => {
-    console.log("updateQuantity called for id:", id, "quantity:", quantity)
-    if (quantity <= 0) {
-      await removeItem(id)
-    } else {
-      if (!user) {
-        console.log("No user, returning")
-        return
-      }
 
-      // Check if quantity exceeds maximum limit
-      if (quantity > 20) {
-        alert("Maximum quantity per item is 20")
-        return
-      }
-
-      try {
-        console.log("Updating local state")
-        // Update local state first to maintain order
-        setItems(prevItems =>
-          prevItems.map(item =>
-            item.id === id ? { ...item, quantity } : item
-          )
-        )
-
-        console.log("Updating backend")
-        // Then update backend
-        await apiRemoveFromCart(user.userId, id)
-        await apiAddToCart(user.userId, id, quantity)
-        console.log("Backend updated successfully")
-      } catch (error) {
-        console.error("Error updating quantity:", error)
-        // Revert local state on error
-        const cartItems = await getCart(user.id)
-        setItems(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
-      }
-    }
-  }
-
-  const removeItem = async (id) => {
+  const removeItem = (id) => {
     console.log("removeItem called for id:", id)
-    if (!user) {
-      console.log("No user, returning")
-      return
-    }
     try {
       // Get item details before removing for toast message
       const itemToRemove = items.find(item => item.id === id)
       console.log("Item to remove:", itemToRemove)
 
-      console.log("Updating local state")
-      // Update local state first to maintain order
-      setItems(prevItems => prevItems.filter(item => item.id !== id))
-
-      console.log("Removing from backend")
-      // Then update backend
-      await apiRemoveFromCart(user.userId, id)
+      // Remove from local cart
+      removeFromCart(id)
 
       // Show toast message
       if (itemToRemove) {
@@ -211,9 +152,6 @@ export default function CartPage() {
       }
     } catch (error) {
       console.error("Error removing item:", error)
-      // Revert local state on error
-      const cartItems = await getCart(user.id)
-      setItems(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
     }
   }
 
@@ -275,14 +213,8 @@ export default function CartPage() {
       throw error
     }
 
-    // Clear cart from backend
-    for (const item of items) {
-      await apiRemoveFromCart(user.userId, item.id)
-    }
-
-    // Clear local state and storage
-    localStorage.setItem("cart", JSON.stringify([]))
-    setItems([])
+    // Clear local cart
+    clearCart()
     setOrderNotes('')
 
     // Show success and redirect
@@ -387,7 +319,7 @@ export default function CartPage() {
         }}>
           {viewOrder ? 'ORDER DETAILS' : 'CART'}
         </h2>
-        {items.length === 0 ? (
+        {displayItems.length === 0 ? (
           <div className="text-center space-y-4 py-12">
             <ShoppingBasket size={64} strokeWidth={1.1} className="text-gray-400 mb-4 mx-auto animate-pulse" />
             <p className="text-gray-600 text-lg">Your cart is empty. Fill it with your cravings!</p>
@@ -415,7 +347,7 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {items.map((item, index) => (
+                {(viewOrder ? viewOrder.items : items).map((item, index) => (
                    <motion.div
                      key={item.id}
                      initial={{ opacity: 0, y: 30 }}
@@ -474,6 +406,10 @@ export default function CartPage() {
                         </div>
                         <motion.button
                           onClick={() => {
+                            if (item.stock !== undefined && item.quantity >= item.stock) {
+                              showToast(`Unable to increase quantity: Insufficient stock. Only ${item.stock} units available.`, 'error')
+                              return
+                            }
                             updateQuantity(item.id, item.quantity + 1)
                             setPlusClicked(prev => ({ ...prev, [item.id]: true }))
                             setQuantityScaled(prev => ({ ...prev, [item.id]: true }))
@@ -482,7 +418,7 @@ export default function CartPage() {
                               setQuantityScaled(prev => ({ ...prev, [item.id]: false }))
                             }, 200)
                           }}
-                          disabled={viewOrder || item.quantity >= 20}
+                          disabled={viewOrder || item.quantity >= 20 || (item.stock !== undefined && item.quantity >= item.stock)}
                           className={`flex-1 px-2 py-1 hover:font-bold hover:bg-gray-100 transition text-center ${viewOrder ? 'cursor-not-allowed opacity-50' : ''}`}
                           style={plusClicked[item.id] ? { backgroundColor: 'rgba(255, 215, 0, 0.2)' } : {}}
                         >
@@ -497,7 +433,7 @@ export default function CartPage() {
                           </motion.span>
                         </motion.button>
                       </div>
-                      {!viewOrder && (
+                      {viewOrder ? null : (
                         <button onClick={() => removeItem(item.id)} className="text-[#8B3A3A] hover:text-[#7A3232] hover:bg-[#a0505033] hover:rounded-full mr-2 p-2 transition-all duration-300 ease-in-out">
                           <Trash2 size={25} />
                         </button>
@@ -524,10 +460,22 @@ export default function CartPage() {
                   <p className="text-left text-sm text-[#8B3A3A] mb-4">Order ID: {viewOrder.id}</p>
                 )}
 
+                {/* Order Info for View Order */}
+                {viewOrder && (
+                  <div className="mb-4 p-3 bg-gray-50 rounded">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div><span className="font-semibold">Status:</span> {viewOrder.status}</div>
+                      <div><span className="font-semibold">Payment:</span> {viewOrder.paymentMethod}</div>
+                      <div><span className="font-semibold">Pickup:</span> {viewOrder.pickupTime}</div>
+                      <div><span className="font-semibold">Date:</span> {viewOrder.date}</div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Itemized List */}
                 <div className="space-y-2 mb-4">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center text-sm">
+                  {displayItems.map((item) => (
+                    <div key={item.id || item.productId} className="flex justify-between items-center text-sm">
                       <span className="text-gray-500">{item.name} x{item.quantity}</span>
                       <span className="font-semibold text-gray-500">PHP {(item.price * item.quantity).toFixed(2)}</span>
                     </div>
@@ -547,7 +495,7 @@ export default function CartPage() {
                 </div>
 
                 {/* Order Notes */}
-                {viewOrder && viewOrder.notes && (
+                {viewOrder?.notes && (
                   <div className="border-t pt-4">
                     <p className="text-sm text-gray-600 mb-2 font-semibold">Order Notes</p>
                     <div className="bg-yellow-50 border border-yellow-200 rounded p-3">

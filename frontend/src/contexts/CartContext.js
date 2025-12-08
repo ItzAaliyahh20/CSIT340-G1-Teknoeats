@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+
+const CartContext = createContext()
 
 const CART_STORAGE_KEY = 'teknoeats_cart'
 
-export function useCart() {
+export function CartProvider({ children }) {
   const [cart, setCart] = useState([])
 
   // Load cart from localStorage on mount
@@ -66,13 +68,25 @@ export function useCart() {
     return cart.reduce((total, item) => total + item.quantity, 0)
   }
 
-  return {
-    cart,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    getCartTotal,
-    getCartItemCount
+  return (
+    <CartContext.Provider value={{
+      cart,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      getCartTotal,
+      getCartItemCount
+    }}>
+      {children}
+    </CartContext.Provider>
+  )
+}
+
+export function useCart() {
+  const context = useContext(CartContext)
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider')
   }
+  return context
 }

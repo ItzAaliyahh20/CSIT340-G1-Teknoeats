@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, User, Lock } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from './services/api';
 
-export default function Login() {
+export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
@@ -13,11 +13,11 @@ export default function Login() {
   const [loginError, setLoginError] = useState('');
   const [isLoginActive, setIsLoginActive] = useState(true);
 
-  const navigate = useNavigate(); // ✅ Initialize navigation hook
+  const navigate = useNavigate();
 
   // Update switch state when component mounts or route changes
   React.useEffect(() => {
-    setIsLoginActive(window.location.pathname === '/login');
+    setIsLoginActive(window.location.pathname === '/login/admin');
   }, []);
 
   const handleInputChange = (e) => {
@@ -51,110 +51,66 @@ export default function Login() {
     const newErrors = validateForm();
     if (Object.keys(newErrors).length === 0) {
       try {
-        // Check if trying to login as admin
-        if (formData.username.toLowerCase() === 'admin') {
-          setLoginError('Admin access not allowed here. Please use the admin login page.');
+        // First check hardcoded admin credentials
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin123';
+
+        if (formData.username === ADMIN_USERNAME && formData.password === ADMIN_PASSWORD) {
+          // Create admin user object for hardcoded login
+          const adminUser = {
+            userId: 1,
+            email: 'admin@teknoeats.com',
+            firstName: 'System',
+            lastName: 'Administrator',
+            role: 'Admin'
+          };
+
+          // Save to localStorage
+          localStorage.setItem('user', JSON.stringify(adminUser));
+
+          alert(`Welcome back, System Administrator!`);
+
+          // Redirect to admin dashboard
+          navigate('/admin/dashboard');
+
+          setFormData({ username: '', password: '' });
           return;
         }
 
-     const response = await authAPI.login({
-       username: formData.username,
-       password: formData.password
-     });
+        // If not hardcoded credentials, try database authentication
+        const response = await authAPI.adminLogin({
+          username: formData.username,
+          password: formData.password
+        });
 
-     console.log('Login response:', response.data);
-     let userData = response.data;
-        // Get user data from response
+        console.log('Admin login response:', response.data);
+        let userData = response.data;
 
-
-        // Strategy 1: Check if backend returned the role
-        // if (!userData.role) {
-        //   console.log('No role in response, checking localStorage users...');
-
-        //   // Strategy 2: Find user in localStorage users array
-        //   const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-        //   const foundUser = existingUsers.find(u =>
-        //     u.email === formData.username ||
-        //     u.email === userData.email ||
-        //     (u.firstName + ' ' + u.lastName).toLowerCase() === formData.username.toLowerCase()
-        //   );
-
-        //   if (foundUser && foundUser.role) {
-        //     console.log('Found user in localStorage with role:', foundUser.role);
-        //     userData = { ...userData, ...foundUser };
-        //   } else {
-        //     console.log('User not found in localStorage users');
-        //   }
-        // }
-
-        // // Strategy 3: If still no role, check if this email was just registered
-        // if (!userData.role) {
-        //   console.log('Still no role, checking recent signup...');
-        //   const recentSignup = localStorage.getItem('recentSignup');
-        //   if (recentSignup) {
-        //     const signupData = JSON.parse(recentSignup);
-        //     if (signupData.email === formData.username || signupData.email === userData.email) {
-        //       console.log('Found recent signup with role:', signupData.role);
-        //       userData = { ...userData, ...signupData };
-        //       localStorage.removeItem('recentSignup'); // Clean up
-        //     }
-        //   }
-        // }
-
-        // // Final check: Do we have a role?
-        // if (!userData.role) {
-        //   console.error('❌ No role found after all strategies!');
-        //   alert('Warning: No role found for this account. Please contact admin or sign up again.');
-          
-        //   // Show what we have for debugging
-        //   console.log('Available user data:', userData);
-        //   console.log('All users in storage:', JSON.parse(localStorage.getItem('users') || '[]'));
-          
-        //   // Default to Customer as fallback
-        //   userData.role = 'Customer';
-        // }
-
-        // // Save complete user data to localStorage
-        // localStorage.setItem('user', JSON.stringify(userData));
-       // Final check: Do we have a role?
-        if (!userData.role) {
-          console.error('❌ No role found after all strategies!');
-          alert('Warning: No role found for this account. Please contact admin or sign up again.');
-          userData.role = 'Customer';
-        }
-
-        // NORMALIZE ROLE - Remove underscores
-        if (userData.role) {
-          userData.role = userData.role.replace(/_/g, ' ');
-          console.log('✅ Normalized role:', userData.role);
-        }
-
-        // Save complete user data to localStorage
+        // Save to localStorage
         localStorage.setItem('user', JSON.stringify(userData));
-        console.log('✅ User saved to localStorage:', userData);
 
-        alert(`Welcome back, ${userData.firstName || userData.email || formData.username}!`);
+        alert(`Welcome back, ${userData.firstName}!`);
 
-        // Redirect based on role
-        const userRole = userData.role;
-        console.log('Redirecting user with role:', userRole);
-
-        if (userRole === 'Admin') {
-          navigate('/admin/dashboard');
-        } else if (userRole === 'Canteen Personnel') {
-          navigate('/canteen/dashboard');
-        } else if (userRole === 'Customer') {
-          navigate('/home');
-        } else {
-          console.error('Unknown role:', userRole);
-          navigate('/home');
-        }
+        // Redirect to admin dashboard
+        navigate('/admin/dashboard');
 
         setFormData({ username: '', password: '' });
       } catch (error) {
-        console.error('Login error:', error);
-        const errorMsg = error.response?.data?.message || error.response?.data || 'Invalid credentials. Please try again.';
-        setLoginError(errorMsg);
+        console.error('Admin login error:', error);
+
+        // Properly extract error message from response
+        let errorMessage = 'Invalid admin credentials. Access denied.';
+        if (error.response?.data) {
+          if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data;
+          } else if (error.response.data.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.response.data.error) {
+            errorMessage = error.response.data.error;
+          }
+        }
+
+        setLoginError(errorMessage);
       }
     } else {
       setErrors(newErrors);
@@ -189,7 +145,7 @@ export default function Login() {
                   navigate('/login');
                 }}
               >
-                Log In
+                User Login
               </button>
               <div className={`switch-slider ${isLoginActive ? 'login-active' : 'signup-active'}`}></div>
             </div>
@@ -206,9 +162,13 @@ export default function Login() {
         </div>
         <div className="card-container">
           <div className="card">
-            <h2 className="card-title">[ WELCOME BACK ]</h2>
-            <p className="card-subtitle">Hey Wildcat, hungry again?</p>
-            
+            <div className="flex items-center justify-center mb-4">
+              <Shield className="w-8 h-8 text-red-600 mr-2" />
+              <h2 className="card-title">[ ADMIN ACCESS ]</h2>
+              <Shield className="w-8 h-8 text-red-600 ml-2" />
+            </div>
+            <p className="card-subtitle">Authorized personnel only</p>
+
             <div className="form-fields">
               {loginError && (
                 <div className="login-error-message">
@@ -224,7 +184,7 @@ export default function Login() {
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    placeholder="Username or Email"
+                    placeholder="Admin Username"
                     className={`input-field ${errors.username ? 'input-error' : ''}`}
                   />
                 </div>
@@ -242,7 +202,7 @@ export default function Login() {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    placeholder="Password"
+                    placeholder="Admin Password"
                     className={`input-field ${errors.password ? 'input-error' : ''}`}
                   />
                   <button
@@ -261,14 +221,14 @@ export default function Login() {
 
               {/* Submit Button */}
               <button onClick={handleSubmit} className="submit-button">
-                Log In
+                Admin Login
               </button>
             </div>
 
             {/* Footer Text */}
             <p className="footer-text">
-              Don't have an account?{' '}
-              <a href="/signup" className="login-link">Sign up</a>
+              Not an admin?{' '}
+              <a href="/login" className="login-link">User Login</a>
             </p>
           </div>
         </div>
@@ -293,15 +253,15 @@ export default function Login() {
           right: 0;
           bottom: 0;
           background-image:
-            radial-gradient(circle at 25% 25%, rgba(250, 204, 21, 0.03) 0%, transparent 25%),
-            radial-gradient(circle at 75% 75%, rgba(234, 179, 8, 0.03) 0%, transparent 25%),
-            radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.02) 0%, transparent 25%);
+            radial-gradient(circle at 25% 25%, rgba(239, 68, 68, 0.03) 0%, transparent 25%),
+            radial-gradient(circle at 75% 75%, rgba(220, 38, 38, 0.03) 0%, transparent 25%),
+            radial-gradient(circle at 50% 50%, rgba(185, 28, 28, 0.02) 0%, transparent 25%);
           animation: particleFloat 25s ease-in-out infinite;
           pointer-events: none;
         }
 
         .header {
-          background: linear-gradient(to right, #ffd700, #ffc107);
+          background: linear-gradient(to right, #dc2626, #b91c1c);
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
           padding: 1rem 0;
           height: 80px;
@@ -315,29 +275,6 @@ export default function Login() {
           justify-content: space-between;
           align-items: center;
           position: relative;
-        }
-
-        .home-button {
-          background: rgba(255, 255, 255, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          color: #7f1d1d;
-          transition: all 0.3s ease;
-          position: absolute;
-          left: 0;
-          z-index: 10;
-        }
-
-        .home-button:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: scale(1.1);
-          color: #450a0a;
         }
 
         .logo {
@@ -358,7 +295,7 @@ export default function Login() {
         }
 
         .nav-link {
-          color: #8b3a3a;
+          color: #ffffff;
           text-decoration: none;
           font-weight: 600;
           font-size: 0.95rem;
@@ -366,7 +303,7 @@ export default function Login() {
         }
 
         .nav-link:hover {
-          color: #7a3232;
+          color: #fecaca;
         }
 
         .switch-container {
@@ -384,10 +321,10 @@ export default function Login() {
           border-radius: 23px;
           text-decoration: none;
           font-weight: 600;
-          font-size: 15px;
+          font-size: 13px;
           transition: all 0.3s ease;
           cursor: pointer;
-          color: #8b3a3a;
+          color: #ffffff;
           position: relative;
           z-index: 2;
           display: flex;
@@ -397,11 +334,11 @@ export default function Login() {
         }
 
         .switch-option.active {
-          color: #8b3a3a;
+          color: #dc2626;
         }
 
         .switch-option:hover {
-          color: #7a3232;
+          color: #fecaca;
         }
 
         .switch-slider {
@@ -449,7 +386,7 @@ export default function Login() {
         .bg-shape {
           position: absolute;
           border-radius: 50%;
-          background: rgba(250, 204, 21, 0.1);
+          background: rgba(239, 68, 68, 0.1);
           backdrop-filter: blur(40px);
         }
 
@@ -490,7 +427,7 @@ export default function Login() {
           transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
-          border: 1px solid rgba(250, 204, 21, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.1);
         }
 
         .card::before {
@@ -500,11 +437,11 @@ export default function Login() {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(45deg, transparent, rgba(250, 204, 21, 0.1), transparent);
+          background: linear-gradient(45deg, transparent, rgba(239, 68, 68, 0.1), transparent);
           animation: cardShimmer 3s ease-in-out infinite;
           pointer-events: none;
         }
-        
+
         .card:hover {
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
@@ -514,8 +451,8 @@ export default function Login() {
           font-weight: bold;
           text-align: center;
           font-family: 'Marykate', sans-serif;
-          -webkit-text-stroke: 1px #8b3a3a;
-          color: #ffd700;
+          -webkit-text-stroke: 1px #dc2626;
+          color: #dc2626;
         }
 
         .card-subtitle {
@@ -564,8 +501,8 @@ export default function Login() {
         }
 
         .input-field:focus {
-          border-color: #ffd700;
-          box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1);
+          border-color: #dc2626;
+          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
         }
 
         .input-error {
@@ -615,7 +552,7 @@ export default function Login() {
         .submit-button {
           width: 100%;
           padding: 0.875rem 1rem;
-          background: linear-gradient(to bottom right, #7f1d1d, #7a3232);
+          background: linear-gradient(to bottom right, #dc2626, #b91c1c);
           color: white;
           border: none;
           border-radius: 0.5rem;
@@ -630,11 +567,11 @@ export default function Login() {
         }
 
         .submit-button:hover {
-          background: linear-gradient(to bottom right, #7f1d1d, #5c1616eb);
+          background: linear-gradient(to bottom right, #dc2626, #991b1b);
           transform: scale(1.02);
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        
+
         .submit-button:active {
           transform: scale(0.98);
         }
@@ -661,14 +598,14 @@ export default function Login() {
         }
 
         .login-link {
-          color: #e0a800df;
+          color: #dc2626;
           font-weight: 600;
           text-decoration: none;
           transition: color 0.3s ease;
         }
 
         .login-link:hover {
-          color: #ffc107;
+          color: #b91c1c;
           text-decoration: underline;
         }
 

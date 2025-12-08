@@ -2,9 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from "./layout";
 import { LogoutProvider } from './contexts/LogoutContext';
+import { CartProvider } from './contexts/CartContext';
 import LandingPage from './LandingPage';
 import SignUp from './Signup';
 import Login from './Login';
+import AdminLogin from './AdminLogin';
 
 // User pages
 import Home from './app/homepage';
@@ -54,14 +56,16 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 function App() {
   return (
-    <LogoutProvider>
-      <Router>
-        <Layout>
-          <Routes>
+    <CartProvider>
+      <LogoutProvider>
+        <Router>
+          <Layout>
+            <Routes>
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/login/admin" element={<AdminLogin />} />
 
           {/* Customer routes */}
           <Route path="/home" element={
@@ -149,6 +153,7 @@ function App() {
       </Layout>
     </Router>
     </LogoutProvider>
+    </CartProvider>
   );
 }
 

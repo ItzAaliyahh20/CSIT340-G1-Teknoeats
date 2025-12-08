@@ -48,6 +48,9 @@ public class Order {
     @Column(name = "pickup_time", length = 50)
     private String pickupTime;
 
+    @Column(name = "pickup_deadline")
+    private LocalDateTime pickupDeadline;
+
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
@@ -74,7 +77,7 @@ public class Order {
 
     // Order Status Enum
     public enum OrderStatus {
-        pending, preparing, ready, picked_up
+        pending, preparing, ready, picked_up, expired
     }
 
     // Constructors
@@ -127,6 +130,14 @@ public class Order {
 
     public void setPickupTime(String pickupTime) {
         this.pickupTime = pickupTime;
+    }
+
+    public LocalDateTime getPickupDeadline() {
+        return pickupDeadline;
+    }
+
+    public void setPickupDeadline(LocalDateTime pickupDeadline) {
+        this.pickupDeadline = pickupDeadline;
     }
 
     public String getNotes() {

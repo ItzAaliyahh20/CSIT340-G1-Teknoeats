@@ -14,7 +14,6 @@ export default function OrdersPage() {
    const [isLoading, setIsLoading] = useState(true);
    const [user, setUser] = useState(null);
    const [currentTime, setCurrentTime] = useState(new Date());
-   const [ripples, setRipples] = useState({});
    const [showDetailsModal, setShowDetailsModal] = useState(false);
    const [selectedOrder, setSelectedOrder] = useState(null);
    const [expandedNotes, setExpandedNotes] = useState({});
@@ -78,6 +77,7 @@ export default function OrdersPage() {
     if (activeTab === "Pending") return order.status === "pending";
     if (activeTab === "Ready") return order.status === "ready";
     if (activeTab === "Picked Up") return order.status === "picked_up";
+    if (activeTab === "Expired") return order.status === "expired";
     return true;
   }).filter((order) =>
     searchQuery === "" ||
@@ -87,6 +87,7 @@ export default function OrdersPage() {
 
   const getActionButton = (status) => {
     if (status === "picked_up") return "Reorder Items";
+    if (status === "expired") return "Reorder Items";
     return "View Order";
   };
 
@@ -95,6 +96,7 @@ export default function OrdersPage() {
       case 'pending': return 'bg-gray-100 text-gray-800 border-gray-300';
       case 'ready': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'picked_up': return 'bg-green-100 text-green-800 border-green-300';
+      case 'expired': return 'bg-red-100 text-red-800 border-red-300';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
@@ -102,7 +104,28 @@ export default function OrdersPage() {
   const getStatusDisplay = (status) => {
     switch (status) {
       case 'picked_up': return 'Picked Up';
+      case 'expired': return 'Expired – Not Picked Up';
       default: return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
+  const getCountdownTimer = (pickupDeadline) => {
+    if (!pickupDeadline || typeof pickupDeadline !== 'string') return null;
+
+    try {
+      const deadline = new Date(pickupDeadline);
+      const now = new Date();
+      const diff = deadline - now;
+
+      if (diff <= 0) return null;
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } catch (error) {
+      return null;
     }
   };
 
@@ -237,7 +260,7 @@ export default function OrdersPage() {
 
         {/* Tabs */}
         <div className="flex gap-4 mb-6 justify-center flex-wrap">
-          {["All Orders", "Pending", "Ready", "Picked Up"].map((tab) => (
+          {["All Orders", "Pending", "Ready", "Picked Up", "Expired"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -286,6 +309,7 @@ export default function OrdersPage() {
                     <span className={`flex items-center gap-3 px-3 py-1 rounded-full text-white text-sm font-bold ${
                       order.status === 'ready' ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' :
                       order.status === 'pending' ? 'bg-gradient-to-r from-gray-500 to-gray-400' :
+                      order.status === 'expired' ? 'bg-gradient-to-r from-red-500 to-red-600' :
                       'bg-gradient-to-br from-[#8b3a3a33] to-[#8B3A3A]'
                     }`}>
                       <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -293,9 +317,37 @@ export default function OrdersPage() {
                     </span>
                     <span className="text-base text-gray-600 ml-1">|</span>
                     <p className="text-base text-gray-600" style={{ fontFamily: 'Marykate' }}>
-                      {order.status === 'picked_up' ? `PICKED UP ON ${order.date.toUpperCase()}` : order.status === 'ready' ? `READY FOR PICK-UP ON ${order.date.toUpperCase()}` : `ORDERED ON ${order.date.toUpperCase()}`}
+                      {order.status === 'picked_up' ? `PICKED UP ON ${order.date.toUpperCase()}` :
+                       order.status === 'ready' ? `READY FOR PICK-UP ON ${order.date.toUpperCase()}` :
+                       order.status === 'expired' ? `EXPIRED ON ${order.date.toUpperCase()}` :
+                       `ORDERED ON ${order.date.toUpperCase()}`}
                     </p>
                   </div>
+
+                  {/* Countdown Timer for Ready Orders */}
+                  {order.status === 'ready' && order.pickupDeadline && (
+                    <div className="mb-2">
+                      <p className="text-sm text-red-600 font-semibold">
+                        {getCountdownTimer(order.pickupDeadline) ?
+                          `Pickup available until ${getCountdownTimer(order.pickupDeadline)}` :
+                          'Pickup time expired'}
+                      </p>
+                      {getCountdownTimer(order.pickupDeadline) && (
+                        <p className="text-xs text-gray-500">
+                          After this time, your order will automatically expire.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Expired Message */}
+                  {order.status === 'expired' && (
+                    <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded">
+                      <p className="text-sm text-red-700 font-semibold">
+                        Your order wasn't claimed within the pickup time. It has now been marked as expired.
+                      </p>
+                    </div>
+                  )}
 
                   {/* The Text Details */}
                   <div>
@@ -319,32 +371,13 @@ export default function OrdersPage() {
                 <div className="ml-4">
                   <button
                     onClick={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect()
-                      const x = e.clientX - rect.left
-                      const y = e.clientY - rect.top
-                      const rippleId = Date.now()
-                      setRipples(prev => ({ ...prev, [order.id]: [...(prev[order.id] || []), { id: rippleId, x, y }] }))
-                      setTimeout(() => setRipples(prev => ({ ...prev, [order.id]: (prev[order.id] || []).filter(r => r.id !== rippleId) })), 600)
-                      order.status === 'picked_up' ? navigate('/cart?reorder=' + order.id) : navigate('/cart?viewOrder=' + order.id)
+                      setTimeout(() => {
+                        (order.status === 'picked_up' || order.status === 'expired') ? navigate('/cart?reorder=' + order.id) : navigate('/cart?viewOrder=' + order.id)
+                      }, 100)
                     }}
-                    className="bg-[#FFD700] text-[#8B3A3A] px-6 py-3 text-lg rounded font-bold hover:opacity-90 hover:scale-105 transition-all shadow-sm whitespace-nowrap relative overflow-hidden"
+                    className="bg-[#FFD700] text-[#8B3A3A] px-6 py-3 text-lg rounded font-bold hover:opacity-90 hover:scale-105 transition-all shadow-sm whitespace-nowrap"
                   >
-                    <span className="relative z-10">{getActionButton(order.status)}</span>
-                    {(ripples[order.id] || []).map((ripple) => (
-                      <motion.span
-                        key={ripple.id}
-                        initial={{ scale: 0, opacity: 0.3 }}
-                        animate={{ scale: 4, opacity: 0 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="absolute rounded-full bg-yellow-200 pointer-events-none z-0"
-                        style={{
-                          left: ripple.x - 15,
-                          top: ripple.y - 15,
-                          width: 30,
-                          height: 30,
-                        }}
-                      />
-                    ))}
+                    {getActionButton(order.status)}
                   </button>
                 </div>
 
