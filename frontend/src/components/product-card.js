@@ -19,9 +19,14 @@ export default function ProductCard({ product, isFavorite, onAddToCart, onToggle
       showToast(`Maximum quantity amount for ${product.name} reached!`, 'max')
       return
     }
-    
+
     if (cartQuantity + quantity > 20) {
       showToast(`Cannot add ${quantity} items. Maximum limit (20) would be exceeded. Current cart quantity: ${cartQuantity}`, 'max')
+      return
+    }
+
+    if (product.stock !== undefined && cartQuantity + quantity > product.stock) {
+      showToast(`Unable to add to cart: Insufficient stock. Only ${product.stock - cartQuantity} units remaining.`, 'error')
       return
     }
     
@@ -125,6 +130,10 @@ export default function ProductCard({ product, isFavorite, onAddToCart, onToggle
                   showToast(`Cannot increment quantity. Adding ${quantity + 1} items would exceed maximum limit (20). Current cart quantity: ${cartQuantity}`, 'max')
                   return
                 }
+                if (product.stock !== undefined && cartQuantity + quantity >= product.stock) {
+                  showToast(`Unable to add to cart: Insufficient stock. Only ${product.stock - cartQuantity} units remaining.`, 'error')
+                  return
+                }
                 const newQuantity = quantity + 1
                 setQuantity(newQuantity)
                 setPlusScaled(true)
@@ -144,7 +153,7 @@ export default function ProductCard({ product, isFavorite, onAddToCart, onToggle
                 setPlusColored(false)
                 setPlusHovered(false)
               }}
-              disabled={cartQuantity + quantity >= 20}
+              disabled={cartQuantity + quantity >= 20 || (product.stock !== undefined && cartQuantity + quantity >= product.stock)}
               className={`flex-1 px-3 py-2 font-bold bg-gradient-to-tr from-gray-100 to-gray-300 transition text-center ${
                 cartQuantity + quantity < 20 ? 'hover:from-[#FFD700]/20 hover:to-[#FFD700]/40' : ''
               }`}
@@ -167,7 +176,7 @@ export default function ProductCard({ product, isFavorite, onAddToCart, onToggle
           <button
             onClick={handleAddToCart}
             className={`w-full py-2 rounded font-bold text-lg transition relative overflow-hidden ${
-              cartQuantity + quantity > 20
+              cartQuantity + quantity > 20 || (product.stock !== undefined && cartQuantity + quantity > product.stock)
                 ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                 : 'bg-[#8B3A3A] text-white hover:bg-[#7A3232]'
             }`}

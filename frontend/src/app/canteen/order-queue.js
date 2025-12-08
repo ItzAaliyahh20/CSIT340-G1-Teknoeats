@@ -86,8 +86,8 @@ export default function OrderQueue() {
         return 'bg-blue-100 text-blue-800 border-blue-300';
       case 'ready':
         return 'bg-green-100 text-green-800 border-green-300';
-      case 'delivered':
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'picked_up':
+        return 'bg-purple-100 text-purple-800 border-purple-300';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-300';
     }
@@ -100,7 +100,7 @@ export default function OrderQueue() {
       case 'preparing':
         return 'ready';
       case 'ready':
-        return 'delivered';
+        return 'picked_up';
       default:
         return currentStatus;
     }
@@ -113,7 +113,7 @@ export default function OrderQueue() {
       case 'preparing':
         return { text: 'Mark as Ready', color: 'bg-green-600 hover:bg-green-700' };
       case 'ready':
-        return { text: 'Complete Order', color: 'bg-gray-600 hover:bg-gray-700' };
+        return { text: 'Mark as Picked Up', color: 'bg-purple-600 hover:bg-purple-700' };
       default:
         return null;
     }
@@ -162,7 +162,7 @@ export default function OrderQueue() {
         {/* Status Filter Tabs */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           <div className="flex gap-2 flex-wrap">
-            {['All', 'pending', 'preparing', 'ready', 'delivered'].map(status => (
+            {['All', 'pending', 'preparing', 'ready', 'picked_up'].map(status => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
@@ -270,9 +270,12 @@ export default function OrderQueue() {
                         <Eye size={16} />
                         Details
                       </button>
-                      {nextButton && order.status !== 'delivered' && (
+                      {nextButton && order.status !== 'picked_up' && (
                         <button
-                          onClick={() => updateOrderStatus(order.id, getNextStatus(order.status))}
+                          onClick={() => {
+                            console.log('CANTEEN FRONTEND: Button clicked for order', order.id, 'current status:', order.status, 'next status:', getNextStatus(order.status));
+                            updateOrderStatus(order.id, getNextStatus(order.status));
+                          }}
                           className={`flex-1 px-4 py-2 text-white rounded transition font-semibold ${nextButton.color}`}
                         >
                           {nextButton.text}
@@ -390,7 +393,7 @@ export default function OrderQueue() {
               </div>
 
               {/* Update Status */}
-              {selectedOrder.status !== 'delivered' && (
+              {selectedOrder.status !== 'picked_up' && (
                 <div className="border-t pt-4">
                   <p className="text-sm text-gray-600 mb-3 font-semibold">Update Order Status</p>
                   <select
@@ -401,7 +404,7 @@ export default function OrderQueue() {
                     <option value="pending">Pending</option>
                     <option value="preparing">Preparing</option>
                     <option value="ready">Ready for Pickup</option>
-                    <option value="delivered">Delivered/Completed</option>
+                    <option value="picked_up">Picked Up</option>
                   </select>
                 </div>
               )}

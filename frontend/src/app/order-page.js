@@ -77,7 +77,7 @@ export default function OrdersPage() {
     if (activeTab === "All Orders") return true;
     if (activeTab === "Pending") return order.status === "pending";
     if (activeTab === "Ready") return order.status === "ready";
-    if (activeTab === "Picked Up") return order.status === "delivered";
+    if (activeTab === "Picked Up") return order.status === "picked_up";
     return true;
   }).filter((order) =>
     searchQuery === "" ||
@@ -86,7 +86,7 @@ export default function OrdersPage() {
   );
 
   const getActionButton = (status) => {
-    if (status === "delivered") return "Reorder Items";
+    if (status === "picked_up") return "Reorder Items";
     return "View Order";
   };
 
@@ -94,14 +94,14 @@ export default function OrdersPage() {
     switch (status) {
       case 'pending': return 'bg-gray-100 text-gray-800 border-gray-300';
       case 'ready': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'delivered': return 'bg-green-100 text-green-800 border-green-300';
+      case 'picked_up': return 'bg-green-100 text-green-800 border-green-300';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
 
   const getStatusDisplay = (status) => {
     switch (status) {
-      case 'delivered': return 'Picked Up';
+      case 'picked_up': return 'Picked Up';
       default: return status.charAt(0).toUpperCase() + status.slice(1);
     }
   };
@@ -293,7 +293,7 @@ export default function OrdersPage() {
                     </span>
                     <span className="text-base text-gray-600 ml-1">|</span>
                     <p className="text-base text-gray-600" style={{ fontFamily: 'Marykate' }}>
-                      {order.status === 'delivered' ? `PICKED UP ON ${order.date.toUpperCase()}` : order.status === 'ready' ? `READY FOR PICK-UP ON ${order.date.toUpperCase()}` : `ORDERED ON ${order.date.toUpperCase()}`}
+                      {order.status === 'picked_up' ? `PICKED UP ON ${order.date.toUpperCase()}` : order.status === 'ready' ? `READY FOR PICK-UP ON ${order.date.toUpperCase()}` : `ORDERED ON ${order.date.toUpperCase()}`}
                     </p>
                   </div>
 
@@ -325,7 +325,7 @@ export default function OrdersPage() {
                       const rippleId = Date.now()
                       setRipples(prev => ({ ...prev, [order.id]: [...(prev[order.id] || []), { id: rippleId, x, y }] }))
                       setTimeout(() => setRipples(prev => ({ ...prev, [order.id]: (prev[order.id] || []).filter(r => r.id !== rippleId) })), 600)
-                      order.status === 'delivered' ? navigate('/cart?reorder=' + order.id) : navigate('/cart?viewOrder=' + order.id)
+                      order.status === 'picked_up' ? navigate('/cart?reorder=' + order.id) : navigate('/cart?viewOrder=' + order.id)
                     }}
                     className="bg-[#FFD700] text-[#8B3A3A] px-6 py-3 text-lg rounded font-bold hover:opacity-90 hover:scale-105 transition-all shadow-sm whitespace-nowrap relative overflow-hidden"
                   >

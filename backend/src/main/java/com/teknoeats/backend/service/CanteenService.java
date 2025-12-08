@@ -1,12 +1,5 @@
 package com.teknoeats.backend.service;
 
-import com.teknoeats.backend.dto.DashboardStatsDTO;
-import com.teknoeats.backend.dto.OrderDTO;
-import com.teknoeats.backend.model.Order;
-import com.teknoeats.backend.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +7,14 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.teknoeats.backend.dto.DashboardStatsDTO;
+import com.teknoeats.backend.dto.OrderDTO;
+import com.teknoeats.backend.model.Order;
+import com.teknoeats.backend.repository.OrderRepository;
 
 @Service
 public class CanteenService {
@@ -43,9 +44,9 @@ public class CanteenService {
         long pending = orders.stream().filter(o -> o.getStatus() == Order.OrderStatus.pending).count();
         long preparing = orders.stream().filter(o -> o.getStatus() == Order.OrderStatus.preparing).count();
         long ready = orders.stream().filter(o -> o.getStatus() == Order.OrderStatus.ready).count();
-        long delivered = orders.stream().filter(o -> o.getStatus() == Order.OrderStatus.delivered).count();
+        long pickedUp = orders.stream().filter(o -> o.getStatus() == Order.OrderStatus.picked_up).count();
 
-        System.out.println("CANTEEN ALL ORDERS DEBUG: Status counts - Pending: " + pending + ", Preparing: " + preparing + ", Ready: " + ready + ", Delivered: " + delivered);
+        System.out.println("CANTEEN ALL ORDERS DEBUG: Status counts - Pending: " + pending + ", Preparing: " + preparing + ", Ready: " + ready + ", Picked Up: " + pickedUp);
 
         List<OrderDTO> orderDTOs = orders.stream()
                 .map(orderService::convertToDTO)
@@ -57,12 +58,22 @@ public class CanteenService {
     }
 
     public OrderDTO updateOrderStatus(Long orderId, String status) {
+        System.out.println("CANTEEN SERVICE: Updating order " + orderId + " to status: " + status);
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        order.setStatus(Order.OrderStatus.valueOf(status));
-        Order savedOrder = orderRepository.save(order);
-        return orderService.convertToDTO(savedOrder);
+        System.out.println("CANTEEN SERVICE: Found order with current status: " + order.getStatus());
+        try {
+            Order.OrderStatus newStatus = Order.OrderStatus.valueOf(status);
+            System.out.println("CANTEEN SERVICE: Parsed status successfully: " + newStatus);
+            order.setStatus(newStatus);
+            Order savedOrder = orderRepository.save(order);
+            System.out.println("CANTEEN SERVICE: Order saved with new status: " + savedOrder.getStatus());
+            return orderService.convertToDTO(savedOrder);
+        } catch (IllegalArgumentException e) {
+            System.err.println("CANTEEN SERVICE: Invalid status value: " + status);
+            throw new RuntimeException("Invalid status: " + status);
+        }
     }
 
     public Order getOrderById(Long id) {
@@ -116,11 +127,11 @@ public class CanteenService {
         });
 
         long completedToday = todayOrders.stream()
-                .filter(o -> o.getStatus() == Order.OrderStatus.delivered)
+                .filter(o -> o.getStatus() == Order.OrderStatus.picked_up)
                 .count();
 
         BigDecimal revenueToday = todayOrders.stream()
-                .filter(o -> o.getStatus() == Order.OrderStatus.delivered)
+                .filter(o -> o.getStatus() == Order.OrderStatus.picked_up)
                 .map(Order::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 

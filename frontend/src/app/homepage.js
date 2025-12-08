@@ -40,37 +40,47 @@ export default function HomePage() {
    }
 
   // FETCH PRODUCTS FROM BACKEND
-  useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`${API_BASE_URL}/products`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log("✓ Products fetched:", data.length);
-          
-          // Fix image URLs for each product
-          const productsWithFixedImages = data.map(product => ({
-            ...product,
-            // If image starts with /uploads, prepend backend URL
-            image: product.image?.startsWith('/uploads') 
-              ? `${BACKEND_URL}${product.image}` 
-              : product.image
-          }));
-          
-          setProducts(productsWithFixedImages);
-        } else {
-          console.error("✖ Failed to fetch products");
-          alert("Failed to load products from server");
-        }
-      } catch (error) {
-        console.error("✖ Error fetching products:", error);
-        alert("Error connecting to server");
-      } finally {
-        setLoading(false);
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/products`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✓ Products fetched:", data.length);
+
+        // Fix image URLs for each product
+        const productsWithFixedImages = data.map(product => ({
+          ...product,
+          // If image starts with /uploads, prepend backend URL
+          image: product.image?.startsWith('/uploads')
+            ? `${BACKEND_URL}${product.image}`
+            : product.image
+        }));
+
+        setProducts(productsWithFixedImages);
+      } else {
+        console.error("✖ Failed to fetch products");
+        alert("Failed to load products from server");
       }
-    };
+    } catch (error) {
+      console.error("✖ Error fetching products:", error);
+      alert("Error connecting to server");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadProducts();
+  }, [])
+
+  // Refetch products on window focus for real-time stock updates
+  useEffect(() => {
+    const handleFocus = () => {
+      loadProducts();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [])
 
   // FETCH USER, FAVORITES AND CART

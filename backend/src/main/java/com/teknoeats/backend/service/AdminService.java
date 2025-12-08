@@ -1,26 +1,25 @@
 package com.teknoeats.backend.service;
 
-import com.teknoeats.backend.dto.AdminUserRequest;
-import com.teknoeats.backend.dto.DashboardStatsDTO;
-import com.teknoeats.backend.dto.SignupRequest;
-import com.teknoeats.backend.dto.UserDTO;
-import com.teknoeats.backend.dto.OrderDTO;
-import com.teknoeats.backend.dto.OrderItemDTO;
-import com.teknoeats.backend.model.Order;
-import com.teknoeats.backend.model.Product;
-import com.teknoeats.backend.model.User;
-import com.teknoeats.backend.model.OrderItem;
-import com.teknoeats.backend.repository.OrderRepository;
-import com.teknoeats.backend.repository.ProductRepository;
-import com.teknoeats.backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.teknoeats.backend.dto.AdminUserRequest;
+import com.teknoeats.backend.dto.DashboardStatsDTO;
+import com.teknoeats.backend.dto.OrderDTO;
+import com.teknoeats.backend.dto.OrderItemDTO;
+import com.teknoeats.backend.dto.UserDTO;
+import com.teknoeats.backend.model.Order;
+import com.teknoeats.backend.model.Product;
+import com.teknoeats.backend.model.User;
+import com.teknoeats.backend.repository.OrderRepository;
+import com.teknoeats.backend.repository.ProductRepository;
+import com.teknoeats.backend.repository.UserRepository;
 
 @Service
 public class AdminService {
@@ -33,6 +32,9 @@ public class AdminService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OrderService orderService;
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -86,6 +88,7 @@ public class AdminService {
         order.setStatus(Order.OrderStatus.valueOf(status));
         return orderRepository.save(order);
     }
+
 
     // ========== USER MANAGEMENT ==========
 
@@ -152,9 +155,9 @@ public class AdminService {
     public DashboardStatsDTO getDashboardStats() {
         List<Order> allOrders = orderRepository.findAll();
 
-        // Calculate total revenue from ALL delivered orders
+        // Calculate total revenue from ALL picked_up orders
         BigDecimal totalRevenue = allOrders.stream()
-                .filter(o -> o.getStatus() == Order.OrderStatus.delivered)
+                .filter(o -> o.getStatus() == Order.OrderStatus.picked_up)
                 .map(Order::getTotal)
                 .filter(total -> total != null) // Filter out null values
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -173,7 +176,7 @@ public class AdminService {
                 .count();
 
         long completedCount = allOrders.stream()
-                .filter(o -> o.getStatus() == Order.OrderStatus.delivered)
+                .filter(o -> o.getStatus() == Order.OrderStatus.picked_up)
                 .count();
 
         DashboardStatsDTO stats = new DashboardStatsDTO();

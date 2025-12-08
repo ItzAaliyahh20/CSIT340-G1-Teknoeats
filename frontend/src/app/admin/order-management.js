@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Eye, Filter } from 'lucide-react';
+import { Search, Eye, Filter, RefreshCw } from 'lucide-react';
 import AdminSidebar from '../../components/admin-sidebar';
 import { getAllOrders, updateOrderStatus } from '../../services/api';
 export default function OrderManagement() {
@@ -76,6 +76,7 @@ export default function OrderManagement() {
     }
   };
 
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending':
@@ -84,8 +85,8 @@ export default function OrderManagement() {
         return 'bg-blue-100 text-blue-800';
       case 'ready':
         return 'bg-green-100 text-green-800';
-      case 'delivered':
-        return 'bg-gray-100 text-gray-800';
+      case 'picked_up':
+        return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -123,11 +124,13 @@ export default function OrderManagement() {
           <div className="flex items-center gap-4">       
             <h1 className="text-2xl font-bold">Order Management</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm">Total Orders:</span>
-            <span className="bg-white text-[#8B3A3A] px-3 py-1 rounded-full font-bold">
-              {orders.length}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Total Orders:</span>
+              <span className="bg-white text-[#8B3A3A] px-3 py-1 rounded-full font-bold">
+                {orders.length}
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -173,7 +176,7 @@ export default function OrderManagement() {
                 <option value="pending">Pending</option>
                 <option value="preparing">Preparing</option>
                 <option value="ready">Ready</option>
-                <option value="delivered">Delivered</option>
+                <option value="picked_up">Picked Up</option>
               </select>
             </div>
           </div>
@@ -221,7 +224,7 @@ export default function OrderManagement() {
                           <option value="pending">Pending</option>
                           <option value="preparing">Preparing</option>
                           <option value="ready">Ready</option>
-                          <option value="delivered">Delivered</option>
+                          <option value="picked_up">Picked Up</option>
                         </select>
                       </td>
                       <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
@@ -265,9 +268,21 @@ export default function OrderManagement() {
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
+            <p className="text-sm text-gray-600 mb-1">Picked Up</p>
+            <p className="text-3xl font-bold text-purple-600">
+              {orders.filter(o => o.status === 'picked_up').length}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <p className="text-sm text-gray-600 mb-1">Picked Up</p>
+            <p className="text-3xl font-bold text-purple-600">
+              {orders.filter(o => o.status === 'picked_up').length}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
             <p className="text-sm text-gray-600 mb-1">Completed</p>
-            <p className="text-3xl font-bold text-gray-600">
-              {orders.filter(o => o.status === 'delivered').length}
+            <p className="text-3xl font-bold text-purple-600">
+              {orders.filter(o => o.status === 'picked_up').length}
             </p>
           </div>
         </div>
@@ -385,7 +400,7 @@ export default function OrderManagement() {
                   <option value="pending">Pending</option>
                   <option value="preparing">Preparing</option>
                   <option value="ready">Ready for Pickup</option>
-                  <option value="delivered">Delivered</option>
+                  <option value="picked_up">Picked Up</option>
                 </select>
               </div>
 
