@@ -1,5 +1,6 @@
 package com.teknoeats.backend.service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,6 +46,8 @@ public class OrderService {
         order.setTotal(orderDTO.getTotal());
         order.setPaymentMethod(orderDTO.getPaymentMethod());
         order.setPickupTime(orderDTO.getPickupTime());
+        // Set pickup deadline to 15 minutes from now
+        order.setPickupDeadline(LocalDateTime.now().plusMinutes(15));
         order.setNotes(orderDTO.getNotes());
 
         System.out.println("DEBUG: Order object created, about to save");
@@ -95,6 +98,10 @@ public class OrderService {
         dto.setTotal(order.getTotal());
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setPickupTime(order.getPickupTime());
+        // Convert pickup deadline to string for frontend
+        if (order.getPickupDeadline() != null) {
+            dto.setPickupDeadline(order.getPickupDeadline().toString());
+        }
         dto.setNotes(order.getNotes());
 
         // Format date - handle both createdAt formats

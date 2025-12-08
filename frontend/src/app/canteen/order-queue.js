@@ -88,8 +88,30 @@ export default function OrderQueue() {
         return 'bg-green-100 text-green-800 border-green-300';
       case 'picked_up':
         return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'expired':
+        return 'bg-red-100 text-red-800 border-red-300';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
+  const getCountdownTimer = (pickupDeadline) => {
+    if (!pickupDeadline || typeof pickupDeadline !== 'string') return null;
+
+    try {
+      const deadline = new Date(pickupDeadline);
+      const now = new Date();
+      const diff = deadline - now;
+
+      if (diff <= 0) return null;
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } catch (error) {
+      return null;
     }
   };
 
@@ -162,7 +184,7 @@ export default function OrderQueue() {
         {/* Status Filter Tabs */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           <div className="flex gap-2 flex-wrap">
-            {['All', 'pending', 'preparing', 'ready', 'picked_up'].map(status => (
+            {['All', 'pending', 'preparing', 'ready', 'picked_up', 'expired'].map(status => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
@@ -204,6 +226,7 @@ export default function OrderQueue() {
                     order.status === 'pending' ? 'border-yellow-500' :
                     order.status === 'preparing' ? 'border-blue-500' :
                     order.status === 'ready' ? 'border-green-500' :
+                    order.status === 'expired' ? 'border-red-500' :
                     'border-gray-500'
                   } overflow-hidden hover:shadow-lg transition`}
                 >
@@ -232,6 +255,18 @@ export default function OrderQueue() {
                       <p className="text-sm text-gray-600">
                         <span className="font-semibold">Pickup:</span> {order.pickupTime}
                       </p>
+                      {order.status === 'ready' && order.pickupDeadline && (
+                        <p className="text-sm text-red-600 font-semibold">
+                          {getCountdownTimer(order.pickupDeadline) ?
+                            `Pickup expires in: ${getCountdownTimer(order.pickupDeadline)}` :
+                            'Pickup time expired'}
+                        </p>
+                      )}
+                      {order.status === 'expired' && (
+                        <p className="text-sm text-red-700 font-semibold bg-red-50 p-2 rounded border border-red-200">
+                          This order has expired due to not being picked up within the time limit.
+                        </p>
+                      )}
                     </div>
 
                     {/* Items Summary */}
@@ -405,6 +440,7 @@ export default function OrderQueue() {
                     <option value="preparing">Preparing</option>
                     <option value="ready">Ready for Pickup</option>
                     <option value="picked_up">Picked Up</option>
+                    <option value="expired">Expired</option>
                   </select>
                 </div>
               )}

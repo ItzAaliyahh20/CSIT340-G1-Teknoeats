@@ -39,4 +39,15 @@ public class AuthController {
                     .body(e.getMessage());
         }
     }
+
+    @PostMapping("/admin/login")
+    public ResponseEntity<?> adminLogin(@Valid @RequestBody LoginRequest request) {
+        try {
+            AuthResponse response = userService.adminLogin(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
+        }
+    }
 }

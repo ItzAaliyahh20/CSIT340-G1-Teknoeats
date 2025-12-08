@@ -87,6 +87,8 @@ export default function OrderManagement() {
         return 'bg-green-100 text-green-800';
       case 'picked_up':
         return 'bg-purple-100 text-purple-800';
+      case 'expired':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -177,6 +179,7 @@ export default function OrderManagement() {
                 <option value="preparing">Preparing</option>
                 <option value="ready">Ready</option>
                 <option value="picked_up">Picked Up</option>
+                <option value="expired">Expired</option>
               </select>
             </div>
           </div>
@@ -225,6 +228,7 @@ export default function OrderManagement() {
                           <option value="preparing">Preparing</option>
                           <option value="ready">Ready</option>
                           <option value="picked_up">Picked Up</option>
+                          <option value="expired">Expired</option>
                         </select>
                       </td>
                       <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
@@ -248,7 +252,7 @@ export default function OrderManagement() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-8">
           <div className="bg-white rounded-lg shadow-md p-6">
             <p className="text-sm text-gray-600 mb-1">Pending Orders</p>
             <p className="text-3xl font-bold text-yellow-600">
@@ -274,15 +278,9 @@ export default function OrderManagement() {
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Picked Up</p>
-            <p className="text-3xl font-bold text-purple-600">
-              {orders.filter(o => o.status === 'picked_up').length}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Completed</p>
-            <p className="text-3xl font-bold text-purple-600">
-              {orders.filter(o => o.status === 'picked_up').length}
+            <p className="text-sm text-gray-600 mb-1">Expired</p>
+            <p className="text-3xl font-bold text-red-600">
+              {orders.filter(o => o.status === 'expired').length}
             </p>
           </div>
         </div>
@@ -401,6 +399,7 @@ export default function OrderManagement() {
                   <option value="preparing">Preparing</option>
                   <option value="ready">Ready for Pickup</option>
                   <option value="picked_up">Picked Up</option>
+                  <option value="expired">Expired</option>
                 </select>
               </div>
 

@@ -5,21 +5,22 @@ import ProductCard from '../components/product-card'
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Clock, X, Heart } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { getProducts, getFavorites, addToFavorites, removeFromFavorites, getCurrentUser, getCart, addToCart as apiAddToCart } from '../services/api'
+import { getProducts, getFavorites, addToFavorites, removeFromFavorites, getCurrentUser } from '../services/api'
+import { useCart } from '../contexts/CartContext'
 
 const CATEGORIES = ["Meals", "Food", "Snacks", "Beverages", "Others"]
 
 export default function FavoritesPage() {
-   const navigate = useNavigate();
-   const [searchParams, setSearchParams] = useSearchParams();
-    const [selectedCategory, setSelectedCategory] = useState("All Categories")
-    const [cart, setCart] = useState([])
-    const [products, setProducts] = useState([])
-    const [favorites, setFavorites] = useState([])
-    const [user, setUser] = useState(null)
-    const [toasts, setToasts] = useState([])
-    const [currentTime, setCurrentTime] = useState(new Date())
-    const [loading, setLoading] = useState(true)
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+     const [selectedCategory, setSelectedCategory] = useState("All Categories")
+     const { cart, addToCart } = useCart()
+     const [products, setProducts] = useState([])
+     const [favorites, setFavorites] = useState([])
+     const [user, setUser] = useState(null)
+     const [toasts, setToasts] = useState([])
+     const [currentTime, setCurrentTime] = useState(new Date())
+     const [loading, setLoading] = useState(true)
 
     // Use URL search parameter for search query to persist across pages
     const searchQuery = searchParams.get('search') || ""
@@ -81,22 +82,6 @@ export default function FavoritesPage() {
 
    console.log("FavoritesPage: filteredFavoriteProducts length:", filteredFavoriteProducts.length, "favorites:", favorites.length, "products:", products.length)
 
-   const addToCart = async (product, quantity = 1) => {
-     if (!user) {
-       alert("Please log in to add items to cart")
-       return
-     }
-     try {
-       await apiAddToCart(user.userId, product.id, quantity)
-       // Refresh cart
-       const cartItems = await getCart(user.userId)
-       setCart(cartItems.map(c => ({ ...c.product, quantity: c.quantity })))
-       // Toast is handled by ProductCard component
-     } catch (error) {
-       console.error("Error adding to cart:", error)
-       alert("Failed to add item to cart")
-     }
-   }
 
    // Global toast management functions
    const showToast = (content, type = 'success', duration = 3000) => {
