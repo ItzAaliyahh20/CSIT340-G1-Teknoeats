@@ -136,8 +136,6 @@ export default function SignUp() {
           localStorage.setItem('users', JSON.stringify(existingUsers));
         }
 
-        alert(`Account created successfully! Welcome ${userData.email}`);
-
         // Redirect based on role
         if (userData.role === 'Admin') {
           navigate('/admin/dashboard');

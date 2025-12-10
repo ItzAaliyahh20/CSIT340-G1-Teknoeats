@@ -7,7 +7,7 @@ import { useLogout } from '../contexts/LogoutContext'
 export default function Sidebar({ categories, selectedItem, onSelectCategory, shadow }) {
     const [userName, setUserName] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const { openLogoutModal } = useLogout();
+    const { openLogoutModal, openCustomerLogoutModal } = useLogout();
     const [searchParams] = useSearchParams();
 
     // Get current search parameter to preserve it in navigation
@@ -139,7 +139,7 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory, sh
             <User size={24} className="ml-2" />
             Profile
           </NavLink>
-          <button onClick={openLogoutModal} className="flex items-center gap-2 text-left font-semibold text-lg py-2 text-gray-600 hover:text-[#8B3A3A] pl-2">
+          <button onClick={openCustomerLogoutModal} className="flex items-center gap-2 text-left font-semibold text-lg py-2 text-gray-600 hover:text-[#8B3A3A] pl-2">
             <LogOut size={24} className="ml-2" />
             Log Out
           </button>

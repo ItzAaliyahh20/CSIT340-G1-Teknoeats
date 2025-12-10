@@ -568,12 +568,9 @@ export default function CartPage() {
                           }
                           setShowModal(true)
                         }}
-                        disabled={timeOptions.length === 0 && selectedDate === new Date().toISOString().split('T')[0]}
                         className={`px-6 py-2 rounded-full font-bold transition ${
                           pickupTime && pickupTime !== "now"
                             ? "bg-[#FFD700] text-[#8B3A3A]"
-                            : timeOptions.length === 0 && selectedDate === new Date().toISOString().split('T')[0]
-                            ? "bg-gray-400 text-gray-500 cursor-not-allowed"
                             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                         }`}
                       >
