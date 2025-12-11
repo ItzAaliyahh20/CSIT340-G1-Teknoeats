@@ -455,25 +455,13 @@ export default function CartPage() {
                 className="bg-white rounded-lg shadow-md hover:shadow-lg transition p-6"
               >
                 {/* Summary Title */}
-                <h3 className="text-left text-xl font-bold mb-0">Order Summary</h3>
+                <h3 className="text-left text-xl font-bold mb-1">Order Summary</h3>
                 {viewOrder && (
-                  <p className="text-left text-sm text-[#8B3A3A] mb-4">Order ID: {viewOrder.id}</p>
-                )}
-
-                {/* Order Info for View Order */}
-                {viewOrder && (
-                  <div className="mb-4 p-3 bg-gray-50 rounded">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div><span className="font-semibold">Status:</span> {viewOrder.status}</div>
-                      <div><span className="font-semibold">Payment:</span> {viewOrder.paymentMethod}</div>
-                      <div><span className="font-semibold">Pickup:</span> {viewOrder.pickupTime}</div>
-                      <div><span className="font-semibold">Date:</span> {viewOrder.date}</div>
-                    </div>
-                  </div>
+                  <p className="text-left text-sm font-bold text-[#8B3A3A] mb-4">Order ID: {viewOrder.id}</p>
                 )}
 
                 {/* Itemized List */}
-                <div className="space-y-2 mb-4">
+                <div className="space-y-2 mt-2 mb-4">
                   {displayItems.map((item) => (
                     <div key={item.id || item.productId} className="flex justify-between items-center text-sm">
                       <span className="text-gray-500">{item.name} x{item.quantity}</span>
@@ -494,12 +482,24 @@ export default function CartPage() {
                   <span className="text-xl font-bold text-[#8B3A3A]">PHP {total.toFixed(2)}</span>
                 </div>
 
+                {/* Order Info for View Order */}
+                {viewOrder && (
+                  <div className="pt-4 mt-4 mb-4 p-4 bg-gray-100 border rounded">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                      <div><span className="font-semibold">Status:</span> {viewOrder.status.charAt(0).toUpperCase() + viewOrder.status.slice(1)}</div>
+                      <div><span className="font-semibold">Payment:</span> {viewOrder.paymentMethod}</div>
+                      <div><span className="font-semibold">Pick-up Option:</span> {viewOrder.pickupTime}</div>
+                      <div><span className="font-semibold">Order Date:</span> {viewOrder.date}</div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Order Notes */}
                 {viewOrder?.notes && (
-                  <div className="border-t pt-4">
-                    <p className="text-sm text-gray-600 mb-2 font-semibold">Order Notes</p>
-                    <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-                      <p className="text-sm text-gray-700">{viewOrder.notes}</p>
+                  <div className="border-t pt-4 mt-4">
+                    <p className="text-xl mb-2 font-bold">Order Notes</p>
+                    <div className="bg-[#a0505033] border border-[#fc72721c] rounded p-3">
+                      <p className="text-sm">{viewOrder.notes}</p>
                     </div>
                   </div>
                 )}
@@ -568,12 +568,9 @@ export default function CartPage() {
                           }
                           setShowModal(true)
                         }}
-                        disabled={timeOptions.length === 0 && selectedDate === new Date().toISOString().split('T')[0]}
                         className={`px-6 py-2 rounded-full font-bold transition ${
                           pickupTime && pickupTime !== "now"
                             ? "bg-[#FFD700] text-[#8B3A3A]"
-                            : timeOptions.length === 0 && selectedDate === new Date().toISOString().split('T')[0]
-                            ? "bg-gray-400 text-gray-500 cursor-not-allowed"
                             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                         }`}
                       >
@@ -758,8 +755,8 @@ export default function CartPage() {
         {showNotesModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-96 max-w-md">
-              <h3 className="text-xl font-bold mb-4 text-center text-[#8B3A3A]" style={{fontFamily: 'Marykate'}}>Add Order Notes</h3>
-              <p className="text-sm text-gray-600 mb-4 text-center">
+              <h3 className="text-2xl font-bold mb-0 text-center text-[#8B3A3A]" style={{fontFamily: 'Marykate'}}>ADD ORDER NOTES</h3>
+              <p className="text-base text-gray-600 mb-4 text-center">
                 Let us know about any special requests, allergies, or instructions for your order.
               </p>
               <textarea

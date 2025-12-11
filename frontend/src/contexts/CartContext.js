@@ -5,20 +5,20 @@ const CartContext = createContext()
 const CART_STORAGE_KEY = 'teknoeats_cart'
 
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([])
-
-  // Load cart from localStorage on mount
-  useEffect(() => {
+  // Initialize cart directly from localStorage to prevent flash of empty state
+  const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem(CART_STORAGE_KEY)
     if (savedCart) {
       try {
-        setCart(JSON.parse(savedCart))
+        return JSON.parse(savedCart)
       } catch (error) {
         console.error('Error loading cart from localStorage:', error)
         localStorage.removeItem(CART_STORAGE_KEY)
+        return []
       }
     }
-  }, [])
+    return []
+  })
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {

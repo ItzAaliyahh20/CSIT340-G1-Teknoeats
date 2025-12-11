@@ -37,7 +37,7 @@ export default function Login() {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
+      newErrors.username = 'Email is required';
     }
     if (!formData.password) {
       newErrors.password = 'Password is required';
@@ -133,8 +133,6 @@ export default function Login() {
         localStorage.setItem('user', JSON.stringify(userData));
         console.log('✅ User saved to localStorage:', userData);
 
-        alert(`Welcome back, ${userData.firstName || userData.email || formData.username}!`);
-
         // Redirect based on role
         const userRole = userData.role;
         console.log('Redirecting user with role:', userRole);
@@ -224,7 +222,7 @@ export default function Login() {
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    placeholder="Username or Email"
+                    placeholder="Email"
                     className={`input-field ${errors.username ? 'input-error' : ''}`}
                   />
                 </div>
