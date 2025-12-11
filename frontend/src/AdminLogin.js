@@ -37,7 +37,7 @@ export default function AdminLogin() {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
+      newErrors.username = 'Email is required';
     }
     if (!formData.password) {
       newErrors.password = 'Password is required';
@@ -89,8 +89,6 @@ export default function AdminLogin() {
         // Save to localStorage
         localStorage.setItem('user', JSON.stringify(userData));
 
-        alert(`Welcome back, ${userData.firstName}!`);
-
         // Redirect to admin dashboard
         navigate('/admin/dashboard');
 
@@ -124,10 +122,6 @@ export default function AdminLogin() {
         <div className="header-content">
           <img src="/teknoeats-logo.png" alt="TeknoEats" className="logo" onClick={() => navigate('/')} style={{cursor: 'pointer'}} />
           <div className="header-buttons">
-            <div className="nav-links">
-              <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'features' } }); }}>Features</a>
-              <a href="#footer" className="nav-link" onClick={(e) => { e.preventDefault(); navigate('/', { state: { scrollTo: 'footer' } }); }}>Contact</a>
-            </div>
             <div className="switch-container">
               <button
                 className={`switch-option ${!isLoginActive ? 'active' : ''}`}
@@ -136,7 +130,7 @@ export default function AdminLogin() {
                   navigate('/signup');
                 }}
               >
-                Sign Up
+                Admin
               </button>
               <button
                 className={`switch-option ${isLoginActive ? 'active' : ''}`}
@@ -145,7 +139,7 @@ export default function AdminLogin() {
                   navigate('/login');
                 }}
               >
-                User Login
+                Customer
               </button>
               <div className={`switch-slider ${isLoginActive ? 'login-active' : 'signup-active'}`}></div>
             </div>
@@ -162,12 +156,12 @@ export default function AdminLogin() {
         </div>
         <div className="card-container">
           <div className="card">
-            <div className="flex items-center justify-center mb-4">
+            <div className="flex items-center justify-center">
               <Shield className="w-8 h-8 text-red-600 mr-2" />
-              <h2 className="card-title">[ ADMIN ACCESS ]</h2>
+              <h2 className="card-title">ADMIN ACCESS</h2>
               <Shield className="w-8 h-8 text-red-600 ml-2" />
             </div>
-            <p className="card-subtitle">Authorized personnel only</p>
+            <p className="card-subtitle">Authorized personnel only.</p>
 
             <div className="form-fields">
               {loginError && (
@@ -184,7 +178,7 @@ export default function AdminLogin() {
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    placeholder="Admin Username"
+                    placeholder="Admin Email"
                     className={`input-field ${errors.username ? 'input-error' : ''}`}
                   />
                 </div>
@@ -221,14 +215,14 @@ export default function AdminLogin() {
 
               {/* Submit Button */}
               <button onClick={handleSubmit} className="submit-button">
-                Admin Login
+                Log In
               </button>
             </div>
 
             {/* Footer Text */}
             <p className="footer-text">
               Not an admin?{' '}
-              <a href="/login" className="login-link">User Login</a>
+              <a href="/login" className="login-link">Customer Log in</a>
             </p>
           </div>
         </div>
@@ -451,7 +445,6 @@ export default function AdminLogin() {
           font-weight: bold;
           text-align: center;
           font-family: 'Marykate', sans-serif;
-          -webkit-text-stroke: 1px #dc2626;
           color: #dc2626;
         }
 

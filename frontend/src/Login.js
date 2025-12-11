@@ -37,7 +37,7 @@ export default function Login() {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
+      newErrors.username = 'Email is required';
     }
     if (!formData.password) {
       newErrors.password = 'Password is required';

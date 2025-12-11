@@ -33,8 +33,8 @@ export default function AdminSidebar({ currentPage }) {
     <>
       <div className={`h-full bg-white border-r border-gray-200 shadow-lg transition-all duration-300 flex flex-col ${isCollapsed ? 'w-20' : 'w-64'}`}>
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-[#8B3A3A] to-[#6B2A2A] flex-shrink-0">
-          <div className="flex items-center justify-between">
+        <div className="p-4 pt-5 pb-6 border-b border-gray-200 bg-gradient-to-r from-[#8B3A3A] to-[#6B2A2A] flex-shrink-0">
+          <div className="flex items-center justify-center">
             {!isCollapsed && (
               <div 
                 className="flex items-center gap-2 cursor-pointer" 
@@ -43,7 +43,7 @@ export default function AdminSidebar({ currentPage }) {
                 <img 
                   src="/teknoeats-logo.png" 
                   alt="TeknoEats" 
-                  className="h-8 w-auto" 
+                  className="h-10 w-auto" 
                 />
               </div>
             )}
@@ -94,7 +94,7 @@ export default function AdminSidebar({ currentPage }) {
                   } ${isCollapsed ? 'justify-center' : ''}`}
                   title={isCollapsed ? item.label : ''}
                 >
-                  <Icon size={22} className={isActive ? 'text-[#FFD700]' : ''} />
+                  <Icon size={22} className={isActive ? 'text-[#FFFFFF]' : ''} />
                   {!isCollapsed && (
                     <span className="font-semibold">{item.label}</span>
                   )}
@@ -108,10 +108,10 @@ export default function AdminSidebar({ currentPage }) {
         <div className="p-3 border-t border-gray-200 flex-shrink-0">
           <button
             onClick={openLogoutModal}
-            className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all font-semibold ${
+            className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-all font-semibold ${
               isCollapsed ? 'justify-center' : ''
             }`}
-            title={isCollapsed ? 'Logout' : ''}
+            title={isCollapsed ? 'Log Out' : ''}
           >
             <LogOut size={22} />
             {!isCollapsed && <span>Logout</span>}
