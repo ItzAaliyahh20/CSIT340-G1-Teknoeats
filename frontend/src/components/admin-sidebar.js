@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '../contexts/LogoutContext';
+import { secureGet } from '../utils/secureStorage';
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -17,7 +18,7 @@ export default function AdminSidebar({ currentPage }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = secureGet('user') || {};
     setAdminData(user);
   }, []);
 

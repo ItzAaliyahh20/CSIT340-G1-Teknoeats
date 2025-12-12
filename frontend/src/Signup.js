@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Lock, Mail, Phone } from 'lucide-react';
 import { authAPI } from './services/api';
+import { secureSet, secureGet } from './utils/secureStorage';
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -126,14 +127,14 @@ export default function SignUp() {
           token: response.data?.token
         };
 
-        // Save to localStorage immediately after signup
-        localStorage.setItem('user', JSON.stringify(userData));
+        // Save to secure storage immediately after signup
+        secureSet('user', userData);
 
         // Also save to users list for admin management
-        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        const existingUsers = secureGet('users') || [];
         if (!existingUsers.find(u => u.email === userData.email)) {
           existingUsers.push(userData);
-          localStorage.setItem('users', JSON.stringify(existingUsers));
+          secureSet('users', existingUsers);
         }
 
         // Redirect based on role

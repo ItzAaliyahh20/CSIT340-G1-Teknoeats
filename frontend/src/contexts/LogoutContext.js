@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { LogOut } from 'lucide-react';
+import { secureRemove } from '../utils/secureStorage';
 
 const LogoutContext = createContext();
 
@@ -16,7 +17,7 @@ export const LogoutProvider = ({ children }) => {
   const [showCustomerLogoutModal, setShowCustomerLogoutModal] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    secureRemove('user');
     window.location.href = '/login';
   };
 

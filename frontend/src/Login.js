@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from './services/api';
+import { secureSet } from './utils/secureStorage';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -129,9 +130,9 @@ export default function Login() {
           console.log('✅ Normalized role:', userData.role);
         }
 
-        // Save complete user data to localStorage
-        localStorage.setItem('user', JSON.stringify(userData));
-        console.log('✅ User saved to localStorage:', userData);
+        // Save complete user data to secure storage
+        secureSet('user', userData);
+        console.log('✅ User saved to secure storage:', userData);
 
         // Redirect based on role
         const userRole = userData.role;
