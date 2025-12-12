@@ -3,6 +3,7 @@ import { NavLink, useSearchParams } from 'react-router-dom';
 import { Heart, ShoppingCart, Clock, User, ChefHat, Apple, Cookie, Coffee, LayoutDashboard, LogOut, UserCheck, IceCream } from "lucide-react"
 import { getCurrentUser } from '../services/api'
 import { useLogout } from '../contexts/LogoutContext'
+import { secureGet } from '../utils/secureStorage'
 
 export default function Sidebar({ categories, selectedItem, onSelectCategory, shadow }) {
     const [userName, setUserName] = useState('');
@@ -18,14 +19,12 @@ export default function Sidebar({ categories, selectedItem, onSelectCategory, sh
      const fetchUserData = async () => {
        try {
          // Check if user is logged in first
-         const userData = localStorage.getItem('user')
-         if (!userData) {
+         const user = secureGet('user')
+         if (!user) {
            setIsLoggedIn(false)
            setUserName('')
            return
          }
-
-         const user = JSON.parse(userData)
          if (!user || !user.id) {
            setIsLoggedIn(false)
            setUserName('')

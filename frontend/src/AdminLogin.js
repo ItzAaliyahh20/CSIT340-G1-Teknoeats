@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, User, Lock, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from './services/api';
+import { secureSet } from './utils/secureStorage';
 
 export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
@@ -65,8 +66,8 @@ export default function AdminLogin() {
             role: 'Admin'
           };
 
-          // Save to localStorage
-          localStorage.setItem('user', JSON.stringify(adminUser));
+          // Save to secure storage
+          secureSet('user', adminUser);
 
           alert(`Welcome back, System Administrator!`);
 
@@ -86,8 +87,8 @@ export default function AdminLogin() {
         console.log('Admin login response:', response.data);
         let userData = response.data;
 
-        // Save to localStorage
-        localStorage.setItem('user', JSON.stringify(userData));
+        // Save to secure storage
+        secureSet('user', userData);
 
         // Redirect to admin dashboard
         navigate('/admin/dashboard');

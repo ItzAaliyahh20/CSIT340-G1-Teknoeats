@@ -2,12 +2,14 @@
 
 import { createContext, useState, useEffect, useCallback } from "react";
 import { getFavorites, addFavorite as apiAddFavorite, removeFavorite as apiRemoveFavorite } from "../services/api";
+import { secureGet } from "../utils/secureStorage";
 
 export const FavoritesContext = createContext();
 
 export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
-  const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+  const user = typeof window !== "undefined" ? secureGet("user") : null;
+  const userId = user?.userId || null;
 
   // Fetch favorites from backend
   const fetchFavorites = useCallback(async () => {

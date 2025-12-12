@@ -1,28 +1,28 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { secureGet, secureSet } from '../utils/secureStorage'
 
 const CartContext = createContext()
 
 const CART_STORAGE_KEY = 'teknoeats_cart'
 
 export function CartProvider({ children }) {
-  // Initialize cart directly from localStorage to prevent flash of empty state
+  // Initialize cart directly from secure storage to prevent flash of empty state
   const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem(CART_STORAGE_KEY)
+    const savedCart = secureGet(CART_STORAGE_KEY)
     if (savedCart) {
       try {
-        return JSON.parse(savedCart)
+        return savedCart
       } catch (error) {
-        console.error('Error loading cart from localStorage:', error)
-        localStorage.removeItem(CART_STORAGE_KEY)
+        console.error('Error loading cart from secure storage:', error)
         return []
       }
     }
     return []
   })
 
-  // Save cart to localStorage whenever it changes
+  // Save cart to secure storage whenever it changes
   useEffect(() => {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart))
+    secureSet(CART_STORAGE_KEY, cart)
   }, [cart])
 
   const addToCart = (product, quantity = 1) => {

@@ -1,4 +1,5 @@
 import axios from "axios"
+import { secureGet } from "../utils/secureStorage"
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api"
 
@@ -54,14 +55,11 @@ export const getOrderById = (orderId) => api.get(`/orders/${orderId}`).then((res
 export const getUserProfile = (userId) => api.get(`/users/${userId}`).then((res) => res.data)
 
 export const getCurrentUser = () => {
-  const userData = localStorage.getItem('user')
-  if (userData) {
-    const user = JSON.parse(userData)
-    if (user && user.userId) {
-      // Return the user data from localStorage instead of making API call
-      // This avoids authentication issues and provides immediate user data
-      return Promise.resolve(user)
-    }
+  const user = secureGet('user')
+  if (user && user.userId) {
+    // Return the user data from secure storage instead of making API call
+    // This avoids authentication issues and provides immediate user data
+    return Promise.resolve(user)
   }
   return Promise.reject(new Error('No user logged in'))
 }

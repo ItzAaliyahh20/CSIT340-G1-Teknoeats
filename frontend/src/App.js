@@ -7,6 +7,7 @@ import LandingPage from './LandingPage';
 import SignUp from './Signup';
 import Login from './Login';
 import AdminLogin from './AdminLogin';
+import { secureGet } from './utils/secureStorage';
 
 // User pages
 import Home from './app/homepage';
@@ -28,7 +29,7 @@ import OrderQueue from './app/canteen/order-queue';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = secureGet('user') || {};
   
   if (!user.role && !user.email) {
     return <Navigate to="/login" replace />;
