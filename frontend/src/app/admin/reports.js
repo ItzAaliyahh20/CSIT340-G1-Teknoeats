@@ -76,13 +76,13 @@ export default function AdminReports() {
   const calculateFilteredStats = () => {
     const filteredOrders = filterOrdersByDate(orders);
     const revenue = filteredOrders
-      .filter(o => o.status === 'delivered')
+      .filter(o => o.status === 'picked_up')
       .reduce((sum, o) => sum + (o.total || 0), 0);
 
     return {
       orders: filteredOrders.length,
       revenue: revenue,
-      completed: filteredOrders.filter(o => o.status === 'delivered').length,
+      completed: filteredOrders.filter(o => o.status === 'picked_up').length,
       pending: filteredOrders.filter(o => o.status === 'pending').length
     };
   };
@@ -94,7 +94,7 @@ export default function AdminReports() {
     const productSales = {};
     
     orders.forEach(order => {
-      if (order.status === 'delivered' && order.items) {
+      if (order.status === 'picked_up' && order.items) {
         order.items.forEach(item => {
           const productId = item.product?.id || item.productId;
           const productName = item.product?.name || item.name;
