@@ -21,4 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Find products with stock greater than specified amount
     List<Product> findByStockGreaterThan(Integer stock);
+
+    // Find product by exact name (for seeding upsert)
+    List<Product> findByName(String name);
 }
